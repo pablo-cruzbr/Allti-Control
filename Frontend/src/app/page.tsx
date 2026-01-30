@@ -72,7 +72,7 @@ export default async function Home({ searchParams }: PageProps) {
             priority
           />
 
-          <h1>Faça seu Login</h1>
+          <h1>Faça seu Login AlltiControl</h1>
 
           {errorMsg && (
             <p style={{ color: '#FF3F4B', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
