@@ -1,0 +1,265 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
+.headerClient {
+  width: 100%;
+  padding: 15px 25px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  background: #f5f7fa;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  font-family: "Poppins", sans-serif;
+
+  .titleClient {
+    font-size: 26px;
+    font-weight: 700;
+    color: #354DF0;
+    margin-right: 30px;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+
+    .textStatus {
+      font-size: 16px;
+      font-weight: 500;
+      color: #526d82;
+    }
+
+    .select {
+      border-radius: 10px;
+      border: 1px solid #dde6ed;
+      padding: 8px 12px;
+      background: #f5f7fa;
+      color: #526d82;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #354DF0;
+        background: #eef2ff;
+        color: #354DF0;
+      }
+    }
+
+    .searchContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+
+  .searchInput {
+    width: 100%;
+    max-width: 350px;
+    padding: 0.7rem 1rem;
+    border: 1px solid #dde6ed;
+    border-radius: 12px;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    color: #526d82;
+    background: #f9fbfd;
+    transition: all 0.3s ease;
+
+    &::placeholder {
+      color: #9ba9b9;
+      font-size: 13px;
+    }
+
+    &:focus {
+      border-color: #354DF0;
+      box-shadow: 0 0 0 3px rgba(53, 77, 240, 0.2);
+    }
+  }
+}
+
+
+    .button {
+      background: linear-gradient(135deg, #354DF0, #3A5DF7);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: inherit;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      &:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .refresh {
+      cursor: pointer;
+      font-size: 24px;
+      color: #354DF0;
+      transition: transform 0.2s ease, color 0.2s ease;
+
+      &:hover {
+        transform: rotate(20deg);
+        color: #3A5DF7;
+      }
+
+      &:active {
+        transform: rotate(0deg);
+      }
+    }
+  }
+}
+
+
+.cardsContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin: 20px 0;
+
+  .card {
+    background: linear-gradient(135deg, #354DF0, #3A5DF7);
+    border-radius: 15px;
+    padding: 20px 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 180px;
+    color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .cardTitle {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .cardNumber {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+    }
+  }
+}
+
+.listContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+
+  .list {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    width: 67rem;
+    background: #f5f7fa;
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    &:hover {
+      background: #eef2ff;
+      transform: translateX(5px);
+    }
+
+    .clientDetail {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      width: 100%;
+
+      .field {
+        flex: 1;
+        font-size: 14px;
+        color: #111111;
+        font-weight: 500;
+      }
+
+      .name {
+        flex: 2;
+        min-width: 200px;
+      }
+
+      .ticket {
+        flex: 1;
+        min-width: 100px;
+      }
+
+      .tecnico {
+        flex: 1;
+        min-width: 150px;
+      }
+
+      .data {
+        font-size: 12px;
+        color: #111111;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .headerClient {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .actions {
+      width: 100%;
+      justify-content: flex-start;
+
+      .select,
+      .button,
+      .refresh {
+        flex: 1;
+      }
+    }
+  }
+
+  .searchContainer {
+    padding: 0 10px;
+  }
+
+  .cardsContainer {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .listContainer {
+    padding: 0 10px;
+
+    .list {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}

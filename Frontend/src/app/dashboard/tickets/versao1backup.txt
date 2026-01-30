@@ -1,0 +1,180 @@
+'use client';
+
+import React, { useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import styles from './ticketsLit.module.scss';
+import { FaRegTrashAlt } from "react-icons/fa";
+import { useGlobalModal } from '@/provider/GlobalModalProvider';
+import { ModalContext } from '@/provider/compras';
+import { OrdemdeServicoResponseData, OrdemdeServicoProps } from '@/lib/getOrdemdeServico.type';
+import { getCookieClient } from '@/lib/cookieClient';
+import { api } from '@/services/api';
+import { LuRefreshCcw } from "react-icons/lu";
+import { FiSearch } from "react-icons/fi"; 
+import { toast } from 'sonner';
+
+
+interface Props {
+  ticketsData: OrdemdeServicoResponseData;
+}
+
+export default function TicketsList({ ticketsData }: Props) {
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [searchOS, setSearchOS] = useState<string>(""); 
+
+  useEffect(() => {
+    console.log("TicketsData recebido:", ticketsData);
+  }, [ticketsData]);
+
+  const {
+    total = 0,
+    totalAberta = 0,
+    totalEmAndamento = 0,
+    totalConcluida = 0,
+  } = ticketsData || {};
+
+  const { controles } = ticketsData;
+
+  const { openModal } = useGlobalModal();
+  const { isOpen, onRequestOpen } = useContext(ModalContext);
+  const router = useRouter();
+
+  async function handleDetailOrdemdeServico(tecnico: OrdemdeServicoProps) {
+    openModal('OrdemdeServico', [tecnico]);
+  }
+
+  function handleAddCardTecnico() {
+    router.push('/AreadeUsuario');
+  }
+
+  function handlerefresh() {
+    router.refresh();
+     toast.success("Tikcets atualizados com sucesso !!!")
+    setSelectedStatus(null); 
+    setSearchOS("");
+  }
+
+  async function handleDeleteCardTecnico(tecnico_id: string) {
+    try {
+      const token = getCookieClient();
+
+      await api.delete(`/removertecnico/${tecnico_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: { tecnico_id },
+      });
+
+      router.refresh();
+    } catch (error) {
+      console.error("Erro ao deletar técnico:", error);
+    }
+  }
+
+  const filteredControles = controles.filter(ticket => {
+    const matchStatus = selectedStatus ? ticket.statusOrdemdeServico?.name === selectedStatus : true;
+    const matchOS = searchOS ? ticket.numeroOS?.toString().includes(searchOS) : true;
+    return matchStatus && matchOS;
+  });
+
+  return (
+    <section>
+      <div className={styles.headerClient}>
+        <h1 className={styles.titleClient}>Tickets Cadastrados</h1>
+
+        <div className={styles.actions}>
+          <button className={styles.button} onClick={handleAddCardTecnico}>
+            Novo Registro
+          </button>
+          <LuRefreshCcw onClick={handlerefresh} className={styles.refresh} />
+        </div>
+      </div>
+
+      <div className={styles.searchContainer}>
+        <input
+          type="text"
+          placeholder="Pesquisar por número da OS..."
+          value={searchOS}
+          onChange={(e) => setSearchOS(e.target.value)}
+          className={styles.searchInput}
+        />
+      </div>
+
+      <div className={styles.cardsContainer}>
+        <div
+          className={`${styles.card} ${!selectedStatus ? styles.active : ''}`}
+          onClick={() => setSelectedStatus(null)}
+        >
+          <p className={styles.cardTitle}>Total</p>
+          <strong className={styles.cardNumber}>{total}</strong>
+        </div>
+
+        <div
+          className={`${styles.card} ${selectedStatus === 'ABERTA' ? styles.active : ''}`}
+          onClick={() => setSelectedStatus('ABERTA')}
+        >
+          <p className={styles.cardTitle}>OS Aberta</p>
+          <strong className={styles.cardNumber}>{totalAberta}</strong>
+        </div>
+
+        <div
+          className={`${styles.card} ${selectedStatus === 'EM ANDAMENTO' ? styles.active : ''}`}
+          onClick={() => setSelectedStatus('EM ANDAMENTO')}
+        >
+          <p className={styles.cardTitle}>OS em Andamento</p>
+          <strong className={styles.cardNumber}>{totalEmAndamento}</strong>
+        </div>
+
+        <div
+          className={`${styles.card} ${selectedStatus === 'CONCLUIDA' ? styles.active : ''}`}
+          onClick={() => setSelectedStatus('CONCLUIDA')}
+        >
+          <p className={styles.cardTitle}>OS Concluída</p>
+          <strong className={styles.cardNumber}>{totalConcluida}</strong>
+        </div>
+      </div>
+
+      <div className={styles.listContainer}>
+        {filteredControles.map((tecnico) => (
+          <div
+            key={tecnico.id}
+            onClick={() => handleDetailOrdemdeServico(tecnico)}
+            className={styles.list}
+          >
+            <div className={styles.clientDetail}>
+              <p className={`${styles.field} ${styles.name}`}>
+                <strong>Nome: </strong>{tecnico.name}
+              </p>
+
+              <p className={`${styles.field} ${styles.name}`}>
+                <strong>Status: </strong>{tecnico.statusOrdemdeServico?.name}
+              </p>
+
+              {tecnico.numeroOS && (
+                <p className={`${styles.field} ${styles.osNumber}`}>
+                  <strong>Número da OS: </strong>{tecnico.numeroOS}
+                </p>
+              )}
+
+              <p className={`${styles.field} ${styles.data}`}> Data: {tecnico.created_at
+                  ? new Date(tecnico.created_at).toLocaleString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""}</p>
+              <FaRegTrashAlt
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteCardTecnico(tecnico.id);
+                }}
+                className={styles.iconTrash}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

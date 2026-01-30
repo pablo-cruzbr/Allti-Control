@@ -1,0 +1,428 @@
+import React, { useContext, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  StyleSheet,
+  Modal,
+  ActivityIndicator,
+  TextInput,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { Picker } from "@react-native-picker/picker";
+import { AuthContext } from "../../contexts/AuthContext";
+import { api } from "../../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ModalDetailOrder } from "../../components/modalDetailOrder";
+import { useNavigation } from "@react-navigation/native";
+
+export type OrdensDeServico = {
+  id: string;
+  name: string;
+  descricaodoProblemaouSolicitacao: string;
+  nomedoContatoaserProcuradonoLocal: string;
+  created_at: string;
+  nameTecnico: string | null;
+  diagnostico: string | null;
+  solucao: string | null;
+  bannerassinatura: string | null;
+  numeroOS: number;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  duracao?: number;
+  informacoesSetor?: {
+    id: string;
+    usuario: string;
+    ramal: string;
+    andar: string;
+    setor: { id: string; name: string };
+    instituicaoUnidade: { id: string; name: string };
+    cliente: { id: string; name: string };
+  } | null;
+  user: {
+    id: string;
+    name: string;
+    instituicaoUnidade: { name: string; endereco: string } | null;
+    cliente: { name: string; endereco: string } | null;
+    setor: { name: string } | null;
+  };
+  tipodeChamado: { id: string; name: string };
+  cliente: { id: string; name: string; endereco: string | null } | null;
+  tecnico: { id: string; name: string } | null;
+  instituicaoUnidade: { id: string; name: string; endereco: string } | null;
+  statusOrdemdeServico: { id: string; name: string } | null;
+};
+
+export default function Dashboard() {
+  const navigation = useNavigation();
+  const { signOut } = useContext(AuthContext);
+
+  const [ordensDeServico, setOrdensDeServico] = useState<OrdensDeServico[]>([]);
+  const [filteredOrdens, setFilteredOrdens] = useState<OrdensDeServico[]>([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [instituicaoFilter, setInstituicaoFilter] = useState<string>("");
+  const [clienteFilter, setClienteFilter] = useState<string>("");
+  const [instituicoes, setInstituicoes] = useState<string[]>([]);
+  const [clientes, setClientes] = useState<string[]>([]);
+  const [modalOsDetailVisible, setModalOsVisible] = useState(false);
+  const [selectedOrdem, setSelectedOrdem] = useState<OrdensDeServico | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const statusList = [
+    { id: "all", name: "TODOS" },
+    { id: "80e14fbe-c7fd-45bc-b3cd-cfa51ede44e0", name: "ABERTA" },
+    { id: "ce3a8414-704c-4562-bb3d-b400fe9f3b6b", name: "EM ANDAMENTO" },
+    { id: "fa69ed32-20b2-4d3a-9a6d-e61c5b45efea", name: "CONCLUIDA" },
+  ];
+
+  const loadOrdens = async () => {
+    setLoading(true);
+    try {
+      const storageToken = await AsyncStorage.getItem("@AlltiService");
+      if (!storageToken) return;
+
+      const { token } = JSON.parse(storageToken);
+      if (!token) return;
+
+      const response = await api.get("/listordemdeservico", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const ordens = response.data.result.controles || [];
+      setOrdensDeServico(ordens);
+      setFilteredOrdens(ordens);
+
+     // Popular listas únicas de Instituição e Cliente
+      const uniqueInstituicoes = Array.from(
+        new Set(
+          ordens
+            .map((os: OrdensDeServico) => os.instituicaoUnidade?.name)
+            .filter(Boolean)
+        )
+      ) as string[];
+
+      const uniqueClientes = Array.from(
+        new Set(
+          ordens
+            .map((os: OrdensDeServico) => os.user?.cliente?.name)
+            .filter(Boolean)
+        )
+      ) as string[];
+
+
+      setInstituicoes(uniqueInstituicoes);
+      setClientes(uniqueClientes);
+     
+     } catch (error) {
+    console.error("Erro ao carregar ordens de serviço:", error);
+  } finally {
+    setLoading(false);
+  }
+  }
+
+  // Filtro
+  useEffect(() => {
+    let result = [...ordensDeServico];
+
+    if (search.trim()) {
+      const lower = search.toLowerCase();
+      result = result.filter(
+        (os) =>
+          os.numeroOS?.toString().includes(lower) ||
+          os.instituicaoUnidade?.name?.toLowerCase().includes(lower) ||
+          os.user?.cliente?.name?.toLowerCase().includes(lower)
+      );
+    }
+
+    if (statusFilter && statusFilter !== "TODOS") {
+      result = result.filter(
+        (os) => os.statusOrdemdeServico?.name === statusFilter
+      );
+    }
+
+    if (instituicaoFilter) {
+      result = result.filter(
+        (os) => os.instituicaoUnidade?.name === instituicaoFilter
+      );
+    }
+
+    if (clienteFilter) {
+      result = result.filter(
+        (os) => os.user?.cliente?.name === clienteFilter
+      );
+    }
+
+    setFilteredOrdens(result);
+  }, [search, statusFilter, instituicaoFilter, clienteFilter, ordensDeServico]);
+
+  useEffect(() => {
+    loadOrdens();
+  }, []);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Image
+          source={require("../../assets/logoperfil.png")}
+          style={styles.profileImage}
+        />
+        <Text style={styles.title}>Ordens de Serviço</Text>
+        <View style={styles.headerIcons}>
+          <Feather name="user" size={24} color="#fff" style={styles.icon} />
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" style={styles.icon} />
+          ) : (
+            <Ionicons
+              name="refresh"
+              size={22}
+              color="#fff"
+              style={styles.icon}
+              onPress={loadOrdens}
+            />
+          )}
+        </View>
+      </View>
+
+      {/* Input de pesquisa */}
+      <TextInput
+        style={styles.input}
+        placeholder="Pesquisar por número da OS, Instituição ou Empresa"
+        value={search}
+        onChangeText={setSearch}
+      />
+
+      {/* Pickers de Instituição e Cliente */}
+      <View style={{ flexDirection: "row", marginHorizontal: 10, marginTop: 10 }}>
+        <Picker
+          selectedValue={instituicaoFilter}
+          style={{ flex: 1, height: 40 }}
+          onValueChange={(value) => setInstituicaoFilter(value)}
+        >
+          <Picker.Item label="Todas Instituições" value="" />
+          {instituicoes.map((inst) => (
+            <Picker.Item key={inst} label={inst} value={inst} />
+          ))}
+        </Picker>
+
+        <Picker
+          selectedValue={clienteFilter}
+          style={{ flex: 1, height: 40 }}
+          onValueChange={(value) => setClienteFilter(value)}
+        >
+          <Picker.Item label="Todos Clientes" value="" />
+          {clientes.map((cli) => (
+            <Picker.Item key={cli} label={cli} value={cli} />
+          ))}
+        </Picker>
+      </View>
+
+      {/* Botões de filtro de status */}
+      <View
+        style={{
+          flexDirection: "row",
+          paddingHorizontal: 10,
+          marginTop: 10,
+          flexWrap: "wrap",
+        }}
+      >
+        {statusList.map((status) => {
+          const active =
+            statusFilter === status.name ||
+            (status.id === "all" && statusFilter === "");
+          return (
+            <TouchableOpacity
+              key={status.id}
+              style={[styles.statusButton, active && styles.statusButtonActive]}
+              onPress={() =>
+                setStatusFilter(status.id === "all" ? "" : status.name)
+              }
+            >
+              <Text style={[styles.statusText, active && styles.statusTextActive]}>
+                {status.name}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* FAB para lista interna */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() =>
+          navigation.navigate("ListOrdemdeServicoInterna" as never)
+        }
+        activeOpacity={0.7}
+      >
+        <MaterialCommunityIcons name="form-select" size={30} color="#fff" />
+      </TouchableOpacity>
+
+      {/* Lista */}
+      <FlatList
+        data={filteredOrdens}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => {
+              setSelectedOrdem(item);
+              setModalOsVisible(true);
+            }}
+          >
+            <View style={styles.cardInfo}>
+              <Text style={styles.cardTitle}>
+                Número da OS: {item.numeroOS || "Não Disponível"}
+              </Text>
+              <Text style={styles.cardStatus}>
+                Status da OS: {item.statusOrdemdeServico?.name || "N/A"}
+              </Text>
+
+              {item.user.cliente && (
+                <>
+                  <Text style={styles.cardSubtitle}>
+                    Empresa: {item.user.cliente.name}
+                  </Text>
+                  <Text style={styles.cardSubtitle}>
+                    Endereço: {item.user.cliente.endereco}
+                  </Text>
+                </>
+              )}
+
+              {item.instituicaoUnidade && (
+                <>
+                  <Text style={styles.cardSubtitle}>
+                    Instituição: {item.instituicaoUnidade.name}
+                  </Text>
+                  <Text style={styles.cardSubtitle}>
+                    Endereço: {item.instituicaoUnidade.endereco}
+                  </Text>
+                </>
+              )}
+
+              <Text style={styles.cardItem}>
+                Problema: {item.descricaodoProblemaouSolicitacao}
+              </Text>
+              <Text style={styles.cardItem}>
+                Contato: {item.nomedoContatoaserProcuradonoLocal}
+              </Text>
+            </View>
+            <Ionicons name="ellipsis-vertical" size={20} color="#333" />
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={{
+          paddingBottom: 90,
+          paddingTop: 10,
+        }}
+      />
+
+      {/* Modal detalhe da OS */}
+      <Modal
+        transparent
+        visible={modalOsDetailVisible}
+        animationType="slide"
+        onRequestClose={() => setModalOsVisible(false)}
+      >
+        <ModalDetailOrder
+          ordem={selectedOrdem}
+          handleCloseModal={() => setModalOsVisible(false)}
+        />
+      </Modal>
+
+      {/* Botão de logout */}
+      <TouchableOpacity style={styles.fabSecondary} onPress={signOut}>
+        <Feather name="log-in" size={28} color="#fff" />
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#F8F8F8" },
+  header: {
+    backgroundColor: "#3859F3",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    paddingTop: 40,
+    paddingBottom: 20,
+  },
+  profileImage: { width: 35, height: 35, borderRadius: 50 },
+  title: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+    flex: 1,
+    textAlign: "center",
+  },
+  headerIcons: { flexDirection: "row", alignItems: "center" },
+  icon: { marginLeft: 15 },
+  input: {
+    marginHorizontal: 10,
+    marginTop: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+  },
+  statusButton: {
+    width: 100,
+    height: 30,
+    backgroundColor: "#eee",
+    borderRadius: 20,
+    marginRight: 7,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  statusButtonActive: { backgroundColor: "#3859F3" },
+  statusText: { fontSize: 11, color: "#333", fontWeight: "600" },
+  statusTextActive: { color: "#fff" },
+  card: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    marginHorizontal: 10,
+    marginTop: 9,
+    padding: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    elevation: 2,
+  },
+  cardInfo: { flex: 1 },
+  cardTitle: { fontWeight: "bold", fontSize: 14 },
+  cardStatus: { fontWeight: "bold", fontSize: 14, marginTop: 4 },
+  cardSubtitle: { fontSize: 12, color: "#666" },
+  cardItem: { fontSize: 12, color: "#333" },
+  fab: {
+    position: "absolute",
+    bottom: 120,
+    right: 20,
+    backgroundColor: "#3859F3",
+    width: 55,
+    height: 55,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 6,
+    zIndex: 99,
+  },
+  fabSecondary: {
+    position: "absolute",
+    bottom: 50,
+    right: 20,
+    backgroundColor: "#3859F3",
+    width: 55,
+    height: 55,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+  },
+});

@@ -1,0 +1,126 @@
+.container {
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+}
+
+  // fundo circular azul, igual ao login anterior
+  &::before {
+    content: "";
+    position: absolute;
+    height: 2000px;
+    width: 2000px;
+    top: -10%;
+    right: 48%;
+    transform: translateY(-50%);
+    background-image: linear-gradient(-45deg, #3859F3 0%, #3859F3 100%);
+    border-radius: 50%;
+    transition: 1.8s ease-in-out;
+    z-index: 0; 
+  }
+}
+
+.conteiner {
+  z-index: 10; // fica sobre o fundo azul
+  margin: 0px;
+  width: 35%;
+  min-height: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
+
+  h1 {
+    color: #444;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 15px;
+
+      input {
+        width: 100%;
+        max-width: 380px;
+        height: 55px;
+        border-radius: 55px;
+        border: none;
+        background-color: #f0f0f0;
+        padding: 0 1rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+
+        &::placeholder {
+          color: #aaa;
+        }
+
+        &:focus {
+          outline: 2px solid #3859F3;
+        }
+      }
+
+      button {
+        width: 150px;
+        height: 49px;
+        background-color: #3859F3;
+        border: none;
+        border-radius: 49px;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.5s;
+
+        &:hover {
+          background-color: #fff;
+          color: #3859F3;
+          border: 2px solid #3859F3;
+          transform: scale(1.05);
+        }
+      }
+    }
+
+    .text {
+      text-decoration: none;
+      color: #3859F3;
+      font-size: 0.9rem;
+      margin-top: 10px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  @media (max-width: 620px) {
+    width: 90%;
+  }
+}

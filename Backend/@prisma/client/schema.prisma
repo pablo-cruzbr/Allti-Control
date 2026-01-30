@@ -1,0 +1,469 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//generator client {
+//  provider = "prisma-client-js"
+//}
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //Relacionamento
+  cliente_id String?
+
+  //Relacionamento
+  cliente Cliente? @relation(fields: [cliente_id], references: [id])
+
+  //Relacionamento
+  setor_id String?
+
+  //Relacionamento
+  setor Setor? @relation(fields: [setor_id], references: [id])
+
+  //Relacionamento
+  instituicao_id String?
+
+  //Relacionamento
+  instituicao InstituicaoUnidade? @relation(fields: [instituicao_id], references: [id])
+
+  @@map("users")
+}
+
+//CATEGORIAS - USUÁRIOS 
+//CATEGORIA - 1
+model Cliente {
+  id   String @id @default(uuid())
+  name String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //1 - Relacionamento: 1-N (Cliente -> Usuários)
+  users User[]
+
+  //2 - Relacionamento: 1-N (Cliente -> OrdemdeServiço)
+  ordensDeServico               OrdemdeServico[]
+  controlesdeAssistenciatecnica controleDeAssistenciaTecnica[]
+  controlesDeLaboratio          controleDeLaboratio[]
+  documentacoesTecnicas         documentacaoTecnica[]
+
+  @@map("clientes")
+}
+
+//CATEGORIA - 2
+model Setor {
+  id   String @id @default(uuid())
+  name String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //1 - Relacionamento: 1-N (Setor -> Usuários)
+  users User[]
+
+  @@map("setores")
+}
+
+//CATEGORIA - 3
+model InstituicaoUnidade {
+  id   String @id @default(uuid())
+  name String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //1 - Relacionamento: 1-N (Instituicao -> Usuários)
+  users User[]
+
+  ordens                          OrdemdeServico[]
+  controlesdeAssistenciaTecnica   controleDeAssistenciaTecnica[]
+  controlesdeLaudoTecnico         controleDeLaudoTecnico[]
+  controlesDeLaboratio            controleDeLaboratio[]
+  controlesDeMaquinasPendentesOro controledeMaquinasPendentesOro[]
+  documentacoesTecnicas           documentacaoTecnica[]
+
+  @@map("instituicaoUnidade")
+}
+
+//CATEGORIAS - ORDEM DE SERVIÇO
+//CATEGORIA - 1
+model statusOrdemdeServico {
+  id   String @id @default(uuid())
+  name String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //1 - Relacionamento: 1-N (Status -> Ordens de Serviço)
+
+  ordens       OrdemdeServico[]
+  formstecnico FormTecnico[]
+
+  @@map("status")
+}
+
+//CATEGORIA - 2 
+model TipodeSolicitacao {
+  id   String @id @default(uuid())
+  name String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //1 - Relacionamento: 1-N (Solicitacao -> Ordens de Serviço)
+  ordens OrdemdeServico[]
+
+  @@map("tipoDeSolicitacao")
+}
+
+//CATEGORIA - 3
+model Tecnico {
+  id   String @id @default(uuid())
+  name String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //1 - Relacionamento: 1-N (Tecnico -> Ordens de Serviços)
+  ordens                        OrdemdeServico[]
+  controlesdeAssistenciatecnica controleDeAssistenciaTecnica[]
+  controlesdeLaudoTecnico       controleDeLaudoTecnico[]
+  documentacoesTecnicas         documentacaoTecnica[]
+
+  @@map("tecnico")
+}
+
+model OrdemdeServico {
+  id                    String @id @default(uuid())
+  name                  String
+  problemaOuSolicitacao String
+
+  created_at DateTime? @default(now())
+  update_at  DateTime? @default(now())
+
+  // Relacionamento com Cliente (opcional)
+  cliente_id String?
+  cliente    Cliente? @relation(fields: [cliente_id], references: [id])
+
+  // Relacionamento com Técnico (obrigatório)
+  tecnico_id String
+  tecnico    Tecnico @relation(fields: [tecnico_id], references: [id])
+
+  // Relacionamento com Status
+  statusOrdemdeServico_id String
+  statusOrdemdeServico    statusOrdemdeServico @relation(fields: [statusOrdemdeServico_id], references: [id])
+
+  // Relacionamento com Tipo de Solicitação
+  tipodesolicitacao_id String
+  tipodesolicitacao    TipodeSolicitacao @relation(fields: [tipodesolicitacao_id], references: [id])
+
+  // Relacionamento com Instituição
+  instituicaoUnidade_id String
+  instituicaoUnidade    InstituicaoUnidade @relation(fields: [instituicaoUnidade_id], references: [id])
+
+  // Relacionamento 1:1 com Formtecnico
+  formtecnico FormTecnico?
+}
+
+model FormTecnico {
+  id          String @id @default(uuid())
+  name        String
+  diagnostico String
+  solucao     String
+  assinatura  String
+
+  // Relacionamento com Status
+  status_id               String
+  // Relacionamento com Status
+  statusOrdemdeServico_id String
+  statusOrdemdeServico    statusOrdemdeServico @relation(fields: [statusOrdemdeServico_id], references: [id])
+
+  // Relacionamento com Ordem de Serviço
+  ordemDeServico_id String         @unique
+  ordemDeServico    OrdemdeServico @relation(fields: [ordemDeServico_id], references: [id])
+
+  created_at DateTime? @default(now())
+  update_at  DateTime? @default(now())
+}
+
+//CATEGORIAS - CONTROLE DE ASSISTENCIA TECNICA
+//CATEGORIA - 1
+
+model Equipamento {
+  id         String @id @default(uuid())
+  name       String
+  patrimonio String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //1 - Relacionamento: 1-N (Tecnico -> Ordens de Serviços)
+  controlesDeAssistencia                  controleDeAssistenciaTecnica[]
+  controlesdeLaudoTecnico                 controleDeLaudoTecnico[]
+  controlesDeLaboratio                    controleDeLaboratio[]
+  controlesDeMaquinasPendentesLaboratorio controleDeMaquinasPendentesLaboratorio[]
+  controlesDeMaquinasPendentesOro         controledeMaquinasPendentesOro[]
+
+  @@map("equipamento")
+}
+
+model controleDeAssistenciaTecnica {
+  id              String   @id @default(uuid())
+  name            String
+  mesAno          DateTime
+  idChamado       String
+  assistencia     String
+  observacoes     String
+  osDaAssistencia String
+  dataDeRetirada  DateTime
+
+  // Relacionamento com Equipameto
+  equipamento_id String
+  equipamento    Equipamento @relation(fields: [equipamento_id], references: [id])
+
+  statusReparo_id String
+  statusReparo    statusReparo @relation(fields: [statusReparo_id], references: [id])
+
+  statusTeste_id String
+  statusTeste    StatusTeste @relation(fields: [statusTeste_id], references: [id])
+
+  // Relacionamento com Instituição
+  instituicaoUnidade_id String
+  instituicaoUnidade    InstituicaoUnidade @relation(fields: [instituicaoUnidade_id], references: [id])
+
+  // Relacionamento com Técnico (obrigatório)
+  tecnico_id String
+  tecnico    Tecnico @relation(fields: [tecnico_id], references: [id])
+
+  // Relacionamento com Cliente (opcional)
+  cliente_id String?
+  cliente    Cliente? @relation(fields: [cliente_id], references: [id])
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+}
+
+model statusReparo {
+  id   String @id @default(uuid())
+  name String
+
+  controleDeAssistenciaTecnica controleDeAssistenciaTecnica[]
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  @@map("statusReparo")
+}
+
+model StatusTeste {
+  id   String @id @default(uuid())
+  name String
+
+  controleDeAssistenciaTecnica controleDeAssistenciaTecnica[]
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  @@map("statusteste")
+}
+
+//CATEGORIAS - CONTROLE DE LAUDO TECNICO
+//CATEGORIA - 
+
+model controleDeLaudoTecnico {
+  id                  String   @id @default(uuid())
+  descricaodoProblema String
+  mesAno              DateTime
+  osLab               String
+
+  // Relacionamento com Instituição
+  instituicaoUnidade_id String
+  instituicaoUnidade    InstituicaoUnidade @relation(fields: [instituicaoUnidade_id], references: [id])
+
+  // Relacionamento com Equipameto
+  equipamento_id String
+  equipamento    Equipamento @relation(fields: [equipamento_id], references: [id])
+
+  // Relacionamento com Técnico (obrigatório)
+  tecnico_id String
+  tecnico    Tecnico @relation(fields: [tecnico_id], references: [id])
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+}
+
+//CATEGORIAS - CONTROLE DE LABORATORIO
+//CATEGORIA - 
+
+model controleDeLaboratio {
+  id                String @id @default(uuid())
+  nomedoEquipamento String
+  marca             String
+  defeito           String
+  osDeAbertura      String
+  osDeDevolucao     String
+
+  data_de_Chegada     DateTime
+  data_de_Finalizacao DateTime
+
+  // Relacionamento com Técnico (obrigatório)
+  statusControledeLaboratorio_id String
+  statusControledeLaboratorio    statusControledeLaboratorio @relation(fields: [statusControledeLaboratorio_id], references: [id])
+
+  //Relacionamento
+  instituicao_id String
+  instituicao    InstituicaoUnidade? @relation(fields: [instituicao_id], references: [id])
+
+  //Relacionamento
+  cliente_id String
+  cliente    Cliente? @relation(fields: [cliente_id], references: [id])
+
+  // Relacionamento com Equipameto
+  equipamento_id String
+  equipamento    Equipamento @relation(fields: [equipamento_id], references: [id])
+}
+
+model statusControledeLaboratorio {
+  id   String @id @default(uuid())
+  name String
+
+  create_at            DateTime?             @default(now())
+  updated_at           DateTime?             @default(now())
+  controlesDeLaboratio controleDeLaboratio[]
+
+  @@map("statusControledeLaboratorio")
+}
+
+model controleDeMaquinasPendentesLaboratorio {
+  id            String @id @default(uuid())
+  numeroDeSerie String
+  ssd           String
+  idDaOs        String
+  obs           String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  // Relacionamento com Equipameto
+  equipamento_id String
+  equipamento    Equipamento @relation(fields: [equipamento_id], references: [id])
+
+  //Relacionamento com Status
+  statusMaquinasPendentesLab_id String
+  statusMaquinasPendentesLab    statusMaquinasPendentesLab @relation(fields: [statusMaquinasPendentesLab_id], references: [id])
+}
+
+model statusMaquinasPendentesLab {
+  id   String @id @default(uuid())
+  name String
+
+  create_at                               DateTime?                                @default(now())
+  updated_at                              DateTime?                                @default(now())
+  controlesDeMaquinasPendentesLaboratorio controleDeMaquinasPendentesLaboratorio[]
+
+  @@map("statusControledeMaquinasPendentesLab")
+}
+
+model controledeMaquinasPendentesOro {
+  id               String   @id @default(uuid())
+  datadaInstalacao DateTime
+  osInstalacao     String
+  osRetirada       String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  // Relacionamento com Equipameto
+  equipamento_id String
+  equipamento    Equipamento @relation(fields: [equipamento_id], references: [id])
+
+  // Relacionamento com Instituição
+  instituicaoUnidade_id String
+  instituicaoUnidade    InstituicaoUnidade @relation(fields: [instituicaoUnidade_id], references: [id])
+
+  // Relacionamento com statusMaquinasPendentesOro
+  statusMaquinasPendentesOro_id String
+  statusMaquinasPendentesOro    statusMaquinasPendentesOro @relation(fields: [statusMaquinasPendentesOro_id], references: [id])
+}
+
+model statusMaquinasPendentesOro {
+  id   String @id @default(uuid())
+  name String
+
+  create_at                       DateTime?                        @default(now())
+  updated_at                      DateTime?                        @default(now())
+  controlesDeMaquinasPendentesOro controledeMaquinasPendentesOro[]
+
+  @@map("statusControledeMaquinasPendentesOro")
+}
+
+model documentacaoTecnica {
+  id        String @id @default(uuid())
+  titulo    String
+  descricao String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //Relacionamento
+  cliente_id String?
+
+  //Relacionamento
+  cliente Cliente? @relation(fields: [cliente_id], references: [id])
+
+  // Relacionamento com Técnico (obrigatório)
+  tecnico_id String
+  tecnico    Tecnico @relation(fields: [tecnico_id], references: [id])
+
+  //Relacionamento
+  instituicao_id String?
+
+  //Relacionamento
+  instituicao InstituicaoUnidade? @relation(fields: [instituicao_id], references: [id])
+}
+
+model solicitacaoDeCompras {
+  id                  String @id @default(uuid())
+  itemSolicitado      String
+  solicitante         String
+  motivoDaSolicitacao String
+  preco               Float
+  linkDeCompra        String
+
+  create_at  DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  //Relacionamento
+  statusCompras_id String
+  statusCompras    statusCompras? @relation(fields: [statusCompras_id], references: [id])
+}
+
+model statusCompras {
+  id   String @id @default(uuid())
+  name String
+
+  create_at             DateTime?              @default(now())
+  updated_at            DateTime?              @default(now())
+  solicitacoesDeCompras solicitacaoDeCompras[]
+
+  @@map("solicitacoesDeCompras")
+}
