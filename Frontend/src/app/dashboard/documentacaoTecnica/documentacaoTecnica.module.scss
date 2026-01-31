@@ -15,7 +15,7 @@
   transition: all 0.3s ease;
 
   .titleClient {
-    color: #354DF0;
+    color:#4E3182;
     font-size: 25px;
     font-weight: 700;
   }
@@ -51,7 +51,7 @@
         transition: all 0.3s ease;
 
         &:focus {
-          border-color: #354DF0;
+          border-color:#4E3182;
           box-shadow: 0 0 0 3px rgba(53, 77, 240, 0.2);
         }
       }
@@ -66,15 +66,15 @@
         cursor: pointer;
 
         &:hover {
-          border-color: #354DF0;
+          border-color:#4E3182;
           background: #eef2ff;
-          color: #354DF0;
+          color:#4E3182;
         }
       }
     }
 
     .button {
-      background: linear-gradient(135deg, #354DF0, #3A5DF7);
+      background: linear-gradient(135deg,#4E3182, #4E3182);
       color: #fff;
       padding: 10px 16px;
       border-radius: 10px;
@@ -97,13 +97,13 @@
 
     .refresh {
       cursor: pointer;
-      color: #354DF0;
+      color:#4E3182;
       font-size: 24px;
       transition: transform 0.2s ease, color 0.2s ease;
 
       &:hover {
         transform: rotate(20deg);
-        color: #3A5DF7;
+        color: #4E3182;
       }
 
       &:active {
@@ -129,7 +129,7 @@
   align-items: center;
 
   .card {
-    background: linear-gradient(135deg, #354DF0, #3A5DF7);
+    background: linear-gradient(135deg,#4E3182, #4E3182);
     border-radius: 15px;
     padding: 20px 30px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);

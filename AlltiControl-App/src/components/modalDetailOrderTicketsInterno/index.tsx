@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   buttonClose: {
     marginTop: 15,
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",

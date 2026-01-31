@@ -45,7 +45,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #354DF0, #3A5DF7);
+    background: linear-gradient(135deg,#4E3182, #4E3182);
     color: #fff;
     padding: 10px 16px;
     border-radius: 10px;
@@ -59,7 +59,7 @@
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      background: linear-gradient(135deg, #3A5DF7, #2E3BD8);
+      background: linear-gradient(135deg, #4E3182, #2E3BD8);
     }
 
     &:active {
@@ -111,7 +111,7 @@
   }
 
   &:focus {
-    border-color: #354DF0;
+    border-color:#4E3182;
     box-shadow: 0 0 0 3px rgba(53, 77, 240, 0.2);
   }
 }

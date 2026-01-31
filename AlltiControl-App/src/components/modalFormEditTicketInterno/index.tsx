@@ -378,14 +378,14 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   button: {
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
     padding: 12,
     borderRadius: 6,
     alignItems: "center",
     marginBottom: 10,
   },
   buttonSmall: {
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 6,

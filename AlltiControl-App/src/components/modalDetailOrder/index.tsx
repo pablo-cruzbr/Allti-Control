@@ -776,7 +776,7 @@ const styles = StyleSheet.create({
 
   buttonClose: {
     marginTop: 20,
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -795,7 +795,7 @@ const styles = StyleSheet.create({
   },
 
   buttonNavigation: {
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
   },
 
   buttonDisabled: {
@@ -824,7 +824,7 @@ textDisabled: {
 
   timerBtn: {
     marginRight: 10,
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
   },
 
   timerBtnPause: {

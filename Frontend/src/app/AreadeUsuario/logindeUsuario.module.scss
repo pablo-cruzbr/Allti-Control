@@ -57,7 +57,7 @@
     transform: translateY(-50%);
     //background-image: linear-gradient(-45deg, #4481eb 0%, #04befe 100%);
     //PALETA 1 - FREELA
-    background-image: linear-gradient(-45deg, #3859F3 0%, #3859F3 100%);
+    background-image: linear-gradient(-45deg, #4E3182 0%, #4E3182 100%);
     
     //PALETA 2 - ALLTI
     //background-image: linear-gradient(-45deg, #4A248B 0%, #4A248B 100%);
@@ -195,7 +195,7 @@ textarea {
 .btn {
   width: 150px;
   height: 49px;
-  background-color: #3859F3;
+  background-color: #4E3182;
   //background-color: #5995fd;
   border: none;
   border-radius: 49px;
@@ -208,7 +208,7 @@ textarea {
 
   &.solid {
     //background-color: #5995fd;
-    background-color: #3859F3;
+    background-color: #4E3182;
   }
 
   &.transparent {
@@ -222,7 +222,7 @@ textarea {
   &:hover {
     background-color: #fff;
     transform: scale(1.0);
-     color: #3859F3;
+     color: #4E3182;
      border: 3px solid;
   }
 }

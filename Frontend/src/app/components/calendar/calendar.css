@@ -4,7 +4,7 @@
   right: 0;
   height: 100vh;
   width: 360px;
-  background: linear-gradient(180deg, #354DF0 0%, #3A5DF7 100%);
+  background: linear-gradient(180deg, #4E3182 0%, #4E3182 100%);
   padding: 24px;
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.2);
   font-family: "Poppins", sans-serif;
@@ -78,7 +78,7 @@
 
       &:first-of-type {
         background-color: #fff;
-        color: #354DF0;
+        color: #4E3182;
 
         &:hover {
           background-color: rgba(255, 255, 255, 0.9);

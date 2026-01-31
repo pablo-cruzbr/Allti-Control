@@ -363,7 +363,7 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F8F8F8" },
   header: {
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  statusButtonActive: { backgroundColor: "#3859F3" },
+  statusButtonActive: { backgroundColor: "#4E3182" },
   statusText: { fontSize: 11, color: "#333", fontWeight: "600" },
   statusTextActive: { color: "#fff" },
   card: {
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 120,
     right: 20,
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
     width: 55,
     height: 55,
     borderRadius: 30,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 50,
     right: 20,
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
     width: 55,
     height: 55,
     borderRadius: 30,

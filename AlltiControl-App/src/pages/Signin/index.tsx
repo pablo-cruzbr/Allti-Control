@@ -82,7 +82,7 @@ export default function Signin() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#3859F3", 
+    backgroundColor: "#4E3182", 
     justifyContent: "center",
     alignItems: "center",
   },
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   button: {
     width: "60%",
     height: 50,
-    backgroundColor: "#3859F3",
+    backgroundColor: "#4E3182",
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",

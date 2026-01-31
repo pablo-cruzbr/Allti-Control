@@ -37,17 +37,17 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #354DF0;
+    background:#4E3182;
     border-radius: 10px;
     transition: background 0.3s ease;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: #3A5DF7;
+    background: #4E3182;
   }
 
   scrollbar-width: thin;
-  scrollbar-color: #354DF0 #f1f1f1;
+  scrollbar-color:#4E3182 #f1f1f1;
 
   h2 {
     text-align: center;
@@ -69,7 +69,7 @@
     //transition: color 0.2s ease, transform 0.2s ease;
 
     &:hover {
-      color: #354DF0;
+      color:#4E3182;
       //transform: rotate(90deg);
     }
   }
@@ -123,7 +123,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #354DF0, #3A5DF7);
+    background: linear-gradient(135deg,#4E3182, #4E3182);
     color: #fff;
     padding: 10px 13px;
     border-radius: 10px;
@@ -137,7 +137,7 @@
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      background: linear-gradient(135deg, #3A5DF7, #2E3BD8);
+      background: linear-gradient(135deg, #4E3182, #2E3BD8);
     }
 
     &:active {
