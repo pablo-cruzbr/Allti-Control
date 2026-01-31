@@ -206,7 +206,7 @@ export default function Dashboard() {
     <SafeAreaView style={styles.container}>
   
       <View style={styles.header}>
-        <Image source={require("../../assets/logoperfil.png")} style={styles.profileImage} />
+        <Image source={require("../../assets/logoperfil2.png")} style={styles.profileImage} />
         <Text style={styles.title}>Ordens de Serviço</Text>
         <View style={styles.headerIcons}>
           <Feather name="user" size={24} color="#fff" style={styles.icon} />

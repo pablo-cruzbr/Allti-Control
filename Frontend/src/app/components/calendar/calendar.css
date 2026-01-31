@@ -130,3 +130,24 @@
     }
   }
 }
+
+
+.dhx_cal_navline .dhx_cal_tab.active {
+    background-color: #4E3182 !important;
+    color: #ffffff !important;
+    border-color: #4E3182 !important;
+    background-image: none !important; 
+}
+
+
+.dhx_cal_navline .dhx_cal_tab:hover {
+    background-color: #6342a3 !important; 
+    color: #ffffff !important;
+}
+
+
+.dhx_cal_navline .dhx_cal_tab {
+    border: 1px solid #4E3182 !important;
+    color: #4E3182 !important;
+    background-color: #ffffff !important;
+}
