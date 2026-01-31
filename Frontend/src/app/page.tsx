@@ -72,7 +72,11 @@ export default async function Home({ searchParams }: PageProps) {
             priority
           />
 
+<<<<<<< Updated upstream
           <h1>Faça seu Login AlltiControl - Color Palette2</h1>
+=======
+          <h1>Faça seu Login AlltiControl - Color Palette</h1>
+>>>>>>> Stashed changes
 
           {errorMsg && (
             <p style={{ color: '#FF3F4B', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
