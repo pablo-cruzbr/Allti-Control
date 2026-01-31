@@ -25,7 +25,7 @@
     top: -10%;
     right: 48%;
     transform: translateY(-50%);
-    background-image: linear-gradient(-45deg, #3859F3 0%, #3859F3 100%);
+    background-image: linear-gradient(-45deg, #4E3182 0%, #4E3182 100%);
     border-radius: 50%;
     transition: 1.8s ease-in-out;
     z-index: 0; 
@@ -83,14 +83,14 @@
         }
 
         &:focus {
-          outline: 2px solid #3859F3;
+          outline: 2px solid #4E3182;
         }
       }
 
       button {
         width: 150px;
         height: 49px;
-        background-color: #3859F3;
+        background-color: #4E3182;
         border: none;
         border-radius: 49px;
         color: #fff;
@@ -101,8 +101,8 @@
 
         &:hover {
           background-color: #fff;
-          color: #3859F3;
-          border: 2px solid #3859F3;
+          color: #4E3182;
+          border: 2px solid #4E3182;
           transform: scale(1.05);
         }
       }
@@ -110,7 +110,7 @@
 
     .text {
       text-decoration: none;
-      color: #3859F3;
+      color: #4E3182;
       font-size: 0.9rem;
       margin-top: 10px;
 
