@@ -73,7 +73,11 @@ export default async function Home({ searchParams }: PageProps) {
           />
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           <h1>Faça seu Login AlltiControl - Color Palette2</h1>
+=======
+          <h1>Faça seu Login AlltiControl - Color Palette</h1>
+>>>>>>> Stashed changes
 =======
           <h1>Faça seu Login AlltiControl - Color Palette</h1>
 >>>>>>> Stashed changes
