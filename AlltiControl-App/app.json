@@ -2,28 +2,29 @@
   "expo": {
     "name": "Allti-Control-App",
     "slug": "Allti-Control-App",
-    "version": "1.0.3",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icone.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icone.png",
+      "image": "./assets/icone.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pablocruz.allticontrol"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icone.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.pablocruz.techosmobile"
+      "package": "com.pablocruz.allticontrol"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icone.png"
     },
     "plugins": [
       "expo-asset",
@@ -31,14 +32,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "e0eb7498-f119-4c00-9b29-43fcbd08d9a1"
+        "projectId": "af340b43-6e46-4e3a-9478-c78e9f104860"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/e0eb7498-f119-4c00-9b29-43fcbd08d9a1"
-    }
+    "owner": "pablo-cruz-br"
   }
 }
