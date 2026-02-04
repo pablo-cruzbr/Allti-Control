@@ -16,9 +16,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.pablocruz.allticontrol"
     },
-    "android": {
+   "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icone.png",
+        "foregroundImage": "./assets/icone.png", 
         "backgroundColor": "#ffffff"
       },
       "package": "com.pablocruz.allticontrol"

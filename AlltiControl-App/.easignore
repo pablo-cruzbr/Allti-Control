@@ -1,20 +1,4 @@
-# Bloquear tudo o que é pesado
-node_modules/
-.git/
-.expo/
-.next/
-dist/
-build/
-
-# Ignorar arquivos de sistema e logs
-*.log
-.DS_Store
-Thumbs.db
-
-# Se você tiver pastas de assets muito grandes que não usa
-ios/
-android/
-
-../Backend/
-../Frontend/
-../Mobile/
+node_modules/  
+android/  
+ios/  
+.expo/ 
