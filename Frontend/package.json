@@ -18,9 +18,9 @@
     "cookies-next": "^6.0.0",
     "dhtmlx-scheduler": "^7.2.8",
     "jwt-decode": "^4.0.0",
-    "next": "15.2.5",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-icons": "^5.5.0",
     "sass": "^1.87.0",
     "sonner": "^2.0.7"
