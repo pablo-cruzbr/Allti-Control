@@ -107,7 +107,11 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
               </div>
 
               <div className={styles.infoItem}>
-                <label>Quem abriu a OS:</label>
+                <label>Quem abriu a OS: </label>
+                <span>{OrdemdeServico.name ?? "Nome de Usuário Não Informado no Formulário"}</span>
+
+                <label>Nome de cadastro do usuário: </label>
+                <span>{OrdemdeServico.user.name}</span>
                
               </div>
 
