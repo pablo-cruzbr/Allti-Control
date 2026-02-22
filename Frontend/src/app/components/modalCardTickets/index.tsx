@@ -59,7 +59,7 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
     <div className={styles.dialogContainer} open>
       <section className={styles.dialogContent}>
         <button onClick={closeModal} className={styles.dialogBack}>
-          <IoIosCloseCircleOutline size={36} color="#526D82" />
+          <IoIosCloseCircleOutline size={36} color="#4E3182" />
         </button>
 
         <h2>Detalhes da Ordem de Serviço</h2>

@@ -38,7 +38,7 @@ export function ModalLaudoTecnico({data}: ModalLaudoTecnicoProps) {
       <section className={styles.dialogContent}>
         <article className={styles.container}>
           <button onClick={closeModal} className={styles.dialogBack}>
-            <IoIosCloseCircleOutline size={40} color="#526D82" />
+            <IoIosCloseCircleOutline size={40} color="#4E3182" />
           </button>
           <h2>DETALHES DO LAUDO TÉCNICO</h2>
 

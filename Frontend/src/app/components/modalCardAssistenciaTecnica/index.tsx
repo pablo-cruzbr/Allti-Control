@@ -31,7 +31,7 @@ export function ModalAssistenciaTecnica({ data }: ModalAssistenciaTecnicaProps) 
       <section className={styles.dialogContent}>
         <article className={styles.container}>
           <button onClick={closeModal} className={styles.dialogBack}>
-            <IoIosCloseCircleOutline size={40} color="#526D82" />
+            <IoIosCloseCircleOutline size={40} color="#4E3182" />
           </button>
           <h2>DETALHES DO CARD ASSISTÊNCIA TÉCNICA</h2>
 

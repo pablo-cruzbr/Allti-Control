@@ -85,7 +85,7 @@ export default function FormularioCompras() {
     <section>
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>FORMULÁRIO COMPRAS</h1>
-        <IoArrowBackCircleOutline size={30} color="#526D82" onClick={handleBackCardCompras}/>
+        <IoArrowBackCircleOutline size={30} color="#4E3182" onClick={handleBackCardCompras}/>
         <button className={styles.button} onClick={handleBackCardCompras}>
           Voltar para Lista de Compras
         </button>
