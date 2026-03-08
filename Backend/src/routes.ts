@@ -38,7 +38,7 @@ import { ListstatusReparoController } from "./controllers/status categorias/stat
 import { CreateControledeAssistenciaTecnicaController } from "./controllers/controles_forms/ControledeAssistenciaTecnica/CreateControledeAssistenciaTecnicaController";
 import { ListControledeAssistenciaTecnicaController } from "./controllers/controles_forms/ControledeAssistenciaTecnica/ListControledeAssistenciaTecnicaController";
 import { CreateOrdemServicoController } from "./controllers/controles_forms/OrdemdeServico/CreateOrdemdeServicoController";
-import { CreateStatusUrgenciaController } from "./controllers/status categorias/statusUrgencia/CreateStatusUrgenciaController";
+import { CreateStatusPrioridadeController } from "./controllers/status categorias/statusUrgencia/CreateStatusPrioridadeController";
 import { ListStatusUrgenciaController } from "./controllers/status categorias/statusUrgencia/ListStatusUrgenciaController";
 import { DeleteControledeAssistenciaTecnicaController } from "./controllers/controles_forms/ControledeAssistenciaTecnica/DeleteControledeAssistenciaTecnicaController";
 import { CreateControledeLaudoTecnicoController } from "./controllers/controles_forms/ControledeLaudoTécnico/CreateControledeLaudoTécnicoController";
@@ -194,9 +194,9 @@ router.get('/liststatuscompras', isAuthenticated, new ListStatusComprasControlle
 router.post('/statusreparo', isAuthenticated, new CreateStatusReparoController().handle)
 router.get('/liststatusreparo', isAuthenticated, new ListstatusReparoController().handle)
 
-//14 - Urgência
-router.post('/statusurgencia', isAuthenticated, new CreateStatusUrgenciaController().handle)
-router.get('/liststatusurgencia', isAuthenticated, new ListStatusUrgenciaController().handle)
+//14 - Prioridade
+router.post('/statusprioridade', isAuthenticated, new CreateStatusPrioridadeController().handle)
+router.get('/liststatusprioridade', isAuthenticated, new ListStatusUrgenciaController().handle)
 
 //---> FORMULARIOS <---
 

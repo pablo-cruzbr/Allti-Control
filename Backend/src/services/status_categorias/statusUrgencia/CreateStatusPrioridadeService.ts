@@ -4,7 +4,7 @@ interface UrgenciaCategoryRequest{
     name: string;
 }
 
-class CreateStatusUrgenciaService{
+class CreateStatusPrioridadeService{
     async execute(name){
         if(name === ''){
             throw new Error('Name Invalid');
@@ -24,4 +24,4 @@ class CreateStatusUrgenciaService{
     }
 }
 
-export {CreateStatusUrgenciaService}
+export {CreateStatusPrioridadeService}
