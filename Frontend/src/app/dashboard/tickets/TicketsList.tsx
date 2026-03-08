@@ -22,6 +22,12 @@ interface Instituicao {
   name: string;
 }
 
+interface StatusPrioridade {
+  id: string;
+  name: string;
+}
+
+
 interface Cliente {
   id: string;
   name: string;
@@ -59,6 +65,7 @@ export default function TicketsList({ ticketsData }: Props) {
           api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/liststatusprioridade", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
         setInstituicoes(instRes.data.instituicoes ?? []);
         setClientes(cliRes.data.controles ?? []);
@@ -70,17 +77,14 @@ export default function TicketsList({ ticketsData }: Props) {
     fetchFilters();
   }, []);
 
-  // Função para abrir modal de detalhe da OS
   const handleDetailOrdemdeServico = (ticket: OrdemdeServicoProps) => {
     openModal('OrdemdeServico', [ticket]);
   };
 
-  // Função para criar nova OS
   const handleAddCardTecnico = () => {
     router.push('/AreadeUsuario/formularioAddTickets');
   };
 
-  // Função para atualizar lista e limpar filtros
   const handleRefresh = () => {
     router.refresh();
     toast.success("Tickets atualizados com sucesso!");
@@ -91,7 +95,6 @@ export default function TicketsList({ ticketsData }: Props) {
     setSelectedTipoOrdem("");
   };
 
-  // Função para deletar uma OS
   const handleDeleteCardTecnico = async (tecnico_id: string) => {
     try {
       const token = await getCookieClient();
@@ -105,8 +108,7 @@ export default function TicketsList({ ticketsData }: Props) {
     }
   };
 
-  // Filtragem das ordens
- const filteredControles = controles.filter(ticket => {
+  const filteredControles = controles.filter(ticket => {
   const matchStatus = selectedStatus ? ticket.statusOrdemdeServico?.name === selectedStatus : true;
   const matchOS = searchOS ? ticket.numeroOS?.toString().includes(searchOS) : true;
   const matchInstituicao = selectedInstituicao ? ticket.instituicaoUnidade?.id === selectedInstituicao : true;
@@ -121,7 +123,6 @@ export default function TicketsList({ ticketsData }: Props) {
 
   return (
     <section>
-      {/* Header e ações */}
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>Tickets Cadastrados</h1>
         <div className={styles.actions}>
@@ -169,7 +170,6 @@ export default function TicketsList({ ticketsData }: Props) {
       </div> 
         </div>
       
-      {/* Cards de Status */}
       <div className={styles.cardsContainer}>
         {[
           { label: 'Total', value: total, status: null },
@@ -192,7 +192,6 @@ export default function TicketsList({ ticketsData }: Props) {
         ))}
       </div>
 
-      {/* Lista de OS */}
       <div className={styles.listContainer}>
         {filteredControles.map((ticket) => (
           <div
