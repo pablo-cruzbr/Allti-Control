@@ -10,7 +10,7 @@ class CreateStatusUrgenciaService{
             throw new Error('Name Invalid');
         }
 
-        const category = prismaClient.urgencia.create({
+        const category = prismaClient.prioridade.create({
             data: {
                 name: name,
             },

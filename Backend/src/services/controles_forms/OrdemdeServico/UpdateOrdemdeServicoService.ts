@@ -12,6 +12,7 @@ cloudinary.config({
 
 // Tipagem do corpo da requisição
 type UpdateOrdemdeServicoRequest = {
+  prioridade_id: string;
   equipamento_id: string;
   tecnico_id?: string;
   statusOrdemdeServico_id?: string;
@@ -19,7 +20,7 @@ type UpdateOrdemdeServicoRequest = {
   tipodeOrdemdeServico_id: string;
   informacoesSetor_id?: string;
   instituicaoUnidade_id?: string;
-  cliente_id?: string; // agora opcional
+  cliente_id?: string; 
   nameTecnico?: string;
   diagnostico?: string;
   solucao?: string;
@@ -41,6 +42,7 @@ class UpdateOrdemdeServicoService {
       }
 
       const {
+        prioridade_id,
         tecnico_id,
         statusOrdemdeServico_id,
         equipamento_id,
@@ -88,6 +90,7 @@ class UpdateOrdemdeServicoService {
 
           // Relacionamentos opcionais
            ...(equipamento_id && {equipamento: {connect: {id: equipamento_id}}}),
+           ...(prioridade_id && {urgencia: {connect: {id:  prioridade_id}}}),
           ...(tecnico_id && { tecnico: { connect: { id: tecnico_id } } }),
           ...(statusOrdemdeServico_id && { statusOrdemdeServico: { connect: { id: statusOrdemdeServico_id } } }),
           ...(tipodeChamado_id && { tipodeChamado: { connect: { id: tipodeChamado_id } } }),
@@ -95,11 +98,11 @@ class UpdateOrdemdeServicoService {
           ...(informacoesSetor_id && { informacoesSetor: { connect: { id: informacoesSetor_id } } }),
          instituicaoUnidade: instituicaoUnidade_id
           ? { connect: { id: instituicaoUnidade_id } }
-          : { disconnect: true },  // remove a conexão se null
+          : { disconnect: true },  
 
         cliente: cliente_id
           ? { connect: { id: cliente_id } }
-          : { disconnect: true },  // remove a conexão se null
+          : { disconnect: true },  
 
         },
         select: {
@@ -120,6 +123,7 @@ class UpdateOrdemdeServicoService {
             },
           },
           equipamento: {select: {id: true, name: true, patrimonio: true}},
+          prioridade: {select: {id: true, name: true}},
           instituicaoUnidade: { select: { id: true, name: true } },
           cliente: { select: { id: true, name: true } },
           nameTecnico: true,

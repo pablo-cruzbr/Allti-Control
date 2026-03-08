@@ -94,6 +94,12 @@ class ListOrdemdeServicoService {
             name: true,
           }
         },
+        prioridade: {
+          select:{
+            id: true,
+            name: true,
+          }
+        },
         user: {
           select: {
             id: true,

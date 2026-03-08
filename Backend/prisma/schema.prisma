@@ -208,6 +208,8 @@ model OrdemdeServico {
  tipodeOrdemdeServico_id   String? 
  tipodeOrdemdeServico      TipodeOrdemdeServico? @relation(fields: [tipodeOrdemdeServico_id], references: [id])
 
+  prioridade_id String?
+  prioridade    prioridade?  @relation(fields: [prioridade_id], references: [id])
 
   user                              User                  @relation(fields: [user_id], references: [id])
 
@@ -246,13 +248,15 @@ model FotoOrdemServico {
   ordemdeServico    OrdemdeServico @relation(fields: [ordemdeServico_id], references: [id])
 }
 
-model urgencia {
+model prioridade {
   id         String    @id @default(uuid())
   name       String
   updated_at DateTime? @default(now())
   created_at DateTime? @default(now())
 
-  @@map("urgencia")
+  ordens OrdemdeServico[]
+
+  @@map("prioridade")
 }
 
 model Equipamento {
