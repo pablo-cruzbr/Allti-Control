@@ -90,7 +90,7 @@ class UpdateOrdemdeServicoService {
 
           // Relacionamentos opcionais
            ...(equipamento_id && {equipamento: {connect: {id: equipamento_id}}}),
-           ...(prioridade_id && {urgencia: {connect: {id:  prioridade_id}}}),
+           ...(prioridade_id && {prioridade: {connect: {id:  prioridade_id}}}),
           ...(tecnico_id && { tecnico: { connect: { id: tecnico_id } } }),
           ...(statusOrdemdeServico_id && { statusOrdemdeServico: { connect: { id: statusOrdemdeServico_id } } }),
           ...(tipodeChamado_id && { tipodeChamado: { connect: { id: tipodeChamado_id } } }),

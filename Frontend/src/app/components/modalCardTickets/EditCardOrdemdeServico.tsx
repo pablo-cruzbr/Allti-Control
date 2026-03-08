@@ -144,10 +144,11 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     const payload: any = {
       tecnico_id: form.tecnico_id || undefined,
       statusOrdemdeServico_id: form.statusOrdemdeServico_id || undefined,
-      cliente_id: form.cliente_id || null, // envia null se não selecionar
-      instituicaoUnidade_id: form.instituicaoUnidade_id || null, // envia null se não selecionar
+      cliente_id: form.cliente_id || null, 
+      instituicaoUnidade_id: form.instituicaoUnidade_id || null,
       equipamento_id: form.equipamento_id || null,
       tipodeOrdemdeServico_id: form.tipodeOrdemdeServico_id || null,
+      prioridade_id: form.prioridade_id || null,
     };
 
     console.log("Payload enviado:", payload);
@@ -187,7 +188,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
 
       <label>
         <p>Prioridade</p>
-        <select name="tipodePrioridade_id" value={form.prioridade_id} onChange={handleChange} className={styles.input}>
+        <select name="prioridade_id" value={form.prioridade_id} onChange={handleChange} className={styles.input}>
           <option value="">Selecione a Prioridade</option>
           {prioridade.map((prioridade) => (
             <option key={prioridade.id} value={prioridade.id}>
