@@ -14,6 +14,7 @@ type Tecnicos = { id: string; name: string };
 type Instituicoes = { id: string; name: string; endereco?: string };
 type Cliente = { id: string; name: string; endereco?: string; cnpj?: string };
 type Equipamento = {id: string; name: string; patrimonio: string};
+type Prioridade = {id: string; name: string};
 type FormState = {
   tecnico_id: string;
   statusOrdemdeServico_id: string;
@@ -21,7 +22,9 @@ type FormState = {
   cliente_id: string;
   equipamento_id: string;
   tipodeOrdemdeServico_id: string;
+  prioridade_id: string
 };
+
 type TipodeOrdemdeServico = { id: string; name: string };
 type Props = {
   ordemdeServico?: OrdemdeServicoProps;
@@ -37,6 +40,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     cliente_id: "",
     equipamento_id: "",
     tipodeOrdemdeServico_id: "",
+    prioridade_id: ""
   });
   const [statusList, setStatusList] = useState<Status[]>([]);
   const [tecnicoList, setTecnicoList] = useState<Tecnicos[]>([]);
@@ -44,6 +48,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
   const [clienteList, setClienteList] = useState<Cliente[]>([]);
   const [equipamentoList, setEquipamentoList] = useState<Equipamento[]>([]);
   const [tipodeordemdeservicoList, setTipodeOrdemdeServicoList] = useState<TipodeOrdemdeServico[]>([]);
+  const [prioridade, setPrioridade] = useState<Prioridade[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -69,6 +74,10 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     (ordemdeServico as any)?.tipodeordemdeservico?.id ??
     (ordemdeServico as any)?.tipodeordemdeservicoId ?? "";
 
+    const prioridadeId = 
+    (ordemdeServico as any)?.prioridadeId?.id ??
+    (ordemdeServico as any)?.prioridadeId ?? "";
+
 
     setForm({
       tecnico_id: (ordemdeServico as any)?.tecnico?.id ?? "",
@@ -76,7 +85,8 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       instituicaoUnidade_id: instituicaoId?.toString() ?? "",
       cliente_id: clienteId?.toString() ?? "",
       equipamento_id: equipamentoId?.toString() ?? "",
-      tipodeOrdemdeServico_id: tipodeordemdeservicoId?.toString() ?? ""
+      tipodeOrdemdeServico_id: tipodeordemdeservicoId?.toString() ?? "",
+      prioridade_id: prioridadeId?.toString()?? ""
     });
   }, [ordemdeServico]);
 
@@ -92,7 +102,8 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         clienteRes,
         instituicoesRes,
         equipamentoRes,
-        tipodeOrdemdeServicoRes
+        tipodeOrdemdeServicoRes,
+        prioridadeRes
       ] = await Promise.all([
         api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
         api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
@@ -100,6 +111,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
         api.get("/listequipamento", { headers: { Authorization: `Bearer ${token}` } }),
         api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+        api.get("/liststatusprioridade", { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       setTecnicoList(tecnicosRes.data.controles ?? []);
@@ -108,6 +120,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       setInstituicaoList(instituicoesRes.data.instituicoes ?? []);
       setEquipamentoList(equipamentoRes.data ?? []);
       setTipodeOrdemdeServicoList(tipodeOrdemdeServicoRes.data ?? [])
+      setPrioridade(prioridadeRes.data ?? [])
 
     } catch (error) {
       console.error("Erro ao buscar listas:", error);
@@ -171,6 +184,18 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         <HiOutlinePencilSquare className={styles.icon} />
         {ordemdeServico ? "Editar Ordem de Serviço" : "Nova Ordem de Serviço"}
       </h3>
+
+      <label>
+        <p>Prioridade</p>
+        <select name="tipodePrioridade_id" value={form.prioridade_id} onChange={handleChange} className={styles.input}>
+          <option value="">Selecione a Prioridade</option>
+          {prioridade.map((prioridade) => (
+            <option key={prioridade.id} value={prioridade.id}>
+              {prioridade.name}
+            </option>
+          ))}
+        </select>
+      </label>
 
         <label>
         <p>Tipo de Ordem de Serviço</p>
