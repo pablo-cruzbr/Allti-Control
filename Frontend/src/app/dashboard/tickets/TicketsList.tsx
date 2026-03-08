@@ -120,7 +120,10 @@ export default function TicketsList({ ticketsData }: Props) {
     ? (ticket.cliente?.id === selectedCliente || ticket.user?.cliente?.id === selectedCliente)
     : true;
 
-  return matchStatus && matchOS && matchInstituicao && matchCliente && matchTipodeOrdemdeServico;
+  const matchPrioridade = selectedPrioridade ? ticket.prioridade?.id === selectedPrioridade : true;
+
+  return matchStatus && matchOS && matchInstituicao && matchCliente && matchTipodeOrdemdeServico && matchPrioridade;
+  
 });
 
 

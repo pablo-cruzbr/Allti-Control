@@ -89,6 +89,10 @@ export interface OrdemdeServicoProps {
     name: string;
     endereco?: string;
   };
+  prioridade: {
+      id: string, 
+      name: string
+    },
 
   user: {
     id: string;
