@@ -50,8 +50,10 @@ export default function TicketsList({ ticketsData }: Props) {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [selectedInstituicao, setSelectedInstituicao] = useState<string>("");
   const [tiposOrdem, setTiposOrdem] = useState<TipodeOrdemdeServico[]>([]);
+  const [prioridade, setPrioridade] = useState<StatusPrioridade[]>([]);
   const [selectedTipoOrdem, setSelectedTipoOrdem] = useState<string>("");
   const [selectedCliente, setSelectedCliente] = useState<string>("");
+  const [selectedPrioridade, setSelectedPrioridade] = useState<string>("");
 
   // Dados das ordens
   const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, totalOrdemdeServico = 0, totalTicket = 0, controles = [] } = ticketsData || {};
@@ -61,7 +63,7 @@ export default function TicketsList({ ticketsData }: Props) {
     const fetchFilters = async () => {
       try {
         const token = await getCookieClient();
-        const [instRes, cliRes, tipoRes] = await Promise.all([
+        const [instRes, cliRes, tipoRes, prioRes] = await Promise.all([
           api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
@@ -70,6 +72,7 @@ export default function TicketsList({ ticketsData }: Props) {
         setInstituicoes(instRes.data.instituicoes ?? []);
         setClientes(cliRes.data.controles ?? []);
         setTiposOrdem(tipoRes.data ?? []);
+        setPrioridade(prioRes.data ?? []);
       } catch (error) {
         console.error("Erro ao carregar filtros:", error);
       }
@@ -154,6 +157,18 @@ export default function TicketsList({ ticketsData }: Props) {
           {clientes.map(cli => (
             <option key={cli.id} value={cli.id}>{cli.name}</option>
           ))}
+        </select>
+
+        <select 
+            value={selectedPrioridade} 
+            onChange={(e) => setSelectedPrioridade(e.target.value)} 
+            className={styles.select}
+          >
+            <option value="">Prioridade</option>
+
+            {prioridade.map(prioridade => (
+              <option key={prioridade.id} value={prioridade.id}>{prioridade.name}</option>
+            ))}
         </select>
 
          <select 
