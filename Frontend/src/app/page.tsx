@@ -13,45 +13,50 @@ export default async function Home({ searchParams }: PageProps) {
   const { error } = await searchParams;
 
   async function handleLogin(formData: FormData) {
-    "use server";
+  "use server";
 
-    const email = formData.get("email");
-    const password = formData.get("password");
+  const email = formData.get("email");
+  const password = formData.get("password");
 
-    if (!email || !password) return;
+  if (!email || !password) return;
 
-    try {
-      const response = await api.post("/session", {
-        email: email.toString(),
-        password: password.toString(),
-      });
+  try {
+    const response = await api.post("/session", {
+      email: email.toString(),
+      password: password.toString(),
+    });
 
-      if (response.data.isAdmin !== true) {
-        redirect("/?error=no_admin");
-      }
+    if (!response.data.token) return;
 
-      if (!response.data.token) return;
+    const expressTime = 60 * 60 * 24 * 30 * 1000;
+    const cookieStore = await cookies();
+    
+    cookieStore.set("session", response.data.token, {
+      maxAge: expressTime,
+      path: "/",
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+    });
 
-      const expressTime = 60 * 60 * 24 * 30 * 1000;
-      const cookieStore = await cookies();
-      
-      cookieStore.set("session", response.data.token, {
-        maxAge: expressTime,
-        path: "/",
-        httpOnly: false,
-        secure: process.env.NODE_ENV === "production",
-      });
-
-    } catch (err: any) {
  
-      if (err.message === 'NEXT_REDIRECT') throw err;
-      
-      console.log("Erro ao fazer login:", err);
-      redirect("/?error=credentials");
-    }
+    cookieStore.set("role", response.data.role, { 
+      maxAge: expressTime,
+      path: "/",
+    });
 
-    redirect("/dashboard/ticketscount");
+    cookieStore.set("isAdmin", response.data.isAdmin ? "true" : "false", {
+      maxAge: expressTime,
+      path: "/",
+    });
+
+  } catch (err: any) {
+    if (err.message === 'NEXT_REDIRECT') throw err;
+    console.log("Erro ao fazer login:", err);
+    redirect("/?error=credentials");
   }
+
+  redirect("/dashboard/ticketscount");
+}
 
   const errorMsg = error === "no_admin" 
     ? "Acesso negado: Somente administradores." 
