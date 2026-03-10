@@ -1,9 +1,11 @@
-import {getCookie} from "cookies-next"
+import { getCookie } from "cookies-next";
 
 export function getCookieClient() {
-    const token = getCookie("session");
-    return token;
+    const token = getCookie("session") || getCookie("token");
+
+    if (!token) {
+        console.warn("getCookieClient: Nenhum cookie de sessão encontrado no navegador!");
     }
-
-
-//Quando estivermos num componente server ou client agente usa essa função que vai pegar o token, devolver pra gente ou o token ou vazio
+    
+    return token;
+}

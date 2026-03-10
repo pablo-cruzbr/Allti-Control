@@ -13,50 +13,60 @@ export default async function Home({ searchParams }: PageProps) {
   const { error } = await searchParams;
 
   async function handleLogin(formData: FormData) {
-  "use server";
+    "use server";
 
-  const email = formData.get("email");
-  const password = formData.get("password");
+    const email = formData.get("email")?.toString();
+    const password = formData.get("password")?.toString();
 
-  if (!email || !password) return;
+    // Validação básica para evitar requisições vazias
+    if (!email || !password) return;
 
-  try {
-    const response = await api.post("/session", {
-      email: email.toString(),
-      password: password.toString(),
-    });
+    try {
+      const response = await api.post("/session", {
+        email,
+        password,
+      });
+       console.log("DADOS DA API:", response.data);
+      if (!response.data.token) return;
 
-    if (!response.data.token) return;
+      const cookieStore = await cookies();
+      const oneMonth = 60 * 60 * 24 * 30; // 30 dias em segundos
 
-    const expressTime = 60 * 60 * 24 * 30 * 1000;
-    const cookieStore = await cookies();
-    
-    cookieStore.set("session", response.data.token, {
-      maxAge: expressTime,
-      path: "/",
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-    });
+      // 1. Token de Sessão
+      cookieStore.set("session", response.data.token, { 
+        maxAge: oneMonth, 
+        path: "/",
+        httpOnly: true, // Segurança contra XSS
+        secure: process.env.NODE_ENV === "production" 
+      });
 
- 
-    cookieStore.set("role", response.data.role, { 
-      maxAge: expressTime,
-      path: "/",
-    });
+      // 2. Role (Vindo do seu AuthUserService atualizado)
+      const userRole = response.data.role || "USER";
+      cookieStore.set("role", userRole, { 
+        maxAge: oneMonth, 
+        path: "/" 
+      });
 
-    cookieStore.set("isAdmin", response.data.isAdmin ? "true" : "false", {
-      maxAge: expressTime,
-      path: "/",
-    });
+      // 3. isAdmin (Boolean string)
+      const isAdminString = response.data.isAdmin ? "true" : "false";
+      cookieStore.set("isAdmin", isAdminString, { 
+        maxAge: oneMonth, 
+        path: "/" 
+      });
 
-  } catch (err: any) {
-    if (err.message === 'NEXT_REDIRECT') throw err;
-    console.log("Erro ao fazer login:", err);
-    redirect("/?error=credentials");
+    } catch (err: any) {
+      // Regra de ouro: se for erro de redirect, deixa o Next.js seguir
+      if (err.message === 'NEXT_REDIRECT') throw err;
+      
+      console.log("ERRO NO LOGIN:", err.response?.data || err.message);
+      
+      // Se falhar (senha errada, etc), volta para o login com erro
+      redirect("/?error=credentials");
+    }
+
+    // Sucesso total: Redireciona fora do try/catch
+    redirect("/dashboard/ticketscount");
   }
-
-  redirect("/dashboard/ticketscount");
-}
 
   const errorMsg = error === "no_admin" 
     ? "Acesso negado: Somente administradores." 

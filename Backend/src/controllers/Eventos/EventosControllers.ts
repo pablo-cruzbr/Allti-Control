@@ -1,9 +1,6 @@
 import { Request, Response } from "express";
 import { getEventsService, createEventService, updateEventService, deleteEventService } from "../../../src/services/Eventos/EventoService";
 
-// ---------------------
-// Controllers
-// ---------------------
 export async function getEventsController(req: Request, res: Response) {
   try {
     const events = await getEventsService();

@@ -1,11 +1,12 @@
 "use client";
-import "../calendar/calendar.css";
-import { useEffect, useRef, useState } from "react";
-import scheduler from "dhtmlx-scheduler";
+
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/services/api";
 import { getCookieClient } from "@/lib/cookieClient";
+
 import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
-import { useRouter } from "next/navigation";
+import "../calendar/calendar.css";
 
 interface SchedulerEvent {
   id: number | string;
@@ -14,120 +15,75 @@ interface SchedulerEvent {
   text: string;
 }
 
-export default function Calendar() {
-  const container = useRef<HTMLDivElement>(null);
+export default function Calendar({ initialToken }: { initialToken?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const schedulerInstance = useRef<any>(null);
+  const isInitialized = useRef(false); 
   const router = useRouter();
+
   const [selectedEvent, setSelectedEvent] = useState<SchedulerEvent | null>(null);
   const [newEventDate, setNewEventDate] = useState<Date | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // --- Buscar eventos na API
-  const fetchEvents = async (token: string) => {
+  const fetchEvents = useCallback(async (token: string) => {
+    if (!schedulerInstance.current) return;
     try {
-      const { data } = await api.get<SchedulerEvent[]>("/events", {
+      const { data } = await api.get("/events", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      scheduler.parse(
-        data.map((ev) => ({
-          ...ev,
-          start_date: new Date(ev.start_date),
-          end_date: new Date(ev.end_date),
-        }))
-      );
+      console.log("Dados brutos recebidos:", data);
+
+      const schedulerData = data.map((ev: any) => ({
+        ...ev,
+        start_date: new Date(ev.start_date),
+        end_date: new Date(ev.end_date),
+      }));
+
+      schedulerInstance.current.clearAll();
+      schedulerInstance.current.parse(schedulerData);
+      schedulerInstance.current.render(); 
     } catch (err) {
-      console.error("Erro ao buscar eventos:", err);
+      console.error("Erro ao carregar eventos:", err);
     }
-  };
+  }, []);
 
-  // --- Criar evento na API
-  const createEvent = async (event: SchedulerEvent, token: string) => {
-    const { data } = await api.post<SchedulerEvent>(
-      "/events",
-      {
-        text: event.text,
-        start_date: new Date(event.start_date).toISOString(),
-        end_date: new Date(event.end_date).toISOString(),
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    scheduler.addEvent({
-      id: data.id,
-      text: data.text,
-      start_date: new Date(data.start_date),
-      end_date: new Date(data.end_date),
-    });
-
-    router.refresh();
-    return data;
-  };
-
-  // -- ATUALIZAR EVENTO
-
-  // --- Atualizar evento na API
-const updateEvent = async (event: SchedulerEvent, token: string) => {
-  try {
-    const { data } = await api.put<SchedulerEvent>(
-      "/events",
-      {
-        id: event.id,
-        text: event.text,
-        start_date: new Date(event.start_date).toISOString(),
-        end_date: new Date(event.end_date).toISOString(),
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    // Atualiza o evento no scheduler
-    scheduler.updateEvent(event.id, {
-      id: data.id,
-      text: data.text,
-      start_date: new Date(data.start_date),
-      end_date: new Date(data.end_date),
-    });
-
-    return data;
-  } catch (err) {
-    console.error("Erro ao atualizar evento:", err);
-    throw err;
-  }
-};
-
-
-  // --- Inicializar scheduler
   useEffect(() => {
-    if (!container.current) return;
+    if (typeof window === "undefined" || isInitialized.current) return;
 
     const initScheduler = async () => {
-      const token = (await getCookieClient()) as string;
-      if (!token) return;
+      const schedulerModule = await import("dhtmlx-scheduler");
+      const scheduler = schedulerModule.default;
+      schedulerInstance.current = scheduler;
 
+      scheduler.config.xml_date = "%Y-%m-%d %H:%i"; 
       scheduler.i18n.setLocale("pt");
       scheduler.skin = "terrace";
       scheduler.config.header = ["day", "week", "month", "date", "prev", "today", "next"];
-      scheduler.xy.scale_width = 70;
-      scheduler.config.drag_move = true;
-      scheduler.config.drag_resize = true;
-      scheduler.config.drag_create = true;
-      scheduler.config.dblclick_create = false;
       scheduler.config.details_on_dblclick = false;
       scheduler.config.details_on_create = false;
 
-      scheduler.init(container.current, new Date(), "month");
+      if (containerRef.current) {
+        scheduler.init(containerRef.current, new Date(), "month");
+        isInitialized.current = true;
 
-      fetchEvents(token);
+        const token = initialToken || (await getCookieClient());
+        if (token) {
+          fetchEvents(token);
+        }
+      }
 
-      // Criar novo evento
       scheduler.attachEvent("onEmptyClick", (date: Date) => {
+        const endDate = new Date(date);
+        endDate.setHours(date.getHours() + 1);
         setNewEventDate(date);
-        setSelectedEvent({ id: "", text: "", start_date: date, end_date: date });
+        setSelectedEvent({ id: "", text: "", start_date: date, end_date: endDate });
         return true;
       });
 
-      // Selecionar evento existente
-      scheduler.attachEvent("onClick", (id: number) => {
-        const ev = scheduler.getEvent(id) as SchedulerEvent;
-        setSelectedEvent(ev);
+      scheduler.attachEvent("onClick", (id: string) => {
+        const ev = scheduler.getEvent(id);
+        setSelectedEvent({ ...ev });
         setNewEventDate(null);
         return true;
       });
@@ -136,163 +92,121 @@ const updateEvent = async (event: SchedulerEvent, token: string) => {
     initScheduler();
 
     return () => {
-      scheduler.clearAll();
-      if (container.current) container.current.innerHTML = "";
+      if (schedulerInstance.current) {
+        schedulerInstance.current.clearAll();
+        isInitialized.current = false;
+      }
     };
-  }, []);
+  }, [fetchEvents, initialToken]);
 
-  // --- Salvar evento
-const handleSaveEvent = async () => {
-  const token = (await getCookieClient()) as string;
-  if (!token || !selectedEvent) return;
-
-  if (newEventDate) {
-    // Criar evento
-    await createEvent(selectedEvent, token);
-  } else {
-    // Atualizar evento existente
-    await updateEvent(selectedEvent, token);
-  }
-
-    if (token) {
-    await fetchEvents(token);
-  }
-
-  router.refresh();
-  setSelectedEvent(null);
-  setNewEventDate(null);
-};
-
-const handleDeleteEvent = async () => {
-  if (!selectedEvent) return;
-
-  const confirmDelete = confirm("Tem certeza que deseja deletar este evento?");
-  if (!confirmDelete) return;
-
-  const token = (await getCookieClient()) as string;
-  if (!token) return;
-
-  try {
-    await deleteEvent(selectedEvent.id, token);
-    setSelectedEvent(null);
-    setNewEventDate(null);
-  } catch (err) {
-    // erro já tratado em deleteEvent
-  }
-};
-
-
-// --- Deletar Evento
-
-// --- Deletar evento na API
-const deleteEvent = async (id: number | string, token: string) => {
-  try {
-    // Garante que o ID seja enviado como string
-    await api.delete(`/events/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    // Remove do scheduler local
-    if (scheduler.getEvent(id)) {
-      scheduler.deleteEvent(id);
-    }
-
-    // Recarrega todos os eventos do backend
-    await fetchEvents(token);
-
-  } catch (err: any) {
-    console.error("Erro ao deletar evento:", err.response?.data || err.message);
-    alert("Não foi possível deletar o evento. Verifique o console.");
-    throw err;
-  }
-};
-
-
-
-  // --- Atualizar horas do evento
-  const handleTimeChange = (type: "start" | "end", value: string) => {
-    if (!selectedEvent) return;
-    const [hours, minutes] = value.split(":").map(Number);
-
-    const date = new Date(
-      type === "start" ? selectedEvent.start_date : selectedEvent.end_date
-    );
-    date.setHours(hours, minutes, 0, 0);
-
-    setSelectedEvent({
-      ...selectedEvent,
-      start_date: type === "start" ? date : selectedEvent.start_date,
-      end_date: type === "end" ? date : selectedEvent.end_date,
-    });
+  const formatTimeForInput = (date: Date | string) => {
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? "00:00" : d.toTimeString().slice(0, 5);
   };
 
-  // --- Formatar hora local
-  const formatTime = (date: Date | string) => {
-    if (!(date instanceof Date)) return "00:00";
-    return `${String(date.getHours()).padStart(2, "0")}:${String(
-      date.getMinutes()
-    ).padStart(2, "0")}`;
+  const handleTimeChange = (type: "start" | "end", timeValue: string) => {
+    if (!selectedEvent) return;
+    const [hours, minutes] = timeValue.split(":").map(Number);
+    const newDate = new Date(type === "start" ? selectedEvent.start_date : selectedEvent.end_date);
+    newDate.setHours(hours, minutes, 0);
+
+    setSelectedEvent(prev => prev ? { ...prev, [type === "start" ? "start_date" : "end_date"]: newDate } : null);
+  };
+
+  const handleSaveEvent = async () => {
+    const token = initialToken || (await getCookieClient());
+    if (!token || !selectedEvent) return;
+
+    setLoading(true);
+    try {
+      const payload = {
+        text: selectedEvent.text || "Sem título",
+        start_date: new Date(selectedEvent.start_date).toISOString(),
+        end_date: new Date(selectedEvent.end_date).toISOString(),
+      };
+
+      if (newEventDate) {
+        await api.post("/events", payload, { headers: { Authorization: `Bearer ${token}` } });
+      } else {
+        await api.put(`/events/${selectedEvent.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
+      }
+
+      await fetchEvents(token);
+      setSelectedEvent(null);
+      setNewEventDate(null);
+      alert("✅ Salvo com sucesso!");
+    } catch (err: any) {
+      console.error("Erro ao salvar:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!selectedEvent || !confirm("Deseja realmente excluir?")) return;
+    const token = initialToken || (await getCookieClient());
+
+    if (!selectedEvent.id || String(selectedEvent.id).length > 10) {
+      schedulerInstance.current.deleteEvent(selectedEvent.id);
+      setSelectedEvent(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.delete(`/events/${selectedEvent.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      schedulerInstance.current.deleteEvent(selectedEvent.id);
+      setSelectedEvent(null);
+      router.refresh();
+    } catch (err) {
+      alert("Erro ao excluir.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
-      <div ref={container} style={{ width: "100%", height: "600px" }}></div>
+   <div style={{ width: "100%", height: "100%" }}>
+      <div ref={containerRef} style={{ width: "100%", height: "600px" }}>
+        <div className="dhx_cal_navline">
+          <div className="dhx_cal_prev_button">&nbsp;</div>
+          <div className="dhx_cal_next_button">&nbsp;</div>
+          <div className="dhx_cal_today_button"></div>
+          <div className="dhx_cal_date"></div>
+          <div className="dhx_cal_tab" {...{ name: "month_tab" } as any}></div>
+          <div className="dhx_cal_tab" {...{ name: "week_tab" } as any}></div>
+          <div className="dhx_cal_tab" {...{ name: "day_tab" } as any}></div>
+        </div>
+        <div className="dhx_cal_header"></div>
+        <div className="dhx_cal_data"></div>
+      </div>
 
       {selectedEvent && (
-        <div className="calendar-modal-backdrop">
-          <div className="calendar-modal-content">
-            <h2>{newEventDate ? "Novo Evento" : "Detalhes do Evento"}</h2>
-
-            {/* Painel de detalhes */}
-            <div className="event-details-panel">
-              <h3>📅 Resumo do Evento</h3>
-              <p>
-                <strong>Título:</strong> {selectedEvent.text || "Sem título"}
-              </p>
-              <p>
-                <strong>Início:</strong>{" "}
-                {new Date(selectedEvent.start_date).toLocaleString("pt-BR")}
-              </p>
-              <p>
-                <strong>Fim:</strong>{" "}
-                {new Date(selectedEvent.end_date).toLocaleString("pt-BR")}
-              </p>
-              <hr />
-            </div>
-
-            {/* Inputs */}
-            <label>Descrição:</label>
+        <div className="calendar-modal-backdrop" onClick={() => setSelectedEvent(null)}>
+          <div className="calendar-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="titleClient">{newEventDate ? "Novo Registro" : "Editar Registro"}</h2>
+            <label>Descrição</label>
             <input
               type="text"
+              autoFocus
               value={selectedEvent.text}
-              onChange={(e) =>
-                setSelectedEvent({ ...selectedEvent, text: e.target.value })
-              }
+              onChange={(e) => setSelectedEvent({ ...selectedEvent, text: e.target.value })}
             />
-
-            <label>Hora de Início:</label>
-            <input
-              type="time"
-              value={formatTime(selectedEvent.start_date)}
-              onChange={(e) => handleTimeChange("start", e.target.value)}
-            />
-
-            <label>Hora de Fim:</label>
-            <input
-              type="time"
-              value={formatTime(selectedEvent.end_date)}
-              onChange={(e) => handleTimeChange("end", e.target.value)}
-            />
-
-            {/* Botões */}
+            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+              <div style={{ flex: 1 }}>
+                <label>Início</label>
+                <input type="time" value={formatTimeForInput(selectedEvent.start_date)} onChange={(e) => handleTimeChange("start", e.target.value)} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label>Fim</label>
+                <input type="time" value={formatTimeForInput(selectedEvent.end_date)} onChange={(e) => handleTimeChange("end", e.target.value)} />
+              </div>
+            </div>
             <div className="buttons">
-              <button
-              onClick={handleDeleteEvent}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Excluir
-            </button>
-              <button onClick={handleSaveEvent}>💾 Salvar</button>
+              <button onClick={handleDeleteEvent} className="px-4 py-2 bg-red-500 text-white rounded">Excluir</button>
+              <button onClick={handleSaveEvent} disabled={loading} style={{ backgroundColor: loading ? "#ccc" : "#4b328a", color: "white" }}>
+                {loading ? "Salvando..." : "💾 Salvar"}
+              </button>
               <button onClick={() => setSelectedEvent(null)}>❌ Fechar</button>
             </div>
           </div>
