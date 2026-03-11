@@ -23,6 +23,7 @@ type DropdownKeys = "tickets" | "controles" | "clientes" | "cadastros";
 
 export default function Sidebar() {
   const router = useRouter();
+  const [userName, setUserName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
@@ -54,8 +55,10 @@ export default function Sidebar() {
       });
       
       const serverRole = response.data.role?.toUpperCase() || "USER";
+      const name = response.data.name || "Usuário";
 
       setRole(serverRole);
+      setUserName(name);
       setCookie("role", serverRole, { maxAge: 60 * 60 * 24, path: "/" });
     } catch (error: any) {
       console.error("❌ [Sidebar] Erro na sincronização.");
@@ -71,30 +74,21 @@ export default function Sidebar() {
     return () => window.removeEventListener("focus", syncUserPermissions);
   }, [syncUserPermissions]);
 
- const handleLogout = () => {
+  const handleLogout = () => {
     const cookiesToClear = ["session", "token", "role", "user_id", "isAdmin"];
     
     cookiesToClear.forEach(cookieName => {
-      // 1. Deleta de forma simples
       deleteCookie(cookieName);
-      
-      // 2. Força a deleção garantindo o Path (Onde a maioria dos cookies "se esconde")
       deleteCookie(cookieName, { path: "/" });
-      
-      // 3. Limpeza para domínios específicos (caso esteja em produção)
       deleteCookie(cookieName, { path: "/", domain: window.location.hostname });
     });
 
-    // 4. Limpeza radical: Caso algum cookie não seja HttpOnly e ainda resista
     if (typeof window !== "undefined") {
       localStorage.clear();
       sessionStorage.clear();
     }
 
     setRole(null);
-
-    // 5. Hard Refresh: Em vez de replace, usamos o reload do window para 
-    // garantir que o Next.js limpe todo o cache da memória.
     window.location.href = "/";
   };
   
@@ -107,18 +101,32 @@ export default function Sidebar() {
   const isAdmin = role === "ADMIN";
 
   return (
-    <nav className={styles.menu}>
-      {/* Banner de Status de Acesso */}
+    <nav className={styles.menu}>    
       <div style={{
-        fontSize: '10px',
+        fontSize: '11px',
         background: isAdmin ? '#2e7d32' : '#d32f2f',
         color: 'white',
-        padding: '5px',
+        padding: '8px 5px',
         textAlign: 'center',
         fontWeight: 'bold',
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2px'
       }}>
-        {isSyncing ? "Sincronizando..." : `Perfil: ${role}`}
+        <span>{isSyncing ? "Sincronizando..." : `Perfil: ${role}`}</span>
+        {!isSyncing && userName && (
+          <span style={{ 
+            fontSize: '9px', 
+            opacity: 0.9, 
+            borderTop: '1px solid rgba(255,255,255,0.2)', 
+            marginTop: '4px', 
+            paddingTop: '4px',
+            textTransform: 'none' 
+          }}>
+            Bem-vindo, {userName}
+          </span>
+        )}
       </div>
 
       <div className={styles.logo}>
@@ -126,7 +134,6 @@ export default function Sidebar() {
       </div>
 
       <div className={styles.menuList}>
-        {/* Tickets - Comum a todos */}
         <div className={styles.itemContainer}>
           <div className={styles.item} onClick={() => toggleDropdown("tickets")} style={{ cursor: "pointer" }}>
             <BiTask /> <span>Tickets</span>
@@ -140,30 +147,28 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* --- BLOCO EXCLUSIVO ADMIN --- */}
         {isAdmin && (
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '10px', paddingTop: '10px' }}>
             <p style={{ fontSize: '10px', color: '#ffd700', marginLeft: '15px', marginBottom: '5px' }}>ADMINISTRAÇÃO</p>
             
-            {/* Controles - Comum a todos */}
-         <Link href="/dashboard/ticketscount" className={styles.item}>
-          <BiHome /> <span>Dashboard</span>
-        </Link>
-        
-        <div className={styles.itemContainer}>
-          <div className={styles.item} onClick={() => toggleDropdown("controles")} style={{ cursor: "pointer" }}>
-            <IoGameControllerOutline /> <span>Controles</span>
-            {dropdowns.controles ? <BiChevronUp /> : <BiChevronDown />}
-          </div>
-          {dropdowns.controles && (
-            <div className={styles.dropdown}>
-              <Link href="/dashboard/controles/equipamentos" className={styles.subItem}>Lista de Máquinas</Link>
-              <Link href="/dashboard/controles/assistenciaTecnica" className={styles.subItem}>Assistência Técnica</Link>
-              <Link href="/dashboard/controles/laudoTecnico" className={styles.subItem}>Laudo Técnico</Link>
-              <Link href="/dashboard/controles/laboratorio" className={styles.subItem}>Laboratório</Link>
+            <Link href="/dashboard/ticketscount" className={styles.item}>
+              <BiHome /> <span>Dashboard</span>
+            </Link>
+            
+            <div className={styles.itemContainer}>
+              <div className={styles.item} onClick={() => toggleDropdown("controles")} style={{ cursor: "pointer" }}>
+                <IoGameControllerOutline /> <span>Controles</span>
+                {dropdowns.controles ? <BiChevronUp /> : <BiChevronDown />}
+              </div>
+              {dropdowns.controles && (
+                <div className={styles.dropdown}>
+                  <Link href="/dashboard/controles/equipamentos" className={styles.subItem}>Lista de Máquinas</Link>
+                  <Link href="/dashboard/controles/assistenciaTecnica" className={styles.subItem}>Assistência Técnica</Link>
+                  <Link href="/dashboard/controles/laudoTecnico" className={styles.subItem}>Laudo Técnico</Link>
+                  <Link href="/dashboard/controles/laboratorio" className={styles.subItem}>Laboratório</Link>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
             <div className={styles.itemContainer}>
               <div className={styles.item} onClick={() => toggleDropdown("clientes")} style={{ cursor: "pointer" }}>
@@ -193,20 +198,18 @@ export default function Sidebar() {
               )}
             </div>
 
-            
             <Link href="/dashboard/controles/tecnicos" className={styles.item}>
               <LiaUserAstronautSolid size={25} /> <span>Técnicos</span>
             </Link>
           </div>
         )}
 
-
         <Link href="/dashboard/documentacaoTecnica" className={styles.item}>
           <SiGoogledocs /> <span>Documentação Técnica</span>
         </Link>
 
         <button 
-          onClick={logoutAction} 
+          onClick={handleLogout} 
           className={styles.item} 
           style={{ background: 'none', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', marginTop: 'auto', color: 'inherit' }}
         >
