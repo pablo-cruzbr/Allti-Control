@@ -7,6 +7,7 @@ import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { api } from "@/services/api";
 
+// Icons
 import { BiHome, BiTask, BiChevronDown, BiChevronUp } from "react-icons/bi";
 import { IoGameControllerOutline, IoEnterOutline } from "react-icons/io5";
 import { FaRegUserCircle } from "react-icons/fa";
@@ -36,26 +37,23 @@ export default function Sidebar() {
     const token = getCookie("session") || getCookie("token");
 
     if (!token) {
-      console.warn("⚠️ [Sidebar] Token não encontrado no cookie 'session'.");
       setRole("USER"); 
       setIsSyncing(false);
       return;
     }
 
     try {
-      // Busca dado fresco com timestamp para evitar cache do navegador
-      const response = await api.get(`/users/detail?t=${Date.now()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
+      const response = await api.get(`/users/detail?t=${Date.now()}`);
+      console.log("DADOS VINDOS DO BANCO:", response.data);
       const serverRole = response.data.role?.toUpperCase() || "USER";
 
       setRole(serverRole);
-      setCookie("role", serverRole); // Sincroniza o cookie de role com o banco
       
-      console.log(`✅ [Sidebar] Sincronizado com Banco: ${serverRole}`);
+      setCookie("role", serverRole, { maxAge: 60 * 60 * 24, path: "/" });
+      
+      console.log(`✅ [Sidebar] Acesso confirmado: ${serverRole}`);
     } catch (error: any) {
-      console.error("❌ [Sidebar] Erro na API:", error.response?.status);
+      console.error("❌ [Sidebar] Erro na sincronização.");
       setRole("USER");
     } finally {
       setIsSyncing(false);
@@ -65,12 +63,8 @@ export default function Sidebar() {
   useEffect(() => {
     setMounted(true);
     
-    // Pequeno delay para garantir que os cookies estejam prontos para leitura
-    const timer = setTimeout(() => {
-      syncUserPermissions();
-    }, 200);
+    const timer = setTimeout(() => syncUserPermissions(), 200);
 
-    // Sincroniza sempre que você voltar para a aba do navegador
     window.addEventListener("focus", syncUserPermissions);
     
     return () => {
@@ -80,35 +74,34 @@ export default function Sidebar() {
   }, [syncUserPermissions]);
 
   const handleLogout = () => {
-    deleteCookie("session");
-    deleteCookie("token");
-    deleteCookie("role");
-    deleteCookie("user_id");
+    // Limpeza total de resíduos (incluindo o antigo isAdmin)
+    const cookiesToClear = ["session", "token", "role", "user_id", "isAdmin"];
+    cookiesToClear.forEach(cookie => deleteCookie(cookie));
+    
     setRole(null);
-    router.push("/");
+    router.replace("/"); 
   };
 
   const toggleDropdown = (key: DropdownKeys) => {
     setDropdowns((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Evita erro de Hydration (Mismatch entre servidor e cliente)
   if (!mounted) return null;
 
   const isAdmin = role === "ADMIN";
 
   return (
     <nav className={styles.menu}>
-      {/* Barra de Status de Segurança */}
       <div style={{
         fontSize: '10px',
-        background: isAdmin ? '#2e7d32' : '#c62828',
+        background: isAdmin ? '#2e7d32' : '#444',
         color: 'white',
         padding: '5px',
         textAlign: 'center',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        textTransform: 'uppercase'
       }}>
-        {isSyncing ? "VERIFICANDO..." : `PERFIL: ${role}`}
+        {isSyncing ? "Verificando..." : `Acesso: ${role}`}
       </div>
 
       <div className={styles.logo}>
@@ -120,7 +113,6 @@ export default function Sidebar() {
           <BiHome /> <span>Dashboard</span>
         </Link>
 
-        {/* Tickets */}
         <div className={styles.itemContainer}>
           <div className={styles.item} onClick={() => toggleDropdown("tickets")} style={{ cursor: "pointer" }}>
             <BiTask /> <span>Tickets</span>
@@ -134,7 +126,6 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* Controles */}
         <div className={styles.itemContainer}>
           <div className={styles.item} onClick={() => toggleDropdown("controles")} style={{ cursor: "pointer" }}>
             <IoGameControllerOutline /> <span>Controles</span>
@@ -150,9 +141,9 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* Seção Protegida - Só aparece se role === ADMIN */}
         {isAdmin && (
-          <div style={{ backgroundColor: 'rgba(255, 215, 0, 0.05)', borderRadius: '4px' }}>
+          <div style={{ borderLeft: '3px solid #ffd700', marginLeft: '5px', backgroundColor: 'rgba(255, 215, 0, 0.03)' }}>
+            {/* Clientes */}
             <div className={styles.itemContainer}>
               <div className={styles.item} onClick={() => toggleDropdown("clientes")} style={{ cursor: "pointer" }}>
                 <FaRegUserCircle /> <span>Clientes</span>
@@ -167,6 +158,7 @@ export default function Sidebar() {
               )}
             </div>
 
+            {/* Cadastros de Configuração */}
             <div className={styles.itemContainer}>
               <div className={styles.item} onClick={() => toggleDropdown("cadastros")} style={{ cursor: "pointer" }}>
                 <FiUserPlus /> <span>Cadastros</span>
@@ -176,7 +168,7 @@ export default function Sidebar() {
                 <div className={styles.dropdown}>
                   <Link href="/dashboard/formulariosadd/formularioMaquinas" className={styles.subItem}>Nova Máquina</Link>
                   <Link href="/dashboard/formulariosadd/formularioTecnicoAdd" className={styles.subItem}>Novo Técnico</Link>
-                  <Link href="/dashboard/usuarios" className={styles.subItem}>Novo Usuário</Link>
+                  <Link href="/dashboard/usuarios" className={styles.subItem}>Gerenciar Usuários</Link>
                 </div>
               )}
             </div>
@@ -191,9 +183,13 @@ export default function Sidebar() {
           <SiGoogledocs /> <span>Documentação Técnica</span>
         </Link>
 
-        <a onClick={handleLogout} className={styles.item} style={{ background: 'none', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+        <a 
+          onClick={handleLogout} 
+          className={styles.item} 
+          style={{ background: 'none', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', marginTop: 'auto' }}
+        >
           <IoEnterOutline />
-          <span>Logout</span>
+          <span>Sair do Sistema</span>
         </a>
       </div>
     </nav>

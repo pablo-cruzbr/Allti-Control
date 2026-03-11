@@ -38,7 +38,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 app.listen(3334, () => {
-  console.log('Servidor API TechOS Online na porta 3334!');
+  console.log('Servidor API AlltiControl Online na porta 3334!');
 });
 
 export default app;

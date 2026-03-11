@@ -2,36 +2,40 @@ import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
 
 interface Payload {
-    sub: string
+  sub: string;
+  role: string; 
 }
 
 export function isAuthenticated(
-    req: Request,
-    res: Response,
-    next: NextFunction
-){
-    //Recebe o Token
-    const authToken = req.headers.authorization
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  // 1. Recebe o Token do header
+  const authToken = req.headers.authorization;
 
-    if(!authToken){
-        console.log("Token não enviado")
-        return res.status(401).end();
-    }
+  if (!authToken) {
+    return res.status(401).json({ error: "Token não enviado" });
+  }
 
-    const [, token] = authToken.split(" ")
-    //console.log("PEGAMOS O TOKEN",token);
-    //Validar o Token
+  // 2. Remove o prefixo "Bearer "
+  const [, token] = authToken.split(" ");
 
-   try{
-    const {sub} = verify(
-        token,
-        process.env.JWT_SECREATE
+  try {
+    // 3. Valida o Token e extrai o Payload
+    // Nota: Verifique se no seu .env está JWT_SECREATE ou JWT_SECRET
+    const { sub, role } = verify(
+      token,
+      process.env.JWT_SECREATE as string
     ) as Payload;
 
+    // 4. Injeta os dados na requisição (ficha do usuário)
     req.user_id = sub;
+    req.user_role = role;
+
     return next();
-    //console.log("VALIDAMOS O TOKEN", sub)
-   }catch(err){ 
-    res.status(401).end();
-   }
+  } catch (err) {
+    // Caso o token seja inválido ou expirado
+    return res.status(401).json({ error: "Token inválido ou expirado" });
+  }
 }
