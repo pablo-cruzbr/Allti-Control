@@ -104,7 +104,6 @@ import { ListInformacaoesSetoresController } from "./controllers/status categori
 import { GetOrdemdeServicoByIdController } from "./controllers/controles_forms/OrdemdeServico/ListByIdOrdemdeServicoController";
 import { CreatetipodeOrdemdeServicoController } from "./controllers/status categorias/tipodeOrdemdeServico/CreateTipodeOrdemdeServicoController";
 import { ListtipodeOrdemdeServicoController } from "./controllers/status categorias/tipodeOrdemdeServico/ListTipodeOrdemdeServicoController";
-import { isAdmin } from "./Middleware/isAdmin";
 const router = Router();
 //get,post, update, delete
 
@@ -121,7 +120,7 @@ router.post('/users', new CreateUserController().handle); // Cadastro inicial
 router.post('/session', new AuthUserController().handle); // Login
 
 // Apenas ADM pode listar todos os usuários
-router.get('/listusers', isAuthenticated, isAdmin, new ListUserController().handle);
+router.get('/listusers', isAuthenticated, new ListUserController().handle);
 router.get('/users/detail', isAuthenticated, new DetailUserController().handle);
 
 
@@ -130,34 +129,34 @@ router.get('/users/detail', isAuthenticated, new DetailUserController().handle);
 // ============================================================
 
 // --- Cliente ---
-router.post('/categorycliente', isAuthenticated, isAdmin, new CreateClienteController().handle);
+router.post('/categorycliente', isAuthenticated, new CreateClienteController().handle);
 router.get('/listcliente', isAuthenticated, new ListClienteController().handle);
-router.delete('/deletecliente', isAuthenticated, isAdmin, new RemoveClienteController().handle);
+router.delete('/deletecliente', isAuthenticated, new RemoveClienteController().handle);
 router.get('/cliente/detail', isAuthenticated, new DetailClienteController().handle);
 
 // --- Setor ---
-router.post('/categorysetor', isAuthenticated, isAdmin, new CreateSetorController().handle);
+router.post('/categorysetor', isAuthenticated, new CreateSetorController().handle);
 router.get('/listsetores', isAuthenticated, new ListSetoresController().handle);
-router.delete('/deletesetor', isAuthenticated, isAdmin, new RemoveSetorController().handle);
-router.post('/informacoessetor', isAuthenticated, isAdmin, new CreateInformacoesSetorController().handle);
+router.delete('/deletesetor', isAuthenticated, new RemoveSetorController().handle);
+router.post('/informacoessetor', isAuthenticated, new CreateInformacoesSetorController().handle);
 router.get('/listinformacoessetor', isAuthenticated, new ListInformacaoesSetoresController().handle);
 
 // --- Instituição / Unidade ---
-router.post('/categoryintituicao', isAuthenticated, isAdmin, new CreateInstituicaoUnidadeController().handle);
+router.post('/categoryintituicao', isAuthenticated, new CreateInstituicaoUnidadeController().handle);
 router.get('/listinstuicao', isAuthenticated, new ListInstituicaoUnidadeController().handle);
-router.delete('/deleteinstituicao', isAuthenticated, isAdmin, new RemoveInstituicaoUnidadeController().handle);
-router.post('/tipodeinstituicaounidade', isAuthenticated, isAdmin, new CreatetipodeInstituicaoUnidadeController().handle);
+router.delete('/deleteinstituicao', isAuthenticated, new RemoveInstituicaoUnidadeController().handle);
+router.post('/tipodeinstituicaounidade', isAuthenticated, new CreatetipodeInstituicaoUnidadeController().handle);
 router.get('/listtipodeinstituicaounidade', isAuthenticated, new ListtipoInsituicaoUnidadeController().handle);
 
 // --- Tecnico ---
-router.post('/tecnico', isAuthenticated, isAdmin, new CreateTecnicoController().handle);
+router.post('/tecnico', isAuthenticated, new CreateTecnicoController().handle);
 router.get('/listtecnico', isAuthenticated, new ListTecnicoController().handle);
-router.delete('/removertecnico/:id', isAuthenticated, isAdmin, new RemoveTecnicoController().handle);
+router.delete('/removertecnico/:id', isAuthenticated, new RemoveTecnicoController().handle);
 
 // --- Equipamento ---
-router.post('/equipamento', isAuthenticated, isAdmin, new CreateEquipamentoController().handle);
+router.post('/equipamento', isAuthenticated, new CreateEquipamentoController().handle);
 router.get('/listequipamento', isAuthenticated, new ListEquipamentoController().handle);
-router.delete('/deleteequipamento/:id', isAuthenticated, isAdmin, new RemoveEquipamentoController().handle);
+router.delete('/deleteequipamento/:id', isAuthenticated, new RemoveEquipamentoController().handle);
 
 
 // ============================================================
@@ -165,28 +164,28 @@ router.delete('/deleteequipamento/:id', isAuthenticated, isAdmin, new RemoveEqui
 // ============================================================
 
 // --- Status Ordem de Serviço ---
-router.post('/statusordemdeservico', isAuthenticated, isAdmin, new CreateStatusOrdemdeServicoController().handle);
+router.post('/statusordemdeservico', isAuthenticated, new CreateStatusOrdemdeServicoController().handle);
 router.get('/liststatusordemdeservico', isAuthenticated, new ListStatusOrdemdeServicoController().handle);
-router.delete('/removestatusordemdeservico', isAuthenticated, isAdmin, new RemoveStatusOrdemServicoController().handle);
+router.delete('/removestatusordemdeservico', isAuthenticated, new RemoveStatusOrdemServicoController().handle);
 
 // --- Prioridades e Tipos ---
-router.post('/statusprioridade', isAuthenticated, isAdmin, new CreateStatusPrioridadeController().handle);
+router.post('/statusprioridade', isAuthenticated, new CreateStatusPrioridadeController().handle);
 router.get('/liststatusprioridade', isAuthenticated, new ListStatusUrgenciaController().handle);
-router.post('/tipodechamado', isAuthenticated, isAdmin, new CreatetipodeChamadoController().handle);
+router.post('/tipodechamado', isAuthenticated, new CreatetipodeChamadoController().handle);
 router.get('/listtipodechamado', isAuthenticated, new ListtipodeChamadoController().handle);
-router.post("/tipodeordemdeservico", isAuthenticated, isAdmin, new CreatetipodeOrdemdeServicoController().handle);
+router.post("/tipodeordemdeservico", isAuthenticated, new CreatetipodeOrdemdeServicoController().handle);
 router.get('/listtipodeordemdeservico', isAuthenticated, new ListtipodeOrdemdeServicoController().handle);
 
 // --- Outros Status (Laboratório, Compras, Reparo) ---
-router.post('/statusMaquinasPendentesLab', isAuthenticated, isAdmin, new CreatestatusMaquinasPendentesController().handle);
+router.post('/statusMaquinasPendentesLab', isAuthenticated, new CreatestatusMaquinasPendentesController().handle);
 router.get('/liststatusMaquinasPendentesLab', isAuthenticated, new ListMaquinasPendentesLabController().handle);
-router.post('/statusMaquinasPendentesOro', isAuthenticated, isAdmin, new CreatestatusMaquinasPendentesOroController().handle);
+router.post('/statusMaquinasPendentesOro', isAuthenticated, new CreatestatusMaquinasPendentesOroController().handle);
 router.get('/liststatusMaquinasPendentesOro', isAuthenticated, new ListMaquinasPendentesOroController().handle);
-router.post('/statuscontrolledeLaboratorio', isAuthenticated, isAdmin, new CreatestatusControlledeLaboratorioController().hadle);
+router.post('/statuscontrolledeLaboratorio', isAuthenticated, new CreatestatusControlledeLaboratorioController().hadle);
 router.get('/listcontrolledeLaboratorio', isAuthenticated, new ListstatusControlleLaboratioController().handle);
-router.post('/statuscompras', isAuthenticated, isAdmin, new CreateStatusComprasController().handle);
+router.post('/statuscompras', isAuthenticated, new CreateStatusComprasController().handle);
 router.get('/liststatuscompras', isAuthenticated, new ListStatusComprasController().handle);
-router.post('/statusreparo', isAuthenticated, isAdmin, new CreateStatusReparoController().handle);
+router.post('/statusreparo', isAuthenticated, new CreateStatusReparoController().handle);
 router.get('/liststatusreparo', isAuthenticated, new ListstatusReparoController().handle);
 
 
@@ -232,37 +231,37 @@ router.post('/controledeassistenciatecnica', isAuthenticated, new CreateControle
 router.get('/listcontroledeassistenciatecnica', isAuthenticated, new ListControledeAssistenciaTecnicaController().handle);
 router.get('/controledeassistenciatecnica/detail', isAuthenticated, new DetailAssistenciaTecnicaController().handle);
 router.patch('/assistenciatecnica/update/:id', isAuthenticated, new UpdateAssistenciaTecnicaController().handle);
-router.delete('/controledeassistenciatecnica/:id', isAuthenticated, isAdmin, new DeleteControledeAssistenciaTecnicaController().handle);
+router.delete('/controledeassistenciatecnica/:id', isAuthenticated, new DeleteControledeAssistenciaTecnicaController().handle);
 
 // Laudo Técnico
 router.post('/controledelaudotecnico', isAuthenticated, new CreateControledeLaudoTecnicoController().handle);
 router.get('/listcontroledelaudotecnico', isAuthenticated, new ListControledeLaudoTecnicoController().handle);
 router.get('/controledelaudotecnico/detail', isAuthenticated, new DetailLaudoTenicoController().handle);
 router.patch('/laudotecnico/update/:id', isAuthenticated, new UpdateControllerdeLaudoTecnicoController().handle);
-router.delete('/deletecontroledelaudotecnico/:id', isAuthenticated, isAdmin, new DeleteControledeLaudoTecnicoController().handle);
+router.delete('/deletecontroledelaudotecnico/:id', isAuthenticated, new DeleteControledeLaudoTecnicoController().handle);
 
 // Laboratório e Maquinas
 router.post('/controledelaboratorio', isAuthenticated, new CreateControledeLaboratorioController().handle);
 router.get('/listcontroledelaboratorio', isAuthenticated, new ListControledeLaboratorioController().handle);
 router.patch('/controledelaboratorio/update/:id', isAuthenticated, new UpdateControledeLaboratorioController().handle);
-router.delete('/deletecontroledelaboratorio/:id', isAuthenticated, isAdmin, new DeleteControledeLaboratorioController().handle);
+router.delete('/deletecontroledelaboratorio/:id', isAuthenticated, new DeleteControledeLaboratorioController().handle);
 
 // Compras e Documentação
 router.post('/solicitacaodecompras', isAuthenticated, new CreateSolicitacaodeComprasController().handle);
 router.get('/listsolicitacaodecompras', isAuthenticated, new ListSolicitacaodeComprasController().handle);
 router.patch('/compra/update/:id', isAuthenticated, new UpdateSolicitacaodeComprasController().handle);
-router.delete('/deletedesolicitacaodecompras/:id', isAuthenticated, isAdmin, new DeleteSolicitacaodeComprasController().handle);
+router.delete('/deletedesolicitacaodecompras/:id', isAuthenticated, new DeleteSolicitacaodeComprasController().handle);
 
 router.post('/documentacaotecnica', isAuthenticated, new CreateDocumentacaoTecnicaController().handle);
 router.get('/listdocumentacaotecnica', isAuthenticated, new ListDocumentacaoTecnicaController().handle);
-router.delete('/deletedocumentacaotecnica/:id', isAuthenticated, isAdmin, new DeleteDocumentacaoTecnicaController().handle);
+router.delete('/deletedocumentacaotecnica/:id', isAuthenticated, new DeleteDocumentacaoTecnicaController().handle);
 
 
 // ============================================================
 // 6. EVENTOS E CALENDÁRIO
 // ============================================================
 router.get("/events", isAuthenticated, getEventsController);
-router.post("/events", isAuthenticated, isAdmin, createEventController); // Geralmente ADM organiza escala
+router.post("/events", isAuthenticated, createEventController); 
 router.put("/events", isAuthenticated, updateEventController);
 router.delete("/events/:id", isAuthenticated, deleteEventController);
 
