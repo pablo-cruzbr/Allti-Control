@@ -126,10 +126,6 @@ export default function Sidebar() {
       </div>
 
       <div className={styles.menuList}>
-        <Link href="/dashboard/ticketscount" className={styles.item}>
-          <BiHome /> <span>Dashboard</span>
-        </Link>
-
         {/* Tickets - Comum a todos */}
         <div className={styles.itemContainer}>
           <div className={styles.item} onClick={() => toggleDropdown("tickets")} style={{ cursor: "pointer" }}>
@@ -150,6 +146,10 @@ export default function Sidebar() {
             <p style={{ fontSize: '10px', color: '#ffd700', marginLeft: '15px', marginBottom: '5px' }}>ADMINISTRAÇÃO</p>
             
             {/* Controles - Comum a todos */}
+         <Link href="/dashboard/ticketscount" className={styles.item}>
+          <BiHome /> <span>Dashboard</span>
+        </Link>
+        
         <div className={styles.itemContainer}>
           <div className={styles.item} onClick={() => toggleDropdown("controles")} style={{ cursor: "pointer" }}>
             <IoGameControllerOutline /> <span>Controles</span>

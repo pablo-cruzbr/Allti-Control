@@ -19,19 +19,19 @@ export default async function Home({ searchParams }: PageProps) {
 
     const email = formData.get("email")?.toString();
     const password = formData.get("password")?.toString();
+    let userRole = "USER";
 
     if (!email || !password) return;
 
     let loginSuccess = false;
 
-    try {
+   try {
       const response = await api.post("/session", { email, password });
 
       if (response.data.token) {
         const cookieStore = await cookies();
         const oneMonth = 60 * 60 * 24 * 30;
 
-        // LIMPEZA: Remove o cookie fantasma que estava bugando seu navegador
         cookieStore.delete("isAdmin");
 
         cookieStore.set("session", response.data.token, { 
@@ -41,24 +41,25 @@ export default async function Home({ searchParams }: PageProps) {
           secure: process.env.NODE_ENV === "production" 
         });
 
-        const userRole = response.data.role?.toUpperCase() || "USER";
+        // Capturamos a role aqui para o redirecionamento
+        userRole = response.data.role?.toUpperCase() || "USER";
         cookieStore.set("role", userRole, { maxAge: oneMonth, path: "/" });
         
         loginSuccess = true;
       }
     } catch (err: any) {
-      // Se for um erro de redirecionamento do próprio Next, deixe-o passar
       if (isRedirectError(err)) throw err;
-
       console.log("ERRO NO LOGIN:", err.response?.data || err.message);
-      
-      // Se falhou por credenciais, redirecionamos para a Home com erro
       redirect("/?error=credentials");
     }
 
-    // REGRA DE OURO: Redirect de sucesso sempre fora do try/catch
     if (loginSuccess) {
-      redirect("/dashboard/ticketscount");
+      // REGRA DE REDIRECIONAMENTO APÓS LOGIN
+      if (userRole === "ADMIN") {
+        redirect("/dashboard/ticketscount"); // Admin vê os contadores/gráficos
+      } else {
+        redirect("/dashboard/tickets"); // Usuário comum vai direto para a lista
+      }
     }
   }
 
