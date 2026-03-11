@@ -2,7 +2,7 @@ import { getCookieServer } from "@/lib/cookieServer";
 import { api } from "@/services/api";
 import TicketsList from "./TicketsList";
 import { OrdemdeServicoResponseData } from "@/lib/getOrdemdeServico.type";
-import { cookies } from "next/headers"; // Importação necessária para ler a role
+import { cookies } from "next/headers"; 
 import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
@@ -40,17 +40,13 @@ async function getTickets(token: string | null): Promise<OrdemdeServicoResponseD
 
 export default async function TicketsPage() {
   const token = await getCookieServer();
-  
-  // 1. Verificação de Role (Cadeado do Servidor)
   const cookieStore = await cookies();
   const role = cookieStore.get("role")?.value;
 
   if (role !== "ADMIN") {
-    // Se não for ADMIN, redireciona imediatamente para a lista simples
     redirect("/dashboard/tickets");
   }
 
-  // 2. Busca os dados apenas se for ADMIN
   const ticketsData = await getTickets(token);
 
   return (
