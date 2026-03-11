@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
+import { logoutAction } from "@/actions/logout";
 import { api } from "@/services/api";
 
 // Icons
@@ -70,13 +71,33 @@ export default function Sidebar() {
     return () => window.removeEventListener("focus", syncUserPermissions);
   }, [syncUserPermissions]);
 
-  const handleLogout = () => {
+ const handleLogout = () => {
     const cookiesToClear = ["session", "token", "role", "user_id", "isAdmin"];
-    cookiesToClear.forEach(cookie => deleteCookie(cookie));
-    setRole(null);
-    router.replace("/"); 
-  };
+    
+    cookiesToClear.forEach(cookieName => {
+      // 1. Deleta de forma simples
+      deleteCookie(cookieName);
+      
+      // 2. Força a deleção garantindo o Path (Onde a maioria dos cookies "se esconde")
+      deleteCookie(cookieName, { path: "/" });
+      
+      // 3. Limpeza para domínios específicos (caso esteja em produção)
+      deleteCookie(cookieName, { path: "/", domain: window.location.hostname });
+    });
 
+    // 4. Limpeza radical: Caso algum cookie não seja HttpOnly e ainda resista
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+
+    setRole(null);
+
+    // 5. Hard Refresh: Em vez de replace, usamos o reload do window para 
+    // garantir que o Next.js limpe todo o cache da memória.
+    window.location.href = "/";
+  };
+  
   const toggleDropdown = (key: DropdownKeys) => {
     setDropdowns((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -185,7 +206,7 @@ export default function Sidebar() {
         </Link>
 
         <button 
-          onClick={handleLogout} 
+          onClick={logoutAction} 
           className={styles.item} 
           style={{ background: 'none', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', marginTop: 'auto', color: 'inherit' }}
         >
