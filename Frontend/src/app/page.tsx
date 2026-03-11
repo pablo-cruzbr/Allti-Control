@@ -1,16 +1,18 @@
 import Image from "next/image";
-import styles from '../../src/app/page.module.scss';
+import styles from './page.module.scss';
 import logoImg from "../../public/Logo10.svg";
 import { cookies } from "next/headers";
 import { api } from "@/services/api";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 interface PageProps {
   searchParams: Promise<{ error?: string }>;
 }
 
 export default async function Home({ searchParams }: PageProps) {
-  const { error } = await searchParams;
+  const params = await searchParams;
+  const error = params?.error;
 
   async function handleLogin(formData: FormData) {
     "use server";
@@ -18,58 +20,50 @@ export default async function Home({ searchParams }: PageProps) {
     const email = formData.get("email")?.toString();
     const password = formData.get("password")?.toString();
 
-    // Validação básica para evitar requisições vazias
     if (!email || !password) return;
 
+    let loginSuccess = false;
+
     try {
-      const response = await api.post("/session", {
-        email,
-        password,
-      });
-       console.log("DADOS DA API:", response.data);
-      if (!response.data.token) return;
+      const response = await api.post("/session", { email, password });
 
-      const cookieStore = await cookies();
-      const oneMonth = 60 * 60 * 24 * 30; // 30 dias em segundos
+      if (response.data.token) {
+        const cookieStore = await cookies();
+        const oneMonth = 60 * 60 * 24 * 30;
 
-      // 1. Token de Sessão
-      cookieStore.set("session", response.data.token, { 
-        maxAge: oneMonth, 
-        path: "/",
-        httpOnly: true, // Segurança contra XSS
-        secure: process.env.NODE_ENV === "production" 
-      });
+        // LIMPEZA: Remove o cookie fantasma que estava bugando seu navegador
+        cookieStore.delete("isAdmin");
 
-      // 2. Role (Vindo do seu AuthUserService atualizado)
-      const userRole = response.data.role || "USER";
-      cookieStore.set("role", userRole, { 
-        maxAge: oneMonth, 
-        path: "/" 
-      });
+        cookieStore.set("session", response.data.token, { 
+          maxAge: oneMonth, 
+          path: "/",
+          httpOnly: true, 
+          secure: process.env.NODE_ENV === "production" 
+        });
 
-      // 3. isAdmin (Boolean string)
-      const isAdminString = response.data.isAdmin ? "true" : "false";
-      cookieStore.set("isAdmin", isAdminString, { 
-        maxAge: oneMonth, 
-        path: "/" 
-      });
-
+        const userRole = response.data.role?.toUpperCase() || "USER";
+        cookieStore.set("role", userRole, { maxAge: oneMonth, path: "/" });
+        
+        loginSuccess = true;
+      }
     } catch (err: any) {
-      // Regra de ouro: se for erro de redirect, deixa o Next.js seguir
-      if (err.message === 'NEXT_REDIRECT') throw err;
-      
+      // Se for um erro de redirecionamento do próprio Next, deixe-o passar
+      if (isRedirectError(err)) throw err;
+
       console.log("ERRO NO LOGIN:", err.response?.data || err.message);
       
-      // Se falhar (senha errada, etc), volta para o login com erro
+      // Se falhou por credenciais, redirecionamos para a Home com erro
       redirect("/?error=credentials");
     }
 
-    // Sucesso total: Redireciona fora do try/catch
-    redirect("/dashboard/ticketscount");
+    // REGRA DE OURO: Redirect de sucesso sempre fora do try/catch
+    if (loginSuccess) {
+      redirect("/dashboard/ticketscount");
+    }
   }
 
   const errorMsg = error === "no_admin" 
-    ? "Acesso negado: Somente administradores." 
+    ? "Acesso negado: Perfil sem permissão." 
     : error === "credentials" 
     ? "E-mail ou senha incorretos." 
     : null;
@@ -78,41 +72,40 @@ export default async function Home({ searchParams }: PageProps) {
     <div className={styles.container}>
       <div className={styles.conteiner}>
         <section className={styles.login}>
-          <Image
-            src={logoImg}
-            alt="Logo SF2"
-            width={200}
-            height={100}
-            className={styles.logo}
-            priority
-          />
-
+          <Image src={logoImg} alt="Logo" width={200} height={100} priority />
           <h1>Faça seu Login</h1>
 
           {errorMsg && (
-            <p style={{ color: '#FF3F4B', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
+            <p style={{ 
+              color: '#FF3F4B', 
+              fontWeight: 'bold', 
+              marginBottom: '10px', 
+              textAlign: 'center',
+              backgroundColor: 'rgba(255, 63, 75, 0.1)',
+              padding: '8px',
+              borderRadius: '4px',
+              fontSize: '14px'
+            }}>
               {errorMsg}
             </p>
           )}
 
           <form action={handleLogin}>
-            <input
-              type="email"
-              name="email"
-              placeholder="Digite seu email"
-              required
-              className={styles.input}
+            <input 
+              type="email" 
+              name="email" 
+              placeholder="E-mail" 
+              required 
+              className={styles.input} 
             />
-
-            <input
-              type="password"
-              name="password"
-              placeholder="Digite sua senha"
-              required
-              className={styles.input}
+            <input 
+              type="password" 
+              name="password" 
+              placeholder="Senha" 
+              required 
+              className={styles.input} 
             />
-
-            <button type="submit">Acessar</button>
+            <button type="submit" className={styles.button}>Acessar Sistema</button>
           </form>
         </section>
       </div>

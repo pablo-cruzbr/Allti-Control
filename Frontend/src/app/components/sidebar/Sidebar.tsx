@@ -34,27 +34,30 @@ export default function Sidebar() {
   });
 
   const syncUserPermissions = useCallback(async () => {
+    const savedRole = getCookie("role");
     const token = getCookie("session") || getCookie("token");
 
+    if (savedRole) {
+      setRole(savedRole.toString().toUpperCase());
+    }
+
     if (!token) {
-      setRole("USER"); 
       setIsSyncing(false);
       return;
     }
 
     try {
-      const response = await api.get(`/users/detail?t=${Date.now()}`);
-      console.log("DADOS VINDOS DO BANCO:", response.data);
+      const response = await api.get(`/users/detail`, {
+        params: { t: Date.now() }, 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
+      
       const serverRole = response.data.role?.toUpperCase() || "USER";
 
       setRole(serverRole);
-      
       setCookie("role", serverRole, { maxAge: 60 * 60 * 24, path: "/" });
-      
-      console.log(`✅ [Sidebar] Acesso confirmado: ${serverRole}`);
     } catch (error: any) {
       console.error("❌ [Sidebar] Erro na sincronização.");
-      setRole("USER");
     } finally {
       setIsSyncing(false);
     }
@@ -62,22 +65,14 @@ export default function Sidebar() {
 
   useEffect(() => {
     setMounted(true);
-    
-    const timer = setTimeout(() => syncUserPermissions(), 200);
-
+    syncUserPermissions();
     window.addEventListener("focus", syncUserPermissions);
-    
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("focus", syncUserPermissions);
-    };
+    return () => window.removeEventListener("focus", syncUserPermissions);
   }, [syncUserPermissions]);
 
   const handleLogout = () => {
-    // Limpeza total de resíduos (incluindo o antigo isAdmin)
     const cookiesToClear = ["session", "token", "role", "user_id", "isAdmin"];
     cookiesToClear.forEach(cookie => deleteCookie(cookie));
-    
     setRole(null);
     router.replace("/"); 
   };
@@ -92,16 +87,17 @@ export default function Sidebar() {
 
   return (
     <nav className={styles.menu}>
+      {/* Banner de Status de Acesso */}
       <div style={{
         fontSize: '10px',
-        background: isAdmin ? '#2e7d32' : '#444',
+        background: isAdmin ? '#2e7d32' : '#d32f2f',
         color: 'white',
         padding: '5px',
         textAlign: 'center',
         fontWeight: 'bold',
         textTransform: 'uppercase'
       }}>
-        {isSyncing ? "Verificando..." : `Acesso: ${role}`}
+        {isSyncing ? "Sincronizando..." : `Perfil: ${role}`}
       </div>
 
       <div className={styles.logo}>
@@ -113,6 +109,7 @@ export default function Sidebar() {
           <BiHome /> <span>Dashboard</span>
         </Link>
 
+        {/* Tickets - Comum a todos */}
         <div className={styles.itemContainer}>
           <div className={styles.item} onClick={() => toggleDropdown("tickets")} style={{ cursor: "pointer" }}>
             <BiTask /> <span>Tickets</span>
@@ -126,6 +123,12 @@ export default function Sidebar() {
           )}
         </div>
 
+        {/* --- BLOCO EXCLUSIVO ADMIN --- */}
+        {isAdmin && (
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '10px', paddingTop: '10px' }}>
+            <p style={{ fontSize: '10px', color: '#ffd700', marginLeft: '15px', marginBottom: '5px' }}>ADMINISTRAÇÃO</p>
+            
+            {/* Controles - Comum a todos */}
         <div className={styles.itemContainer}>
           <div className={styles.item} onClick={() => toggleDropdown("controles")} style={{ cursor: "pointer" }}>
             <IoGameControllerOutline /> <span>Controles</span>
@@ -141,9 +144,6 @@ export default function Sidebar() {
           )}
         </div>
 
-        {isAdmin && (
-          <div style={{ borderLeft: '3px solid #ffd700', marginLeft: '5px', backgroundColor: 'rgba(255, 215, 0, 0.03)' }}>
-            {/* Clientes */}
             <div className={styles.itemContainer}>
               <div className={styles.item} onClick={() => toggleDropdown("clientes")} style={{ cursor: "pointer" }}>
                 <FaRegUserCircle /> <span>Clientes</span>
@@ -158,7 +158,6 @@ export default function Sidebar() {
               )}
             </div>
 
-            {/* Cadastros de Configuração */}
             <div className={styles.itemContainer}>
               <div className={styles.item} onClick={() => toggleDropdown("cadastros")} style={{ cursor: "pointer" }}>
                 <FiUserPlus /> <span>Cadastros</span>
@@ -172,25 +171,27 @@ export default function Sidebar() {
                 </div>
               )}
             </div>
+
+            
+            <Link href="/dashboard/controles/tecnicos" className={styles.item}>
+              <LiaUserAstronautSolid size={25} /> <span>Técnicos</span>
+            </Link>
           </div>
         )}
 
-        <Link href="/dashboard/controles/tecnicos" className={styles.item}>
-          <LiaUserAstronautSolid size={25} /> <span>Técnicos</span>
-        </Link>
 
         <Link href="/dashboard/documentacaoTecnica" className={styles.item}>
           <SiGoogledocs /> <span>Documentação Técnica</span>
         </Link>
 
-        <a 
+        <button 
           onClick={handleLogout} 
           className={styles.item} 
-          style={{ background: 'none', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', marginTop: 'auto' }}
+          style={{ background: 'none', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', marginTop: 'auto', color: 'inherit' }}
         >
           <IoEnterOutline />
           <span>Sair do Sistema</span>
-        </a>
+        </button>
       </div>
     </nav>
   );
