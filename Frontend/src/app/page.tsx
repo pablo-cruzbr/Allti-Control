@@ -19,20 +19,24 @@ export default async function Home({ searchParams }: PageProps) {
 
     const email = formData.get("email")?.toString();
     const password = formData.get("password")?.toString();
-    let userRole = "USER";
 
     if (!email || !password) return;
 
-    let loginSuccess = false;
-
-   try {
+    try {
+      // 1. Autenticação na API
       const response = await api.post("/session", { email, password });
 
       if (response.data.token) {
+        const userRole = response.data.role?.toUpperCase() || "USER";
+
+        // 2. BLOQUEIO: Se for USER, barra o acesso e recarrega com erro
+        if (userRole === "USER") {
+          redirect("/?error=no_admin");
+        }
+
+        // 3. Se for ADMIN ou TECNICO, prossegue com a sessão
         const cookieStore = await cookies();
         const oneMonth = 60 * 60 * 24 * 30;
-
-        cookieStore.delete("isAdmin");
 
         cookieStore.set("session", response.data.token, { 
           maxAge: oneMonth, 
@@ -40,31 +44,28 @@ export default async function Home({ searchParams }: PageProps) {
           httpOnly: true, 
           secure: process.env.NODE_ENV === "production" 
         });
-
-        // Capturamos a role aqui para o redirecionamento
-        userRole = response.data.role?.toUpperCase() || "USER";
-        cookieStore.set("role", userRole, { maxAge: oneMonth, path: "/" });
         
-        loginSuccess = true;
+        cookieStore.set("role", userRole, { maxAge: oneMonth, path: "/" });
+
+        // 4. Redirecionamento por Perfil Permitido
+        if (userRole === "ADMIN") {
+          redirect("/dashboard/ticketscount");
+        } else if (userRole === "TECNICO") {
+          redirect("/dashboard/tickets");
+        }
       }
     } catch (err: any) {
+      // Importante: Não capture o erro de redirect do Next.js
       if (isRedirectError(err)) throw err;
+      
       console.log("ERRO NO LOGIN:", err.response?.data || err.message);
       redirect("/?error=credentials");
     }
-
-    if (loginSuccess) {
-      // REGRA DE REDIRECIONAMENTO APÓS LOGIN
-      if (userRole === "ADMIN") {
-        redirect("/dashboard/ticketscount"); // Admin vê os contadores/gráficos
-      } else {
-        redirect("/dashboard/tickets"); // Usuário comum vai direto para a lista
-      }
-    }
   }
 
+  // Definição das mensagens baseada no parâmetro de erro da URL
   const errorMsg = error === "no_admin" 
-    ? "Acesso negado: Perfil sem permissão." 
+    ? "Acesso negado: Este portal é exclusivo para Administradores e Técnicos." 
     : error === "credentials" 
     ? "E-mail ou senha incorretos." 
     : null;
@@ -74,18 +75,19 @@ export default async function Home({ searchParams }: PageProps) {
       <div className={styles.conteiner}>
         <section className={styles.login}>
           <Image src={logoImg} alt="Logo" width={200} height={100} priority />
-          <h1>Faça seu Login</h1>
+          <h1>Portal Administrativo</h1>
 
           {errorMsg && (
             <p style={{ 
               color: '#FF3F4B', 
               fontWeight: 'bold', 
-              marginBottom: '10px', 
+              marginBottom: '15px', 
               textAlign: 'center',
               backgroundColor: 'rgba(255, 63, 75, 0.1)',
-              padding: '8px',
+              padding: '10px',
               borderRadius: '4px',
-              fontSize: '14px'
+              fontSize: '14px',
+              border: '1px solid rgba(255, 63, 75, 0.2)'
             }}>
               {errorMsg}
             </p>

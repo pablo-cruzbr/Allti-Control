@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { logoutAction } from "@/actions/logout";
 import { api } from "@/services/api";
 
-// Icons
 import { BiHome, BiTask, BiChevronDown, BiChevronUp } from "react-icons/bi";
 import { IoGameControllerOutline, IoEnterOutline } from "react-icons/io5";
 import { FaRegUserCircle } from "react-icons/fa";
@@ -53,6 +52,7 @@ export default function Sidebar() {
         params: { t: Date.now() }, 
         headers: { Authorization: `Bearer ${token}` } 
       });
+           console.log("DADOS DA API NA SIDEBAR:", response.data);
       
       const serverRole = response.data.role?.toUpperCase() || "USER";
       const name = response.data.name || "Usuário";
