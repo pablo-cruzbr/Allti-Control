@@ -64,7 +64,6 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
 
         <h2>Detalhes da Ordem de Serviço</h2>
 
-        {/* Se estiver em modo Fotos */}
         {isFotos && (
           <ViewCardFoto
             ordemdeServico={OrdemdeServico}
@@ -114,10 +113,6 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
                 <span>{OrdemdeServico.user.name}</span>
                
               </div>
-
-             
-             
-
             </div>
 
            <p className={styles.sectionTitle}>Dados de Localização</p>
