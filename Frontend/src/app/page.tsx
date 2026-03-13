@@ -23,18 +23,14 @@ export default async function Home({ searchParams }: PageProps) {
     if (!email || !password) return;
 
     try {
-      // 1. Autenticação na API
       const response = await api.post("/session", { email, password });
 
       if (response.data.token) {
         const userRole = response.data.role?.toUpperCase() || "USER";
-
-        // 2. BLOQUEIO: Se for USER, barra o acesso e recarrega com erro
         if (userRole === "USER") {
           redirect("/?error=no_admin");
         }
 
-        // 3. Se for ADMIN ou TECNICO, prossegue com a sessão
         const cookieStore = await cookies();
         const oneMonth = 60 * 60 * 24 * 30;
 
@@ -47,7 +43,6 @@ export default async function Home({ searchParams }: PageProps) {
         
         cookieStore.set("role", userRole, { maxAge: oneMonth, path: "/" });
 
-        // 4. Redirecionamento por Perfil Permitido
         if (userRole === "ADMIN") {
           redirect("/dashboard/ticketscount");
         } else if (userRole === "TECNICO") {
@@ -55,7 +50,6 @@ export default async function Home({ searchParams }: PageProps) {
         }
       }
     } catch (err: any) {
-      // Importante: Não capture o erro de redirect do Next.js
       if (isRedirectError(err)) throw err;
       
       console.log("ERRO NO LOGIN:", err.response?.data || err.message);
@@ -63,7 +57,6 @@ export default async function Home({ searchParams }: PageProps) {
     }
   }
 
-  // Definição das mensagens baseada no parâmetro de erro da URL
   const errorMsg = error === "no_admin" 
     ? "Acesso negado: Este portal é exclusivo para Administradores e Técnicos." 
     : error === "credentials" 
