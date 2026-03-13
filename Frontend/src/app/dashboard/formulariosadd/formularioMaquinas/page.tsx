@@ -19,25 +19,6 @@ export default function FormularioCompras() {
     router.push('/dashboard/controles/equipamentos');
   }
 
-  useEffect(() => {
-    async function fetchStatusCompras() {
-      try {
-        const token = await getCookieClient();
-        console.log("TOKEN DO USUÁRIO: ", token);
-        const response = await api.get("/liststatuscompras", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setCompras(response.data);
-      } catch (err) {
-        console.error("Erro ao buscar status Compras: ", err);
-      }
-    }
-
-    fetchStatusCompras();
-  }, []);
-
   async function handleFormularioCompras(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -49,25 +30,24 @@ export default function FormularioCompras() {
       patrimonio,
     });
 
-    try {
-      const token = await getCookieClient();
-      await api.post("/equipamento", {
-        name,
-        patrimonio,
-        
-      },
-        {
-          headers:{
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+   try {
+  const token = await getCookieClient();
+  console.log("TOKEN QUE ESTOU ENVIANDO:", token); // Copie isso e cole no jwt.io
 
-      router.push("/dashboard/controles/equipamentos");
-    } catch (err) {
-      console.error("Erro ao enviar solicitação de compra: ", err);
-    }
-  }
+  const response = await api.post("/equipamento", {
+    name,
+    patrimonio,
+  }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  router.push("/dashboard/controles/equipamentos");
+} catch (err: any) {
+  // LOG DETALHADO DO ERRO
+  console.error("DETALHES DO ERRO 401:");
+  console.log("Mensagem do servidor:", err.response?.data); 
+  console.log("Status do erro:", err.response?.status);
+}}
 
   return (
     <section>

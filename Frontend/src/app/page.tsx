@@ -41,7 +41,7 @@ export default async function Home({ searchParams }: PageProps) {
         cookieStore.set("session", response.data.token, { 
           maxAge: oneMonth, 
           path: "/",
-          httpOnly: true, 
+          httpOnly: false, 
           secure: process.env.NODE_ENV === "production" 
         });
         
