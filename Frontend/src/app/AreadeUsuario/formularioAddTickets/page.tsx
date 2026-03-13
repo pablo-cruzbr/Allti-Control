@@ -37,7 +37,12 @@ export default function FormularioAddTickets() {
   useEffect(() => {
     async function fetchTiposDeChamado() {
       try {
-        const response = await api.get('/listtipodechamado');
+        const token = await getCookieClient();
+        const response = await api.get('/listtipodechamado', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
         setTiposDeChamado(response.data);
       } catch (error) {
         console.error('Erro ao buscar tipos de chamado:', error);
@@ -49,7 +54,12 @@ export default function FormularioAddTickets() {
    useEffect(() => {
     async function fetchTiposDeOrdemdeServico() {
       try {
-        const response = await api.get('/listtipodeordemdeservico');
+         const token = await getCookieClient();
+        const response = await api.get('/listtipodeordemdeservico', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         setTipodeOrdemdeServico(response.data);
       } catch (error) {
         console.error('Erro ao buscar tipos de chamado:', error);
