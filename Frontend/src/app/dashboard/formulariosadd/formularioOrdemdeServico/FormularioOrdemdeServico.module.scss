@@ -91,9 +91,9 @@
 }
 
 .input {
-    width: 100%;
+  width: 100%;
   box-sizing: border-box;
-  height: 45px;
+  min-height: 45px; /* Alterado de height para min-height */
   border-radius: 12px;
   border: 1px solid #dde6ed;
   background: #f9fbfd;
@@ -104,16 +104,50 @@
   margin: 8px 0;
   transition: all 0.3s ease;
   outline: none;
+  display: flex; /* Adicionado para alinhar conteúdo interno */
+  align-items: center;
 
   &::placeholder {
     color: #9ba9b9;
     font-size: 13px;
   }
 
-  &:focus {
-    border-color:#4E3182;
-    box-shadow: 0 0 0 3px rgba(53, 77, 240, 0.2);
+  &:focus-within { /* focus-within é melhor quando o input é um container */
+    border-color: #4E3182;
+    box-shadow: 0 0 0 3px rgba(78, 49, 130, 0.2);
+  }
+
+  /* Estilo para quando for um container de Textarea */
+  &.textAreaContainer {
+    height: 120px;
+    align-items: flex-start;
+    padding-top: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4E3182;
+    resize: none;
+    font-family: inherit;
+
+    &::placeholder {
+      color: #9ba9b9;
+    }
+  }
+
+  select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    cursor: pointer;
   }
 }
-
-

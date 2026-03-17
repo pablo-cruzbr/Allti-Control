@@ -6,105 +6,131 @@ import styles from './FormularioOrdemdeServico.module.scss';
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { api } from '@/services/api';
 import { getCookieClient } from '@/lib/cookieClient';
-export const dynamic = 'force-dynamic';
+import { jwtDecode } from 'jwt-decode';
+import { JwtPayload } from '@/lib/JWTpayload.type';
 
-interface ItemProps {
+export const dynamic = 'force-dynamic';
+interface TipoDeChamado {
   id: string;
   name: string;
 }
 
+interface TipoDeOrdemdeServico {
+  id: string;
+  name: string;
+}
+
+
 export default function FormularioOrdemdeServico() {
-  const [instituicao, setInstituicao] = useState<ItemProps[]>([]);
-  const [tecnico, setTecnico] = useState<ItemProps[]>([]);
-  const [cliente, setCliente] = useState<ItemProps[]>([]);
+  const [tiposDeChamado, setTiposDeChamado] = useState<TipoDeChamado[]>([]);
+    const [tipodeOrdemdeServico, setTipodeOrdemdeServico] = useState<TipoDeOrdemdeServico[]>([])
+    const [loading, setLoading] = useState(false);
+  
+    const router = useRouter();
 
-  const router = useRouter();
-
-  function handleBack() {
+     function handleBack() {
     router.push('/dashboard/tickets');
-  }
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const token = await getCookieClient();
-
-        const [instituicaoRes, tecnicoRes, clienteRes] = await Promise.all([
-          api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
-        ]);
-
-        setInstituicao(instituicaoRes.data.instituicoes);
-        setTecnico(tecnicoRes.data.controles);
-        setCliente(clienteRes.data.controles);
-      } catch (err) {
-        console.error("Erro ao buscar dados:", err);
-      }
     }
 
-    fetchData();
-  }, []);
+    function gerarNumeroOS(): string {
+      return Math.floor(10000 + Math.random() * 90000).toString();
+    }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+ 
+
+
+  
+    useEffect(() => {
+      async function fetchTiposDeChamado() {
+        try {
+          const token = await getCookieClient();
+          const response = await api.get('/listtipodechamado', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+          setTiposDeChamado(response.data);
+        } catch (error) {
+          console.error('Erro ao buscar tipos de chamado:', error);
+        }
+      }
+      fetchTiposDeChamado();
+    }, []);
+  
+     useEffect(() => {
+      async function fetchTiposDeOrdemdeServico() {
+        try {
+           const token = await getCookieClient();
+          const response = await api.get('/listtipodeordemdeservico', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          setTipodeOrdemdeServico(response.data);
+        } catch (error) {
+          console.error('Erro ao buscar tipos de chamado:', error);
+        }
+      }
+      fetchTiposDeOrdemdeServico();
+    }, []);
+  
+   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
+  
+    if (loading) return;
+  
     const formData = new FormData(event.currentTarget);
-
-    const titulo = formData.get("titulo");
-    const descricao = formData.get("descricao");
-    const instituicaoUnidade_id = formData.get("instituicaoUnidade_id") || null;
-    const tecnico_id = formData.get("tecnico_id");
-    const cliente_id = formData.get("cliente_id") || null;
-
-    if (!titulo || !descricao || !tecnico_id) {
-      alert("Preencha todos os campos obrigatórios.");
+    const name = formData.get('name')?.toString().trim();
+    const tipodeChamado_id = formData.get('tipodeChamado_id')?.toString().trim();
+    const tipodeOrdemdeServico_id = formData.get('tipodeOrdemdeServico_id')?.toString().trim();
+    const descricaodoProblemaouSolicitacao = formData.get('descricaodoProblemaouSolicitacao')?.toString().trim();
+    const nomedoContatoaserProcuradonoLocal =
+      formData.get('nomedoContatoaserProcuradonoLocal')?.toString().trim() || null;
+  
+    if (!name || !tipodeChamado_id || !descricaodoProblemaouSolicitacao) {
+      alert('Preencha todos os campos obrigatórios.');
       return;
     }
-
-    console.log("Form Data enviado:", {
-      titulo,
-      descricao,
-      instituicaoUnidade_id,
-      tecnico_id,
-      cliente_id,
-    });
-
+  
+    setLoading(true);
+  
     try {
       const token = await getCookieClient();
-
-      await api.post(
-        "/documentacaotecnica",
-        {
-          titulo,
-          descricao,
-          instituicaoUnidade_id,
-          tecnico_id,
-          cliente_id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      router.push("/dashboard/documentacaoTecnica");
-    } catch (err: any) {
-      console.error("Erro ao enviar formulário:", err);
-      if (err.response?.status === 400) {
-        alert("Erro 400 - Verifique se todos os campos obrigatórios estão preenchidos corretamente.");
-      } else {
-        alert("Erro inesperado ao enviar formulário.");
+      if (!token) {
+        alert('Token de autenticação não encontrado. Faça login novamente.');
+        setLoading(false);
+        return;
       }
+  
+      const decoded = jwtDecode<JwtPayload>(token);
+      const user_id = decoded.sub;
+      const numeroOS = gerarNumeroOS(); 
+  
+      const payload: any = {
+        numeroOS,
+        name,
+        tipodeChamado_id,
+        descricaodoProblemaouSolicitacao,
+        nomedoContatoaserProcuradonoLocal,
+        user_id,
+      };
+  
+      await api.post('/ordemdeservico', payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      router.push('/AreadeUsuario/formularioenviado');
+    } catch (err) {
+      console.error('Erro ao enviar ordem de serviço:', err);
+      alert('Erro ao enviar. Verifique os campos e tente novamente.');
+      setLoading(false);
     }
   }
-
   return (
     <section>
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>FORMULÁRIO ORDEM DE SERVIÇO</h1>
-        <IoArrowBackCircleOutline size={30} color="#4B4B4B" onClick={handleBack} />
+        <IoArrowBackCircleOutline size={30} color="#4B4B4B" onClick={handleBack} style={{ cursor: 'pointer' }} />
         <button className={styles.button} onClick={handleBack}>
           Voltar
         </button>
@@ -117,47 +143,55 @@ export default function FormularioOrdemdeServico() {
               type="text"
               required
               name="titulo"
-              placeholder="Título do Card"
+              placeholder="Nome do Cliente"
               className={styles.input}
             />
 
-            <input
-              type="text"
-              required
-              name="descricao"
-              placeholder="Adicione suas Anotações"
-              className={styles.input}
-            />
+              <p>Selecione o Tipo de Ordem de Serviço</p>
+                <select name="tipodeOrdemdeServico_id" required className={styles.input}>
+                  <option value="" disabled hidden>
+                    Selecione o Tipo de Ordem de Servico
+                  </option>
+                  {tipodeOrdemdeServico.map((tipo) => (
+                    <option key={tipo.id} value={tipo.id}>
+                      {tipo.name}
+                    </option>
+                  ))}
+                </select>
 
-            <select name="instituicaoUnidade_id" className={styles.input}>
-              <option value="" disabled hidden>Selecione a Instituição/Unidade</option>
-              {instituicao.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
+             <p>Selecione o Tipo de Chamado</p>
+              <select name="tipodeChamado_id" required className={styles.input}>
+                <option value="" disabled hidden>
+                  Selecione o Tipo de Chamado
                 </option>
-              ))}
-            </select>
+                {tiposDeChamado.map((tipo) => (
+                  <option key={tipo.id} value={tipo.id}>
+                    {tipo.name}
+                  </option>
+                ))}
+              </select>
 
-            <select name="tecnico_id" className={styles.input} required>
-              <option value="" disabled hidden>Selecione o Técnico</option>
-              {tecnico.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+              <p>Adicione a Descrição do Problema</p>
+              <div className={`${styles.input} ${styles.textAreaContainer}`}>
+                <textarea
+                  name="descricaodoProblemaouSolicitacao"
+                  placeholder="Descrição do Problema ou Solicitação"
+                  required
+                  className={styles.textarea}
+                />
+              </div>
 
-            <select name="cliente_id" className={styles.input}>
-              <option value="" disabled hidden>Selecione o Cliente</option>
-              {cliente.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+                <input
+                  type="text"
+                  required
+                  name="nomedoContatoaserProcuradonoLocal"
+                  placeholder="Nome do Contato no Local (opcional)"
+                  className={styles.input}
+                />
 
-            <button className={styles.button} type="submit">
-              Concluir
+            
+            <button className={styles.button} type="submit" disabled={loading}>
+              {loading ? "Enviando..." : "Concluir"}
             </button>
           </form>
         </section>

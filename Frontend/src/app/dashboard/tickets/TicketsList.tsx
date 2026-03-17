@@ -136,8 +136,6 @@ export default function TicketsList({ ticketsData }: Props) {
   
 });
 
-
-
   return (
     <section>
       <div className={styles.headerClient}>
@@ -151,12 +149,13 @@ export default function TicketsList({ ticketsData }: Props) {
                 onChange={(e) => setSearchOS(e.target.value)}
                 className={styles.searchInput}
               />
-      </div>
-          <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
-           <button className={styles.button} onClick={handleAddCardTecnico}>Novo Registro - Cliente</button> 
-           <button className={styles.button} onClick={handleAddCardOrdemdeServico}>Novo Registro - OS</button> 
-           <button className={styles.button} onClick={handleAddCardTicket}>Novo Registro - Ticket</button> 
         </div>
+          
+           <button className={styles.button} onClick={handleAddCardTecnico}>Novo Registro - Cliente</button> 
+           <button className={styles.button} onClick={handleAddCardOrdemdeServico}>Nova OS</button> 
+           <button className={styles.button} onClick={handleAddCardTicket}>Novo Ticket</button> 
+        </div>
+        <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
       </div>
 
       <div className={styles.headerClient}>

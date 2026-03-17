@@ -81,27 +81,36 @@
 }
 
 
-    .button {
-      background: linear-gradient(135deg, #4E3182, #4E3182);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      font-family: inherit;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+ .button {
+  /* Gradiente com leve variação para dar profundidade */
+  background: linear-gradient(135deg, #6343a3, #4E3182);
+  color: #fff;
+  padding: 10px 24px; /* Padding mais equilibrado */
+  height: 45px;       /* Altura fixa para manter a consistência */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;           /* Espaço para ícones se você adicionar */
+  
+  border-radius: 8px; /* Cantos um pouco menos arredondados para um ar mais moderno */
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap; /* Impede que o texto quebre e mude a altura do botão */
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
+  &:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(78, 49, 130, 0.3);
+  }
 
-      &:active {
-        transform: translateY(1px);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      }
-    }
+  &:active {
+    transform: translateY(0);
+  }
+}
 
     .refresh {
       cursor: pointer;
