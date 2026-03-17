@@ -88,6 +88,16 @@ export default function TicketsList({ ticketsData }: Props) {
     router.push('/AreadeUsuario/formularioAddTickets');
   };
 
+   const handleAddCardOrdemdeServico = () => {
+    //alert('TESTE!!!!')
+    router.push('/dashboard/formulariosadd/formularioOrdemdeServico');
+  }
+
+  const handleAddCardTicket = () => {
+    //alert('TESTE!!!!')
+    router.push('/dashboard/formulariosadd/formularioTicket');
+  }
+
   const handleRefresh = () => {
     router.refresh();
     toast.success("Tickets atualizados com sucesso!");
@@ -127,6 +137,7 @@ export default function TicketsList({ ticketsData }: Props) {
 });
 
 
+
   return (
     <section>
       <div className={styles.headerClient}>
@@ -142,7 +153,9 @@ export default function TicketsList({ ticketsData }: Props) {
               />
       </div>
           <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
-           <button className={styles.button} onClick={handleAddCardTecnico}>Novo Registro</button> 
+           <button className={styles.button} onClick={handleAddCardTecnico}>Novo Registro - Cliente</button> 
+           <button className={styles.button} onClick={handleAddCardOrdemdeServico}>Novo Registro - OS</button> 
+           <button className={styles.button} onClick={handleAddCardTicket}>Novo Registro - Ticket</button> 
         </div>
       </div>
 
