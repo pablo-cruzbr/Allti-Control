@@ -160,9 +160,6 @@ export default function TicketsList({ ticketsData }: Props) {
   </div>
 
   <div className={styles.actionsBar}>
-    <button className={styles.btnSecondary} onClick={handleAddCardTecnico}>
-      + Cliente
-    </button> 
     <button className={styles.btnSecondary} onClick={handleAddCardOrdemdeServico}>
       Nova OS
     </button> 
