@@ -136,13 +136,14 @@ export default function Sidebar() {
       <div className={styles.menuList}>
         <div className={styles.itemContainer}>
           <div className={styles.item} onClick={() => toggleDropdown("tickets")} style={{ cursor: "pointer" }}>
-            <BiTask /> <span>Tickets</span>
+            <BiTask /> <span>Chamados</span>
             {dropdowns.tickets ? <BiChevronUp /> : <BiChevronDown />}
           </div>
           {dropdowns.tickets && (
             <div className={styles.dropdown}>
-              <Link href="/dashboard/tickets" className={styles.subItem}>Lista de Tickets</Link>
-              <Link href="/AreadeUsuario/formularioAddTickets" className={styles.subItem}>Abrir um Ticket</Link>
+              <Link href="/dashboard/tickets" className={styles.subItem}>Lista de Chamados</Link>
+              <Link href="/dashboard/formulariosadd/formularioTicket" className={styles.subItem}>Abrir um Ticket</Link>
+              <Link href="/dashboard/formulariosadd/formularioOrdemdeServico" className={styles.subItem}>Abrir uma OS</Link>
             </div>
           )}
         </div>
