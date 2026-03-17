@@ -192,6 +192,7 @@ export default function Sidebar() {
               </div>
               {dropdowns.cadastros && (
                 <div className={styles.dropdown}>
+                  <Link href="/dashboard/ramaisSetores" className={styles.subItem}>Novo Ramal</Link>
                   <Link href="/dashboard/formulariosadd/formularioMaquinas" className={styles.subItem}>Nova Máquina</Link>
                   <Link href="/dashboard/formulariosadd/formularioTecnicoAdd" className={styles.subItem}>Novo Técnico</Link>
                   <Link href="/dashboard/usuarios" className={styles.subItem}>Gerenciar Usuários</Link>

@@ -66,7 +66,6 @@ export default function FormularioRamaisSetores() {
   const clienteId = formData.get("cliente_id") as string;
   const instituicaoUnidadeId = formData.get("instituicaoUnidade_id") as string;
 
-  // 🔑 Tratamento dos selects para converter "null" em null de verdade
   const payload = {
     usuario,
     ramal,
@@ -78,8 +77,6 @@ export default function FormularioRamaisSetores() {
 
   try {
     const token = await getCookieClient();
-
-    // ✅ Axios: primeiro argumento = payload, segundo = config (headers)
     await api.post("/informacoessetor", payload, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -89,7 +86,6 @@ export default function FormularioRamaisSetores() {
     console.error("Erro ao enviar formulário:", err);
   }
 }
-
 
   return (
     <section>
