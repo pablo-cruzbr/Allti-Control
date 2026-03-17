@@ -118,8 +118,8 @@ export default function FormularioOrdemdeServico() {
       await api.post('/ordemdeservico', payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
-      router.push('/AreadeUsuario/formularioenviado');
+      router.refresh()
+      router.push('/dashboard/tickets');
     } catch (err) {
       console.error('Erro ao enviar ordem de serviço:', err);
       alert('Erro ao enviar. Verifique os campos e tente novamente.');
