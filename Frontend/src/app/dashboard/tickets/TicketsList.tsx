@@ -137,37 +137,35 @@ export default function TicketsList({ ticketsData }: Props) {
     <section>
       
      <header className={styles.headerContainer}>
-      <div className={styles.topSection}>
+  <div className={styles.topSection}>
+    <div className={styles.titleWrapper}>
+      <h1 className={styles.headerTitle}>Tickets Cadastrados</h1>
+      <LuRefreshCcw 
+        onClick={handleRefresh} 
+        className={styles.refreshIcon} 
+        title="Sincronizar dados"
+      />
 
-        <div className={styles.searchBox}>
-          <input
-            type="text"
-            placeholder="Pesquisar por OS..."
-            value={searchOS}
-            onChange={(e) => setSearchOS(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-
-        <div className={styles.titleWrapper}>
-          <h1 className={styles.headerTitle}>Tickets Cadastrados</h1>
-          <LuRefreshCcw 
-            onClick={handleRefresh} 
-            className={styles.refreshIcon} 
-            title="Sincronizar dados"
-          />
-        </div>
-  </div>
-
-  <div className={styles.actionsBar}>
-    <button className={styles.btnSecondary} onClick={handleAddCardOrdemdeServico}>
-      Nova OS
-    </button> 
-    <button className={styles.btnPrimary} onClick={handleAddCardTicket}>
-      Novo Ticket
-    </button> 
+      {/* Botões agora dentro da mesma linha do título */}
+      <div className={styles.actionsBar}>
+        <button className={styles.btnSecondary} onClick={handleAddCardOrdemdeServico}>
+          Nova OS
+        </button> 
+        <button className={styles.btnPrimary} onClick={handleAddCardTicket}>
+          Novo Ticket
+        </button> 
+      </div>
+    </div>
+    <div className={styles.searchBox}>
+      <input
+        type="text"
+        placeholder="Pesquisar por número da OS"
+        className={styles.searchInput}
+      />
+    </div>
   </div>
 </header>
+
       <div className={styles.headerClient}>
         <div className={styles.actions}>
         <select value={selectedInstituicao} onChange={(e) => setSelectedInstituicao(e.target.value)} className={styles.select}>
