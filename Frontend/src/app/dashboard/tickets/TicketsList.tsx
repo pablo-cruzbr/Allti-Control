@@ -55,10 +55,7 @@ export default function TicketsList({ ticketsData }: Props) {
   const [selectedCliente, setSelectedCliente] = useState<string>("");
   const [selectedPrioridade, setSelectedPrioridade] = useState<string>("");
 
-  // Dados das ordens
   const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, totalOrdemdeServico = 0, totalTicket = 0, controles = [] } = ticketsData || {};
-
-  // Carregar Instituições e Clientes para os selects
   useEffect(() => {
     const fetchFilters = async () => {
       try {
@@ -138,26 +135,42 @@ export default function TicketsList({ ticketsData }: Props) {
 
   return (
     <section>
-      <div className={styles.headerClient}>
-        <h1 className={styles.titleClient}>Tickets Cadastrados</h1>
-        <div className={styles.actions}>
-            <div className={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Pesquisar por número da OS..."
-                value={searchOS}
-                onChange={(e) => setSearchOS(e.target.value)}
-                className={styles.searchInput}
-              />
-        </div>
-          
-           <button className={styles.button} onClick={handleAddCardTecnico}>Novo Registro - Cliente</button> 
-           <button className={styles.button} onClick={handleAddCardOrdemdeServico}>Nova OS</button> 
-           <button className={styles.button} onClick={handleAddCardTicket}>Novo Ticket</button> 
-        </div>
-        <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
-      </div>
+      
+     <header className={styles.headerContainer}>
+      <div className={styles.topSection}>
 
+        <div className={styles.searchBox}>
+          <input
+            type="text"
+            placeholder="Pesquisar por OS..."
+            value={searchOS}
+            onChange={(e) => setSearchOS(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+
+        <div className={styles.titleWrapper}>
+          <h1 className={styles.headerTitle}>Tickets Cadastrados</h1>
+          <LuRefreshCcw 
+            onClick={handleRefresh} 
+            className={styles.refreshIcon} 
+            title="Sincronizar dados"
+          />
+        </div>
+  </div>
+
+  <div className={styles.actionsBar}>
+    <button className={styles.btnSecondary} onClick={handleAddCardTecnico}>
+      + Cliente
+    </button> 
+    <button className={styles.btnSecondary} onClick={handleAddCardOrdemdeServico}>
+      Nova OS
+    </button> 
+    <button className={styles.btnPrimary} onClick={handleAddCardTicket}>
+      Novo Ticket
+    </button> 
+  </div>
+</header>
       <div className={styles.headerClient}>
         <div className={styles.actions}>
         <select value={selectedInstituicao} onChange={(e) => setSelectedInstituicao(e.target.value)} className={styles.select}>
@@ -197,8 +210,8 @@ export default function TicketsList({ ticketsData }: Props) {
               <option key={tipo.id} value={tipo.id}>{tipo.name}</option>
             ))}
         </select>
-      </div> 
-        </div>
+        </div> 
+      </div>
       
       <div className={styles.cardsContainer}>
         {[
