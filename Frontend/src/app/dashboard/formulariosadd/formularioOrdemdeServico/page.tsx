@@ -142,7 +142,7 @@ export default function FormularioOrdemdeServico() {
             <input
               type="text"
               required
-              name="titulo"
+              name="name"
               placeholder="Nome do Cliente"
               className={styles.input}
             />
