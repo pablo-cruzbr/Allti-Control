@@ -35,11 +35,7 @@ export default function FormularioOrdemdeServico() {
     function gerarNumeroOS(): string {
       return Math.floor(10000 + Math.random() * 90000).toString();
     }
-
- 
-
-
-  
+    
     useEffect(() => {
       async function fetchTiposDeChamado() {
         try {
