@@ -37,39 +37,29 @@ export default function FormularioOrdemdeServico() {
     }
     
     useEffect(() => {
-      async function fetchTiposDeChamado() {
-        try {
-          const token = await getCookieClient();
-          const response = await api.get('/listtipodechamado', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-          setTiposDeChamado(response.data);
-        } catch (error) {
-          console.error('Erro ao buscar tipos de chamado:', error);
-        }
-      }
-      fetchTiposDeChamado();
-    }, []);
-  
-     useEffect(() => {
-      async function fetchTiposDeOrdemdeServico() {
-        try {
-           const token = await getCookieClient();
-          const response = await api.get('/listtipodeordemdeservico', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          setTipodeOrdemdeServico(response.data);
-        } catch (error) {
-          console.error('Erro ao buscar tipos de chamado:', error);
-        }
-      }
-      fetchTiposDeOrdemdeServico();
-    }, []);
-  
+  async function fetchData() {
+    try {
+      const token = await getCookieClient();
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+
+      const [responseChamados, responseOrdemServico] = await Promise.all([
+        api.get('/listtipodechamado', config),
+        api.get('/listtipodeordemdeservico', config)
+      ]);
+
+      setTiposDeChamado(responseChamados.data);
+      setTipodeOrdemdeServico(responseOrdemServico.data);
+
+    } catch (error) {
+      console.error('Erro ao carregar dados iniciais:', error);
+    }
+  }
+
+  fetchData();
+}, []);
+
    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
   
