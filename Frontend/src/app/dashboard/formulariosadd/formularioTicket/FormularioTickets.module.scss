@@ -93,7 +93,7 @@
 .input {
   width: 100%;
   box-sizing: border-box;
-  min-height: 45px; /* Alterado de height para min-height */
+  min-height: 45px; 
   border-radius: 12px;
   border: 1px solid #dde6ed;
   background: #f9fbfd;
@@ -104,7 +104,7 @@
   margin: 8px 0;
   transition: all 0.3s ease;
   outline: none;
-  display: flex; /* Adicionado para alinhar conteúdo interno */
+  display: flex;
   align-items: center;
 
   &::placeholder {
@@ -112,17 +112,19 @@
     font-size: 13px;
   }
 
-  &:focus-within { /* focus-within é melhor quando o input é um container */
+  &:focus-within { 
     border-color: #4E3182;
     box-shadow: 0 0 0 3px rgba(78, 49, 130, 0.2);
   }
 
-  /* Estilo para quando for um container de Textarea */
   &.textAreaContainer {
     height: 120px;
     align-items: flex-start;
     padding-top: 8px;
   }
+
+ 
+
 
   textarea {
     width: 100%;
@@ -149,5 +151,34 @@
     color: inherit;
     font-family: inherit;
     cursor: pointer;
+  }
+}
+
+.btnSearch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4E3182;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  min-width: 48px;
+  height: 45px; 
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+
+  &:hover {
+    background-color: #3b2563;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(78, 49, 130, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    display: block;
   }
 }

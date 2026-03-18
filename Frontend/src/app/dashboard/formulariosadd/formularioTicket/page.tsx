@@ -139,9 +139,9 @@ export default function FormularioTicket() {
                 type="button" 
                 className={styles.btnSearch} 
                 onClick={handleSearchRamal}
-                style={{ background: '#4B4B4B', padding: '10px', borderRadius: '8px' }}
+                title="Pesquisar ramal"
               >
-                <IoSearchOutline size={20} color="#FFF" />
+                <IoSearchOutline size={22} color="currentColor" />
               </button>
             </div>
 
