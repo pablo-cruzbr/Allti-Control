@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import styles from './FormularioTickets.module.scss';
-import { IoArrowBackCircleOutline, IoSearchOutline } from "react-icons/io5"; // Importei a lupa
+import { IoArrowBackCircleOutline, IoSearchOutline } from "react-icons/io5"; 
 import { api } from '@/services/api';
 import { getCookieClient } from '@/lib/cookieClient';
 
@@ -20,8 +20,6 @@ export default function FormularioTicket() {
   const [instituicao, setInstituicao] = useState<ItemProps[]>([]);
   const [tecnico, setTecnico] = useState<ItemProps[]>([]);
   const [cliente, setCliente] = useState<ItemProps[]>([]);
-  
-  // Estados de busca e controle
   const [ramalSearch, setRamalSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -85,89 +83,76 @@ export default function FormularioTicket() {
     }
   }
 
-  return (
-    <section className={styles.mainSection}>
-      <header className={styles.headerForm}>
-        <div className={styles.titleArea}>
-          <IoArrowBackCircleOutline size={32} className={styles.backIcon} onClick={handleBack} />
-          <h1 className={styles.titleClient}>Novo Ticket Interno</h1>
-        </div>
-      </header>
+ return (
+    <section>
+      <div className={styles.headerClient}>
+        <h1 className={styles.titleClient}>FORMULÁRIO TICKET</h1>
+        <IoArrowBackCircleOutline size={30} color="#4B4B4B" onClick={handleBack} style={{ cursor: 'pointer' }} />
+        <button className={styles.button} onClick={handleBack}>
+          Voltar
+        </button>
+      </div>
 
       <div className={styles.container}>
-        {fetching ? (
-          <div className={styles.loader}>Carregando...</div>
-        ) : (
-          <form onSubmit={handleSubmit} className={styles.formGrid}>
-            
-            {/* CAMPO DE PESQUISA COM BOTÃO */}
-            <div className={styles.inputGroupFull}>
-              <label>Pesquisar por Ramal / Usuário</label>
-              <div className={styles.searchWrapper}>
-                <input
-                  type="text"
-                  className={styles.inputSearch}
-                  placeholder="Digite o ramal e clique na lupa..."
-                  value={ramalSearch}
-                  onChange={(e) => setRamalSearch(e.target.value)}
+        <section className={styles.login}>
+          <form onSubmit={handleSubmit}>
+            <p>Adicione a Descrição do Problema</p>
+              <div className={`${styles.input} ${styles.textAreaContainer}`}>
+                <textarea
+                  name="descricaodoProblemaouSolicitacao"
+                  placeholder="Descrição do Problema ou Solicitação"
+                  required
+                  className={styles.textarea}
                 />
-                <button 
+              </div>
+
+              <p>Adicione a Solução</p>
+              <div className={`${styles.input} ${styles.textAreaContainer}`}>
+                <textarea
+                  name="solucaodoproblema"
+                  placeholder="Descreva como resolveu o problema"
+                  required
+                  className={styles.textarea}
+                />
+              </div>
+
+               <p>Selecione o Status</p>
+                <select name="status_id" required className={styles.input}>
+                  <option value="" disabled hidden>
+                    Selecione o status atual da OS
+                  </option>
+                 
+                </select>
+
+                <p>Selecione o Tipo de Chamado</p>
+                <select name="status_id" required className={styles.input}>
+                  <option value="" disabled hidden>
+                    Selecione o Tipo de Ordem de Servico
+                  </option>
+                 
+                </select>
+              
+
+            <input
+              type="text"
+              required
+              name="name"
+              placeholder="Digite o ramal e clique na lupa..."
+              className={styles.input}
+            />
+
+            <button 
                   type="button" 
                   className={styles.btnSearch}
                   onClick={handleSearchRamal}
                 >
                   <IoSearchOutline size={20} color="#FFF" />
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.inputGroupFull}>
-              <label>Título do Ticket</label>
-              <input type="text" name="titulo" className={styles.input} required />
-            </div>
-
-            <div className={styles.inputGroupFull}>
-              <label>Descrição</label>
-              <textarea name="descricao" className={styles.textarea} required />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label>Unidade</label>
-              <select name="instituicaoUnidade_id" className={styles.select}>
-                <option value="">Selecione...</option>
-                {instituicao
-                  .filter(i => i.name.toLowerCase().includes(ramalSearch.toLowerCase()))
-                  .map(item => <option key={item.id} value={item.id}>{item.name}</option>)
-                }
-              </select>
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label>Cliente</label>
-              <select name="cliente_id" className={styles.select}>
-                <option value="">Selecione...</option>
-                {cliente
-                  .filter(i => i.name.toLowerCase().includes(ramalSearch.toLowerCase()))
-                  .map(item => <option key={item.id} value={item.id}>{item.name}</option>)
-                }
-              </select>
-            </div>
-
-
-            <div className={styles.inputGroup}>
-              <label>Técnico</label>
-              <select name="tecnico_id" className={styles.select} required>
-                {tecnico.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
-              </select>
-            </div>
-
-            <div className={styles.actions}>
-              <button className={styles.buttonSubmit} type="submit" disabled={loading}>
-                {loading ? 'Salvando...' : 'Concluir Cadastro'}
-              </button>
-            </div>
+            </button>       
+            <button className={styles.button} type="submit" disabled={loading}>
+              {loading ? "Enviando..." : "Concluir"}
+            </button>
           </form>
-        )}
+        </section>
       </div>
     </section>
   );
