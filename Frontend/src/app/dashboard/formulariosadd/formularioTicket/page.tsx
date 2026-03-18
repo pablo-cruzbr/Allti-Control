@@ -131,7 +131,6 @@ export default function FormularioTicket() {
               <textarea name="descricao" className={styles.textarea} required />
             </div>
 
-            {/* Selects filtrados pelo termo de busca (opcional) */}
             <div className={styles.inputGroup}>
               <label>Unidade</label>
               <select name="instituicaoUnidade_id" className={styles.select}>

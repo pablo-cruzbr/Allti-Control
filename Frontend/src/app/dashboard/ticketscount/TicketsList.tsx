@@ -28,18 +28,14 @@ export default function TicketsList({ ticketsData, tokenDoServidor }: Props) {
 
   const handleRefresh = () => router.refresh();
   const handleListTickets = () => router.push('/dashboard/tickets');
-  const handleAddCard = () => router.push('/AreadeUsuario/formularioAddTickets');
 
   return (
     <>
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>Dashboard Administrativo</h1>
         <div className={styles.actions}>
-          <button className={styles.button} onClick={handleAddCard}>
-            Novo Registro
-          </button>
           <button className={styles.button} onClick={handleListTickets}>
-            Lista de Tickets
+            Lista de Chamados
           </button>
           <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
         </div>
