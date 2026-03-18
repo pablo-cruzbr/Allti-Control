@@ -16,11 +16,9 @@ interface ItemProps {
 
 export default function FormularioTicket() {
   const router = useRouter();
-  
-  const [instituicao, setInstituicao] = useState<ItemProps[]>([]);
-  const [tecnico, setTecnico] = useState<ItemProps[]>([]);
-  const [cliente, setCliente] = useState<ItemProps[]>([]);
-  const [ramalSearch, setRamalSearch] = useState('');
+
+  const [status, setStatus] = useState<ItemProps[]>([]);
+  const [tipo, setTipo] = useState<ItemProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
@@ -28,26 +26,18 @@ export default function FormularioTicket() {
     router.push('/dashboard/tickets');
   }
 
-  async function handleSearchRamal() {
-    if (!ramalSearch) return;
-    console.log("Pesquisando ramal:", ramalSearch);
-    // Exemplo: toast.info(`Buscando dados para o ramal ${ramalSearch}...`);
-  }
-
   useEffect(() => {
     async function fetchData() {
       setFetching(true);
       try {
         const token = await getCookieClient();
-        const [instRes, tecRes, cliRes] = await Promise.all([
-          api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
+        const [tipoRes, statusRes] = await Promise.all([
+          api.get("/listtipodechamado", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-
-        setInstituicao(instRes.data.instituicoes || []);
-        setTecnico(tecRes.data.controles || []);
-        setCliente(cliRes.data.controles || []);
+        
+        setTipo(tipoRes.data.controles || tipoRes.data || []);
+        setStatus(statusRes.data.controles || statusRes.data || []);
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
       } finally {
@@ -62,12 +52,13 @@ export default function FormularioTicket() {
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
+    
     const data = {
-      titulo: formData.get("titulo"),
-      descricao: formData.get("descricao"),
-      instituicaoUnidade_id: formData.get("instituicaoUnidade_id") || null,
-      tecnico_id: formData.get("tecnico_id"),
-      cliente_id: formData.get("cliente_id") || null,
+      descricaodoProblemaouSolicitacao: formData.get("descricaodoProblemaouSolicitacao"),
+      solucaodoproblema: formData.get("solucaodoproblema"),
+      statusOrdemdeServico_id: formData.get("statusOrdemdeServico_id"),
+      tipodeChamado_id: formData.get("tipodeChamado_id"),
+      ramal: formData.get("ramal"),
     };
 
     try {
@@ -77,78 +68,70 @@ export default function FormularioTicket() {
       });
       router.push("/dashboard/documentacaoTecnica");
     } catch (err: any) {
+      console.error(err);
       alert("Erro ao cadastrar ticket.");
     } finally {
       setLoading(false);
     }
   }
 
- return (
+  return (
     <section>
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>FORMULÁRIO TICKET</h1>
         <IoArrowBackCircleOutline size={30} color="#4B4B4B" onClick={handleBack} style={{ cursor: 'pointer' }} />
-        <button className={styles.button} onClick={handleBack}>
-          Voltar
-        </button>
+        <button className={styles.button} onClick={handleBack}>Voltar</button>
       </div>
 
       <div className={styles.container}>
         <section className={styles.login}>
           <form onSubmit={handleSubmit}>
             <p>Adicione a Descrição do Problema</p>
-              <div className={`${styles.input} ${styles.textAreaContainer}`}>
-                <textarea
-                  name="descricaodoProblemaouSolicitacao"
-                  placeholder="Descrição do Problema ou Solicitação"
-                  required
-                  className={styles.textarea}
-                />
-              </div>
+            <div className={`${styles.input} ${styles.textAreaContainer}`}>
+              <textarea
+                name="descricaodoProblemaouSolicitacao"
+                placeholder="Descrição do Problema ou Solicitação"
+                required
+                className={styles.textarea}
+              />
+            </div>
 
-              <p>Adicione a Solução</p>
-              <div className={`${styles.input} ${styles.textAreaContainer}`}>
-                <textarea
-                  name="solucaodoproblema"
-                  placeholder="Descreva como resolveu o problema"
-                  required
-                  className={styles.textarea}
-                />
-              </div>
+            <p>Adicione a Solução</p>
+            <div className={`${styles.input} ${styles.textAreaContainer}`}>
+              <textarea
+                name="solucaodoproblema"
+                placeholder="Descreva como resolveu o problema"
+                required
+                className={styles.textarea}
+              />
+            </div>
 
-               <p>Selecione o Status</p>
-                <select name="status_id" required className={styles.input}>
-                  <option value="" disabled hidden>
-                    Selecione o status atual da OS
-                  </option>
-                 
-                </select>
+            <p>Selecione o Status</p>
+            <select name="statusOrdemdeServico_id" required className={styles.input} defaultValue="">
+              <option value="" disabled>Selecione o status atual da OS</option>
+              {status.map((item) => (
+                <option key={item.id} value={item.id}>{item.name}</option>
+              ))}
+            </select>
 
-                <p>Selecione o Tipo de Chamado</p>
-                <select name="status_id" required className={styles.input}>
-                  <option value="" disabled hidden>
-                    Selecione o Tipo de Ordem de Servico
-                  </option>
-                 
-                </select>
-              
+            <p>Selecione o Tipo de Chamado</p>
+            <select name="tipodeChamado_id" required className={styles.input} defaultValue="">
+              <option value="" disabled>Selecione o Tipo de Ordem de Serviço</option>
+              {tipo.map((item) => (
+                <option key={item.id} value={item.id}>{item.name}</option>
+              ))}
+            </select>
 
+            <p>Ramal</p>
             <input
               type="text"
-              required
-              name="name"
-              placeholder="Digite o ramal e clique na lupa..."
+              name="ramal"
+              placeholder="Digite o ramal..."
               className={styles.input}
+              required
             />
 
-            <button 
-                  type="button" 
-                  className={styles.btnSearch}
-                  onClick={handleSearchRamal}
-                >
-                  <IoSearchOutline size={20} color="#FFF" />
-            </button>       
-            <button className={styles.button} type="submit" disabled={loading}>
+            <button className={styles.button} type="submit" disabled={loading || fetching}>
               {loading ? "Enviando..." : "Concluir"}
             </button>
           </form>
