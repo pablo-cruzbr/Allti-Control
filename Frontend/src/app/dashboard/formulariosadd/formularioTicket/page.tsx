@@ -14,11 +14,33 @@ interface ItemProps {
   name: string;
 }
 
+interface SetorProps {
+  id: string;
+  name: string;
+}
+
+interface UsuarioDataProps {
+  id: string;
+  usuario: string;
+  ramal: string;
+  andar: string;
+  setor: SetorProps;
+  cliente: {
+    name: string;
+    endereco: string;
+  } | null;
+  instituicaoUnidade:{
+    name: string;
+    endereco: string;
+  } | null;
+}
+
 export default function FormularioTicket() {
   const router = useRouter();
 
   const [status, setStatus] = useState<ItemProps[]>([]);
   const [tipo, setTipo] = useState<ItemProps[]>([]);
+  const [info, setInfo] = useState<UsuarioDataProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
@@ -34,8 +56,9 @@ export default function FormularioTicket() {
         const [tipoRes, statusRes] = await Promise.all([
           api.get("/listtipodechamado", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listinformacoessetor", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-        
+
         setTipo(tipoRes.data.controles || tipoRes.data || []);
         setStatus(statusRes.data.controles || statusRes.data || []);
       } catch (err) {
