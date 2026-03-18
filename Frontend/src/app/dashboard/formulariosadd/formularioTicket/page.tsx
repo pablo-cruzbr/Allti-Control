@@ -29,7 +29,8 @@ export default function FormularioTicket() {
 
   const [status, setStatus] = useState<ItemProps[]>([]);
   const [tipo, setTipo] = useState<ItemProps[]>([]);
-  const [ramalInput, setRamalInput] = useState(''); // Estado para o valor do input
+  const [tiposOrdem, setTiposOrdem] = useState<ItemProps[]>([]);
+  const [ramalInput, setRamalInput] = useState(''); 
   const [usuarioEncontrado, setUsuarioEncontrado] = useState<UsuarioDataProps | null>(null);
   
   const [loading, setLoading] = useState(false);
@@ -39,17 +40,17 @@ export default function FormularioTicket() {
     router.push('/dashboard/tickets');
   }
 
-  // Busca inicial de tipos e status
   useEffect(() => {
     async function fetchData() {
       setFetching(true);
       try {
         const token = await getCookieClient();
-        const [tipoRes, statusRes] = await Promise.all([
+        const [tipoRes, statusRes, tipodeordemRes] = await Promise.all([
           api.get("/listtipodechamado", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+           api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-
+        setTiposOrdem(tipodeordemRes.data.controles || tipodeordemRes.data || []);
         setTipo(tipoRes.data.controles || tipoRes.data || []);
         setStatus(statusRes.data.controles || statusRes.data || []);
       } catch (err) {
@@ -197,6 +198,14 @@ export default function FormularioTicket() {
             <select name="statusOrdemdeServico_id" required className={styles.input} defaultValue="">
               <option value="" disabled>Selecione o status</option>
               {status.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>
+
+             <p>Tipo de Ordem de Serviço</p>
+            <select name="tipodeOrdemdeServico_id" required className={styles.input} defaultValue="">
+              <option value="" disabled>Selecione o tipo de ordem (Ticket ou OS)</option>
+              {tiposOrdem.map((item) => (
+                <option key={item.id} value={item.id}>{item.name}</option>
+              ))}
             </select>
 
             <p>Tipo de Chamado</p>
