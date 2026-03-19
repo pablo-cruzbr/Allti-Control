@@ -129,12 +129,13 @@ export default function TicketsList({ ticketsData }: Props) {
       : true;
 
     const matchOS = searchOS ? ticket.numeroOS?.toString().includes(searchOS) : true;
-    const matchInstituicao = selectedInstituicao 
-  ? (
-      ticket.instituicaoUnidade?.id === selectedInstituicao || 
-      ticket.user?.instituicaoUnidade?.id === selectedInstituicao ||
-      ticket.informacoesSetor?.instituicaoUnidade?.id === selectedInstituicao
-    ) : true;
+    const matchInstituicao = !selectedInstituicao 
+  ? true 
+  : (
+      String(ticket.instituicaoUnidade?.id) === String(selectedInstituicao) || 
+      String(ticket.user?.instituicaoUnidade?.id) === String(selectedInstituicao) ||
+      String(ticket.informacoesSetor?.instituicaoUnidade?.id) === String(selectedInstituicao)
+    );
     const matchTipodeOrdemdeServico = selectedTipoOrdem ? ticket.tipodeOrdemdeServico?.id === selectedTipoOrdem : true;
     const matchCliente = selectedCliente 
   ? (

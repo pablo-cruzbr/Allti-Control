@@ -60,7 +60,12 @@ class CreateOrdemServicoService {
         tipodeChamado: true,
         statusOrdemdeServico: true,
         instituicaoUnidade: true,
-        user: true,
+        user: {
+          include: {
+            instituicaoUnidade: true,
+            cliente: true
+          }
+        },
         tipodeOrdemdeServico: true,
         informacoesSetor: {
           select: {
