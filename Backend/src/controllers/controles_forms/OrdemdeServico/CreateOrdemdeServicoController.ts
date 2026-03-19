@@ -59,19 +59,31 @@ class CreateOrdemServicoService {
         user: true,
         tipodeOrdemdeServico: true,
         informacoesSetor: {
-          select: {
-            id: true,
-            usuario: true,
-            ramal: true,
-            andar: true,
-            setor: {
-              select: {
-                id: true,
-                name: true,
-              },
+        select: {
+          id: true,
+          usuario: true,
+          ramal: true,
+          andar: true,
+          setor: {
+            select: {
+              id: true,
+              name: true,
             },
           },
+          instituicaoUnidade: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
+          cliente: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
         },
+},
       },
     });
 
