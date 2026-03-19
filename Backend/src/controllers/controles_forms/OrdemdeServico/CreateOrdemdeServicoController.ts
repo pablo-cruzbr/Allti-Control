@@ -6,6 +6,7 @@ interface CreateOrdemServicoRequest {
   descricaodoProblemaouSolicitacao: string;
   nomedoContatoaserProcuradonoLocal?: string;
   tipodeOrdemdeServico_id?: string;
+  statusOrdemdeServico_id?: string; 
   cliente_id?: string;
   tipodeChamado_id: string;
   instituicaoUnidade_id?: string;
@@ -20,11 +21,9 @@ interface CreateOrdemServicoRequest {
 
 class CreateOrdemServicoService {
   async execute(data: CreateOrdemServicoRequest) {
-    
+  
+    const statusDefaultId = "80e14fbe-c7fd-45bc-b3cd-cfa51ede44e0";
 
-    const statusAbertaId = "80e14fbe-c7fd-45bc-b3cd-cfa51ede44e0";
-
-    // Gera número aleatório de 5 dígitos
     const numeroOS = Math.floor(10000 + Math.random() * 90000);
 
     const ordem = await prismaClient.ordemdeServico.create({
@@ -35,13 +34,18 @@ class CreateOrdemServicoService {
         nomedoContatoaserProcuradonoLocal: data.nomedoContatoaserProcuradonoLocal || null,
         tipodeChamado: { connect: { id: data.tipodeChamado_id } },
         user: { connect: { id: data.user_id } },
-        statusOrdemdeServico: { connect: { id: statusAbertaId } },
+
+        statusOrdemdeServico: { 
+          connect: { id: data.statusOrdemdeServico_id || statusDefaultId } 
+        },
+
         cliente: data.cliente_id ? { connect: { id: data.cliente_id } } : undefined,
         instituicaoUnidade: data.instituicaoUnidade_id ? { connect: { id: data.instituicaoUnidade_id } } : undefined,
         tecnico: data.tecnico_id ? { connect: { id: data.tecnico_id } } : undefined,
         tipodeOrdemdeServico: data.tipodeOrdemdeServico_id 
           ? { connect: { id: data.tipodeOrdemdeServico_id } } 
           : undefined,
+        
         nameTecnico: data.nameTecnico || null,
         diagnostico: data.diagnostico || null,
         solucao: data.solucao,
@@ -59,31 +63,31 @@ class CreateOrdemServicoService {
         user: true,
         tipodeOrdemdeServico: true,
         informacoesSetor: {
-        select: {
-          id: true,
-          usuario: true,
-          ramal: true,
-          andar: true,
-          setor: {
-            select: {
-              id: true,
-              name: true,
+          select: {
+            id: true,
+            usuario: true,
+            ramal: true,
+            andar: true,
+            setor: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            instituicaoUnidade: {
+              select: {
+                id: true,
+                name: true,
+              }
+            },
+            cliente: {
+              select: {
+                id: true,
+                name: true,
+              }
             },
           },
-          instituicaoUnidade: {
-            select: {
-              id: true,
-              name: true,
-            }
-          },
-          cliente: {
-            select: {
-              id: true,
-              name: true,
-            }
-          },
         },
-},
       },
     });
 
@@ -97,6 +101,7 @@ class CreateOrdemServicoController {
       name,
       descricaodoProblemaouSolicitacao,
       tipodeOrdemdeServico_id,
+      statusOrdemdeServico_id, 
       nomedoContatoaserProcuradonoLocal,
       cliente_id,
       tipodeChamado_id,
@@ -118,6 +123,7 @@ class CreateOrdemServicoController {
         descricaodoProblemaouSolicitacao,
         nomedoContatoaserProcuradonoLocal,
         tipodeOrdemdeServico_id,
+        statusOrdemdeServico_id, 
         cliente_id,
         tipodeChamado_id,
         instituicaoUnidade_id,
