@@ -5,6 +5,7 @@ interface CreateOrdemServicoRequest {
   name: string;
   descricaodoProblemaouSolicitacao: string;
   nomedoContatoaserProcuradonoLocal?: string;
+  tipodeOrdemdeServico_id?: string;
   cliente_id?: string;
   tipodeChamado_id: string;
   instituicaoUnidade_id?: string;
@@ -38,6 +39,9 @@ class CreateOrdemServicoService {
         cliente: data.cliente_id ? { connect: { id: data.cliente_id } } : undefined,
         instituicaoUnidade: data.instituicaoUnidade_id ? { connect: { id: data.instituicaoUnidade_id } } : undefined,
         tecnico: data.tecnico_id ? { connect: { id: data.tecnico_id } } : undefined,
+        tipodeOrdemdeServico: data.tipodeOrdemdeServico_id 
+          ? { connect: { id: data.tipodeOrdemdeServico_id } } 
+          : undefined,
         nameTecnico: data.nameTecnico || null,
         diagnostico: data.diagnostico || null,
         solucao: data.solucao,
@@ -53,6 +57,7 @@ class CreateOrdemServicoService {
         statusOrdemdeServico: true,
         instituicaoUnidade: true,
         user: true,
+        tipodeOrdemdeServico: true,
         informacoesSetor: {
           select: {
             id: true,
@@ -79,6 +84,7 @@ class CreateOrdemServicoController {
     const {
       name,
       descricaodoProblemaouSolicitacao,
+      tipodeOrdemdeServico_id,
       nomedoContatoaserProcuradonoLocal,
       cliente_id,
       tipodeChamado_id,
@@ -99,6 +105,7 @@ class CreateOrdemServicoController {
         name,
         descricaodoProblemaouSolicitacao,
         nomedoContatoaserProcuradonoLocal,
+        tipodeOrdemdeServico_id,
         cliente_id,
         tipodeChamado_id,
         instituicaoUnidade_id,

@@ -27,7 +27,6 @@ interface StatusPrioridade {
   name: string;
 }
 
-
 interface Cliente {
   id: string;
   name: string;
@@ -56,6 +55,7 @@ export default function TicketsList({ ticketsData }: Props) {
   const [selectedPrioridade, setSelectedPrioridade] = useState<string>("");
 
   const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, totalOrdemdeServico = 0, totalTicket = 0, controles = [] } = ticketsData || {};
+
   useEffect(() => {
     const fetchFilters = async () => {
       try {
@@ -85,13 +85,11 @@ export default function TicketsList({ ticketsData }: Props) {
     router.push('/AreadeUsuario/formularioAddTickets');
   };
 
-   const handleAddCardOrdemdeServico = () => {
-    //alert('TESTE!!!!')
+  const handleAddCardOrdemdeServico = () => {
     router.push('/dashboard/formulariosadd/formularioOrdemdeServico');
   }
 
   const handleAddCardTicket = () => {
-    //alert('TESTE!!!!')
     router.push('/dashboard/formulariosadd/formularioTicket');
   }
 
@@ -103,6 +101,7 @@ export default function TicketsList({ ticketsData }: Props) {
     setSelectedInstituicao("");
     setSelectedCliente("");
     setSelectedTipoOrdem("");
+    setSelectedPrioridade("");
   };
 
   const handleDeleteCardTecnico = async (tecnico_id: string) => {
@@ -119,92 +118,96 @@ export default function TicketsList({ ticketsData }: Props) {
   };
 
   const filteredControles = controles.filter(ticket => {
-  const matchStatus = selectedStatus ? ticket.statusOrdemdeServico?.name === selectedStatus : true;
-  const matchOS = searchOS ? ticket.numeroOS?.toString().includes(searchOS) : true;
-  const matchInstituicao = selectedInstituicao ? ticket.instituicaoUnidade?.id === selectedInstituicao : true;
-  const matchTipodeOrdemdeServico = selectedTipoOrdem ? ticket.tipodeOrdemdeServico?.id === selectedTipoOrdem : true;
-  const matchCliente = selectedCliente 
-    ? (ticket.cliente?.id === selectedCliente || ticket.user?.cliente?.id === selectedCliente)
-    : true;
+    const isCategoryCard = selectedStatus === 'TICKET' || selectedStatus === 'ORDEM DE SERVICO';
 
-  const matchPrioridade = selectedPrioridade ? ticket.prioridade?.id === selectedPrioridade : true;
+    const matchStatus = (selectedStatus && !isCategoryCard) 
+      ? ticket.statusOrdemdeServico?.name === selectedStatus 
+      : true;
 
-  return matchStatus && matchOS && matchInstituicao && matchCliente && matchTipodeOrdemdeServico && matchPrioridade;
-  
-});
+    const matchCategoryCard = (selectedStatus && isCategoryCard)
+      ? ticket.tipodeOrdemdeServico?.name === selectedStatus
+      : true;
+
+    const matchOS = searchOS ? ticket.numeroOS?.toString().includes(searchOS) : true;
+    const matchInstituicao = selectedInstituicao ? ticket.instituicaoUnidade?.id === selectedInstituicao : true;
+    const matchTipodeOrdemdeServico = selectedTipoOrdem ? ticket.tipodeOrdemdeServico?.id === selectedTipoOrdem : true;
+    const matchCliente = selectedCliente 
+      ? (ticket.cliente?.id === selectedCliente || ticket.user?.cliente?.id === selectedCliente)
+      : true;
+    const matchPrioridade = selectedPrioridade ? ticket.prioridade?.id === selectedPrioridade : true;
+
+    return matchStatus && matchCategoryCard && matchOS && matchInstituicao && matchCliente && matchTipodeOrdemdeServico && matchPrioridade;
+  });
 
   return (
     <section>
-      
-     <header className={styles.headerContainer}>
-  <div className={styles.topSection}>
-    <div className={styles.titleWrapper}>
-      <h1 className={styles.headerTitle}>Tickets Cadastrados</h1>
-      <LuRefreshCcw 
-        onClick={handleRefresh} 
-        className={styles.refreshIcon} 
-        title="Sincronizar dados"
-      />
-
-      {/* Botões agora dentro da mesma linha do título */}
-      <div className={styles.actionsBar}>
-        <button className={styles.btnSecondary} onClick={handleAddCardOrdemdeServico}>
-          Nova OS
-        </button> 
-        <button className={styles.btnPrimary} onClick={handleAddCardTicket}>
-          Novo Ticket
-        </button> 
-      </div>
-    </div>
-    <div className={styles.searchBox}>
-      <input
-        type="text"
-        placeholder="Pesquisar por número da OS"
-        className={styles.searchInput}
-      />
-    </div>
-  </div>
-</header>
+      <header className={styles.headerContainer}>
+        <div className={styles.topSection}>
+          <div className={styles.titleWrapper}>
+            <h1 className={styles.headerTitle}>Tickets Cadastrados</h1>
+            <LuRefreshCcw 
+              onClick={handleRefresh} 
+              className={styles.refreshIcon} 
+              title="Sincronizar dados"
+            />
+            <div className={styles.actionsBar}>
+              <button className={styles.btnSecondary} onClick={handleAddCardOrdemdeServico}>
+                Nova OS
+              </button> 
+              <button className={styles.btnPrimary} onClick={handleAddCardTicket}>
+                Novo Ticket
+              </button> 
+            </div>
+          </div>
+          <div className={styles.searchBox}>
+            <input
+              type="text"
+              placeholder="Pesquisar por número da OS"
+              className={styles.searchInput}
+              value={searchOS}
+              onChange={(e) => setSearchOS(e.target.value)}
+            />
+          </div>
+        </div>
+      </header>
 
       <div className={styles.headerClient}>
         <div className={styles.actions}>
-        <select value={selectedInstituicao} onChange={(e) => setSelectedInstituicao(e.target.value)} className={styles.select}>
-          <option value="">Todas Instituições</option>
-          {instituicoes.map(inst => (
-            <option key={inst.id} value={inst.id}>{inst.name}</option>
-          ))}
-        </select>
-
-        <select value={selectedCliente} onChange={(e) => setSelectedCliente(e.target.value)} className={styles.select}>
-          <option value="">Todos Clientes</option>
-          {clientes.map(cli => (
-            <option key={cli.id} value={cli.id}>{cli.name}</option>
-          ))}
-        </select>
-
-        <select 
-            value={selectedPrioridade} 
-            onChange={(e) => setSelectedPrioridade(e.target.value)} 
-            className={styles.select}
-          >
-            <option value="">Prioridade</option>
-
-            {prioridade.map(prioridade => (
-              <option key={prioridade.id} value={prioridade.id}>{prioridade.name}</option>
+          <select value={selectedInstituicao} onChange={(e) => setSelectedInstituicao(e.target.value)} className={styles.select}>
+            <option value="">Todas Instituições</option>
+            {instituicoes.map(inst => (
+              <option key={inst.id} value={inst.id}>{inst.name}</option>
             ))}
-        </select>
+          </select>
 
-         <select 
-            value={selectedTipoOrdem} 
-            onChange={(e) => setSelectedTipoOrdem(e.target.value)} 
-            className={styles.select}
-          >
-            <option value="">Tipo de Ordem de Serviço</option>
-
-            {tiposOrdem.map(tipo => (
-              <option key={tipo.id} value={tipo.id}>{tipo.name}</option>
+          <select value={selectedCliente} onChange={(e) => setSelectedCliente(e.target.value)} className={styles.select}>
+            <option value="">Todos Clientes</option>
+            {clientes.map(cli => (
+              <option key={cli.id} value={cli.id}>{cli.name}</option>
             ))}
-        </select>
+          </select>
+
+          <select 
+              value={selectedPrioridade} 
+              onChange={(e) => setSelectedPrioridade(e.target.value)} 
+              className={styles.select}
+            >
+              <option value="">Prioridade</option>
+              {prioridade.map(prio => (
+                <option key={prio.id} value={prio.id}>{prio.name}</option>
+              ))}
+          </select>
+
+          <select 
+              value={selectedTipoOrdem} 
+              onChange={(e) => setSelectedTipoOrdem(e.target.value)} 
+              className={styles.select}
+            >
+              <option value="">Tipo de Ordem de Serviço</option>
+              {tiposOrdem.map(tipo => (
+                <option key={tipo.id} value={tipo.id}>{tipo.name}</option>
+              ))}
+          </select>
         </div> 
       </div>
       
@@ -215,7 +218,6 @@ export default function TicketsList({ ticketsData }: Props) {
           { label: 'OS em Andamento', value: totalEmAndamento, status: 'EM ANDAMENTO' },
           { label: 'OS Concluída', value: totalConcluida, status: 'CONCLUIDA' },
           { label: 'OS PAUSADA', value: totalPausada, status: 'PAUSADA' },
-
           { label: 'TICKET', value: totalTicket, status: 'TICKET' },
           { label: 'ORDEM DE SERVICO', value: totalOrdemdeServico, status: 'ORDEM DE SERVICO' },
         ].map((card) => (

@@ -52,7 +52,6 @@ export default function Sidebar() {
         params: { t: Date.now() }, 
         headers: { Authorization: `Bearer ${token}` } 
       });
-           console.log("DADOS DA API NA SIDEBAR:", response.data);
       
       const serverRole = response.data.role?.toUpperCase() || "USER";
       const name = response.data.name || "Usuário";

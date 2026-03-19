@@ -6,6 +6,8 @@ import styles from './FormularioTickets.module.scss';
 import { IoArrowBackCircleOutline, IoSearchOutline } from "react-icons/io5"; 
 import { api } from '@/services/api';
 import { getCookieClient } from '@/lib/cookieClient';
+import { jwtDecode } from 'jwt-decode';
+import { JwtPayload } from '@/lib/JWTpayload.type';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,8 +22,8 @@ interface UsuarioDataProps {
   ramal: string;
   andar: string;
   setor: { id: string; name: string; };
-  cliente: { name: string; endereco: string; } | null;
-  instituicaoUnidade: { name: string; endereco: string; } | null;
+  cliente: {id: string; name: string; endereco: string; } | null;
+  instituicaoUnidade: {id: string; name: string; endereco: string; } | null;
 }
 
 export default function FormularioTicket() {
@@ -88,33 +90,56 @@ export default function FormularioTicket() {
     }
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setLoading(true);
+async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+  setLoading(true);
 
-    const formData = new FormData(event.currentTarget);
-    const data = {
-      descricaodoProblemaouSolicitacao: formData.get("descricaodoProblemaouSolicitacao"),
-      solucaodoproblema: formData.get("solucaodoproblema"),
-      statusOrdemdeServico_id: formData.get("statusOrdemdeServico_id"),
-      tipodeChamado_id: formData.get("tipodeChamado_id"),
+  const formData = new FormData(event.currentTarget);
+  const TICKET_TYPE_ID = "9255770c-a7b5-400b-9773-8b249f04b9ed";
+
+  try {
+    const token = await getCookieClient();
+    if (!token) return;
+
+    const decoded = jwtDecode<JwtPayload>(token);
+    const user_id = decoded.sub;
+    const numeroOS = Math.floor(10000 + Math.random() * 90000); 
+
+    const payload = {
+      numeroOS: numeroOS,
+      name: usuarioEncontrado?.usuario || "Ticket Avulso",
+      descricaodoProblemaouSolicitacao: formData.get("descricaodoProblemaouSolicitacao")?.toString(),
+      solucaodoproblema: formData.get("solucaodoproblema")?.toString(),
+      statusOrdemdeServico_id: formData.get("statusOrdemdeServico_id")?.toString() || undefined,
+      tipodeOrdemdeServico_id: TICKET_TYPE_ID, 
+      tipodeChamado_id: formData.get("tipodeChamado_id")?.toString() || undefined,
       ramal: ramalInput,
-      // Você também pode enviar o ID do usuário encontrado se sua API permitir
-      usuario_id: usuarioEncontrado?.id || null 
+      usuario_id: usuarioEncontrado?.id || null,
+      user_id: user_id,
+      cliente_id: usuarioEncontrado?.cliente?.id || null,
+      instituicaoUnidade_id: usuarioEncontrado?.instituicaoUnidade?.id || null,
+      equipamento_id: null,
+      prioridade_id: null
     };
 
-    try {
-      const token = await getCookieClient();
-      await api.post("/documentacaotecnica", data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      router.push("/dashboard/documentacaoTecnica");
-    } catch (err: any) {
-      alert("Erro ao cadastrar ticket.");
-    } finally {
-      setLoading(false);
-    }
+    console.log("Payload que será enviado:", payload);
+
+    const response = await api.post("/ordemdeservico", payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("Resposta do servidor:", response.data);
+    
+    alert("Ticket cadastrado com sucesso!");
+    router.refresh();
+    router.push("/dashboard/tickets");
+  } catch (err: any) {
+    console.error("Erro ao cadastrar:", err.response?.data || err.message);
+    alert("Erro ao cadastrar ticket. Verifique o console.");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <section>
@@ -198,14 +223,6 @@ export default function FormularioTicket() {
             <select name="statusOrdemdeServico_id" required className={styles.input} defaultValue="">
               <option value="" disabled>Selecione o status</option>
               {status.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-            </select>
-
-             <p>Tipo de Ordem de Serviço</p>
-            <select name="tipodeOrdemdeServico_id" required className={styles.input} defaultValue="">
-              <option value="" disabled>Selecione o tipo de ordem (Ticket ou OS)</option>
-              {tiposOrdem.map((item) => (
-                <option key={item.id} value={item.id}>{item.name}</option>
-              ))}
             </select>
 
             <p>Tipo de Chamado</p>

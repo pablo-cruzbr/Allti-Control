@@ -66,6 +66,8 @@ export default function FormularioOrdemdeServico() {
     if (loading) return;
   
     const formData = new FormData(event.currentTarget);
+    const ORDER_TYPE_ID = "94e32deb-2a02-41f1-9573-b4b5c265e80a";
+
     const name = formData.get('name')?.toString().trim();
     const tipodeChamado_id = formData.get('tipodeChamado_id')?.toString().trim();
     const tipodeOrdemdeServico_id = formData.get('tipodeOrdemdeServico_id')?.toString().trim();
@@ -97,6 +99,7 @@ export default function FormularioOrdemdeServico() {
         name,
         tipodeChamado_id,
         descricaodoProblemaouSolicitacao,
+        tipodeOrdemdeServico_id: ORDER_TYPE_ID,
         nomedoContatoaserProcuradonoLocal,
         user_id,
       };
