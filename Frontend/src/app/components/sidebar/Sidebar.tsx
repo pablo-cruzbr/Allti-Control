@@ -179,6 +179,7 @@ export default function Sidebar() {
                 <div className={styles.dropdown}>
                   <Link href="/dashboard/clientesprivados" className={styles.subItem}>Clientes Privados</Link>
                   <Link href="/dashboard/clientesMunicipais" className={styles.subItem}>Clientes Municipais</Link>
+                  <Link href="/dashboard/ramaisSetores" className={styles.subItem}>Lista de Ramais e Setores</Link>
                   <Link href="/dashboard/setor" className={styles.subItem}>Lista Setores</Link>
                 </div>
               )}
@@ -191,9 +192,10 @@ export default function Sidebar() {
               </div>
               {dropdowns.cadastros && (
                 <div className={styles.dropdown}>
-                  <Link href="/dashboard/ramaisSetores" className={styles.subItem}>Novo Ramal</Link>
+                  <Link href="/dashboard/formulariosadd/formularioRamaisSetores" className={styles.subItem}>Novo Ramal</Link>
                   <Link href="/dashboard/formulariosadd/formularioMaquinas" className={styles.subItem}>Nova Máquina</Link>
                   <Link href="/dashboard/formulariosadd/formularioTecnicoAdd" className={styles.subItem}>Novo Técnico</Link>
+                   <Link href="/dashboard/formulariosadd/formularioSetores" className={styles.subItem}>Novo Setor</Link>
                   <Link href="/dashboard/usuarios" className={styles.subItem}>Gerenciar Usuários</Link>
                 </div>
               )}
