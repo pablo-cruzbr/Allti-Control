@@ -17,7 +17,7 @@ app.use(fileUpload({
   createParentPath: true,
   parseNested: true, 
   limits: { fileSize: 50 * 1024 * 1024 }, 
-  debug: true 
+  debug: false,
 }));
 
 app.get("/hello", (req, res) => {
