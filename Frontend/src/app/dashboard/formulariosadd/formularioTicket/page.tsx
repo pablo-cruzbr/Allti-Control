@@ -65,30 +65,34 @@ export default function FormularioTicket() {
   }, []);
 
   async function handleSearchRamal() {
-    if (!ramalInput) return;
-
-    try {
-      setFetching(true);
-      const token = await getCookieClient();
-      const res = await api.get<UsuarioDataProps[]>("/listinformacoessetor", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const encontrado = res.data.find((item) => item.ramal === ramalInput);
-
-      if (encontrado) {
-        setUsuarioEncontrado(encontrado);
-      } else {
-        setUsuarioEncontrado(null);
-        alert("Ramal não encontrado.");
-      }
-    } catch (err) {
-      console.error("Erro ao buscar ramal:", err);
-      alert("Erro ao pesquisar ramal.");
-    } finally {
-      setFetching(false);
-    }
+  if (!ramalInput) {
+    alert("Digite um ramal");
+    return null;
   }
+
+  try {
+    setFetching(true);
+    const token = await getCookieClient();
+    const res = await api.get<UsuarioDataProps[]>("/listinformacoessetor", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const encontrado = res.data.find((item) => item.ramal === ramalInput);
+
+    if (encontrado) {
+      setUsuarioEncontrado(encontrado);
+      return encontrado; 
+    } else {
+      setUsuarioEncontrado(null);
+      alert("Ramal não encontrado.");
+      return null; 
+    }
+  } catch (err) {
+    return null; 
+  } finally {
+    setFetching(false);
+  }
+}
 
 async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
@@ -101,24 +105,34 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const token = await getCookieClient();
     if (!token) return;
 
+    let usuarioFinal = usuarioEncontrado;
+
+    if (!usuarioFinal || usuarioFinal.ramal !== ramalInput) {
+      usuarioFinal = await handleSearchRamal(); 
+    }
+
+    if (!usuarioFinal) {
+      setLoading(false);
+      return;
+    }
+
     const decoded = jwtDecode<JwtPayload>(token);
     const user_id = decoded.sub;
     const numeroOS = Math.floor(10000 + Math.random() * 90000); 
 
     const payload = {
       numeroOS: numeroOS,
-      name: usuarioEncontrado?.usuario || "Ticket Avulso",
+      name: usuarioFinal.usuario, 
       descricaodoProblemaouSolicitacao: formData.get("descricaodoProblemaouSolicitacao")?.toString(),
       solucaodoproblema: formData.get("solucaodoproblema")?.toString(),
       statusOrdemdeServico_id: formData.get("statusOrdemdeServico_id")?.toString() || undefined,
       tipodeOrdemdeServico_id: TICKET_TYPE_ID, 
       tipodeChamado_id: formData.get("tipodeChamado_id")?.toString() || undefined,
       ramal: ramalInput,
-      //usuario_id: usuarioEncontrado?.id || null,
-      informacoesSetorId: usuarioEncontrado?.id,
+      informacoesSetorId: usuarioFinal.id,
       user_id: user_id,
-      cliente_id: usuarioEncontrado?.cliente?.id || null,
-      instituicaoUnidade_id: usuarioEncontrado?.instituicaoUnidade?.id || null,
+      cliente_id: usuarioFinal.cliente?.id || null,
+      instituicaoUnidade_id: usuarioFinal.instituicaoUnidade?.id || null,
       equipamento_id: null,
       prioridade_id: null
     };
@@ -129,8 +143,6 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    console.log("Resposta do servidor:", response.data);
-    
     alert("Ticket cadastrado com sucesso!");
     router.refresh();
     router.push("/dashboard/tickets");
@@ -141,7 +153,6 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     setLoading(false);
   }
 }
-
   return (
     <section>
       <div className={styles.headerClient}>
