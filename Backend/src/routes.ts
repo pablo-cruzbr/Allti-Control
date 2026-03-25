@@ -105,6 +105,7 @@ import { GetOrdemdeServicoByIdController } from "./controllers/controles_forms/O
 import { CreatetipodeOrdemdeServicoController } from "./controllers/status categorias/tipodeOrdemdeServico/CreateTipodeOrdemdeServicoController";
 import { ListtipodeOrdemdeServicoController } from "./controllers/status categorias/tipodeOrdemdeServico/ListTipodeOrdemdeServicoController";
 import { can } from "./Middleware/can";
+import { UpdateClienteController } from "./controllers/status categorias/cliente/UpdateClienteController";
 const router = Router();
 //get,post, update, delete
 
@@ -133,6 +134,7 @@ router.post('/categorycliente', isAuthenticated, can(['ADMIN']), new CreateClien
 router.delete('/deletecliente', isAuthenticated, can(['ADMIN']), new RemoveClienteController().handle);
 router.get('/listcliente', isAuthenticated, new ListClienteController().handle); // Técnicos podem ver a lista
 router.get('/cliente/detail', isAuthenticated, new DetailClienteController().handle);
+router.patch('/cliente/update',  isAuthenticated, can(['ADMIN']), new UpdateClienteController().handle);
 
 // --- Setor ---
 router.post('/categorysetor', isAuthenticated, can(['ADMIN']), new CreateSetorController().handle);
