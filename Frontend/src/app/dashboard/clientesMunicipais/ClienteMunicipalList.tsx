@@ -19,13 +19,10 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
     total = 0,
   } = clienteData || {};
 
-  // Usando o hook global para abrir o modal
   const { openModal } = useGlobalModal();
   const router = useRouter();
 
-  // Função ajustada para disparar o tipo 'clienteMunicipal'
   async function handleDetailCompra(cliente: ClientesMunicipaisProps) {
-    // Passamos o tipo que definimos no Provider e o objeto cliente em um array
     openModal('clienteMunicipal', [cliente]);
   }
 
@@ -38,8 +35,6 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
 
     try {
       const token = getCookieClient();
-
-      // Ajuste a rota de delete se necessário, pois aqui parece estar a de 'compras'
       await api.delete(`/deletedesolicitacaodecompras/${clienteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,7 +73,6 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
         {controles.map((cliente) => (
           <div
             key={cliente.id}
-            // Chamamos a função passando o objeto cliente inteiro
             onClick={() => handleDetailCompra(cliente)}
             className={styles.list}
           >

@@ -10,7 +10,6 @@ import { FaRegSave } from "react-icons/fa";
 import { ClientesMunicipaisProps } from "@/lib/getClientesMunicipais.type";
 
 type Props = {
-  // Mudamos de 'cliente' para 'instituicao' para bater com o Modal
   instituicao: ClientesMunicipaisProps; 
   onClose: () => void;
 };
@@ -31,7 +30,6 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
       setForm({
         name: instituicao.name ?? '',
         endereco: instituicao.endereco ?? '',
-        // Pegamos o ID do tipo de instituição que já vem nos dados
         tipodeInstituicaoUnidade_id: instituicao.tipodeinstituicaoUnidade?.id ?? '',
       });
       setLoading(false);
@@ -53,13 +51,12 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
       const token = await getCookieClient();
       
       const data = {
-        id: instituicao.id, // O service exige o ID no corpo
+        id: instituicao.id, 
         name: form.name,
         endereco: form.endereco,
         tipodeInstituicaoUnidade_id: form.tipodeInstituicaoUnidade_id
       };
 
-      // Rota correta para instituições que criamos anteriormente
       await api.patch(`/instituicao/${instituicao.id}`, data, {
         headers: { Authorization: `Bearer ${token}` }
       });
