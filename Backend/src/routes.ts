@@ -134,7 +134,7 @@ router.post('/categorycliente', isAuthenticated, can(['ADMIN']), new CreateClien
 router.delete('/deletecliente', isAuthenticated, can(['ADMIN']), new RemoveClienteController().handle);
 router.get('/listcliente', isAuthenticated, new ListClienteController().handle); // Técnicos podem ver a lista
 router.get('/cliente/detail', isAuthenticated, new DetailClienteController().handle);
-router.patch('/cliente/update',  isAuthenticated, can(['ADMIN']), new UpdateClienteController().handle);
+router.patch('/cliente/:id',  isAuthenticated, can(['ADMIN']), new UpdateClienteController().handle);
 
 // --- Setor ---
 router.post('/categorysetor', isAuthenticated, can(['ADMIN']), new CreateSetorController().handle);
