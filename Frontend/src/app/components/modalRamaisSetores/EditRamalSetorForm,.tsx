@@ -16,7 +16,8 @@ type Props = {
 
 export default function EditRamalSetorForm({ dados, onClose }: Props) {
   const router = useRouter();
-
+  const [clientes, setClientes] = useState<{id: string, name: string}[]>([]);
+  const [instituicoes, setInstituicoes] = useState<{id: string, name: string}[]>([]);
   const [form, setForm] = useState({
     usuario: '',
     ramal: '',
@@ -27,6 +28,33 @@ export default function EditRamalSetorForm({ dados, onClose }: Props) {
   });
 
   const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  async function loadOptions() {
+    try {
+      const token = getCookieClient();
+      const [resClientes, resInstituicoes] = await Promise.all([
+        api.get('/listcliente', { headers: { Authorization: `Bearer ${token}` } }),
+        api.get('/listinstuicao', { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+
+      if (resClientes.data && resClientes.data.controles) {
+        setClientes(resClientes.data.controles);
+      }
+
+      if (resInstituicoes.data && resInstituicoes.data.instituicoes) {
+        setInstituicoes(resInstituicoes.data.instituicoes);
+      }
+
+    } catch (err) {
+      console.error("Erro ao carregar listas para o select:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadOptions();
+}, []);
 
   useEffect(() => {
     if (dados) {
@@ -127,6 +155,26 @@ export default function EditRamalSetorForm({ dados, onClose }: Props) {
           style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
         />
       </div>
+
+      <div className={styles.fieldGroup}>
+      <label>Alterar Cliente</label>
+      <select name="clienteId" value={form.clienteId} onChange={handleChange}>
+        <option value="">Selecione um cliente</option>
+        {clientes.map(c => (
+          <option key={c.id} value={c.id}>{c.name}</option>
+        ))}
+      </select>
+    </div>
+
+    <div className={styles.fieldGroup}>
+      <label>Alterar Instituição/Unidade</label>
+      <select name="instituicaoUnidadeId" value={form.instituicaoUnidadeId} onChange={handleChange}>
+        <option value="">Selecione uma instituição</option>
+        {instituicoes.map(i => (
+          <option key={i.id} value={i.id}>{i.name}</option>
+        ))}
+      </select>
+    </div>
 
       <div className={styles.buttonArea}>
         <button className={styles.btnSave} onClick={handleSubmit}>
