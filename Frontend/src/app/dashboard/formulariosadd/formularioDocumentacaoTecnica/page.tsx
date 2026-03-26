@@ -128,8 +128,13 @@ export default function FormularioDocumentacaoTecnica() {
               className={styles.input}
             />
 
-            <select name="instituicaoUnidade_id" className={styles.input}>
-              <option value="" disabled hidden>Selecione a Instituição/Unidade</option>
+           <select 
+              name="instituicaoUnidade_id" 
+              className={styles.input}
+              defaultValue="" 
+            >
+              <option value="">Selecione uma instituição (Opcional)</option>
+              
               {instituicao.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
@@ -146,15 +151,20 @@ export default function FormularioDocumentacaoTecnica() {
               ))}
             </select>
 
-            <select name="cliente_id" className={styles.input}>
-              <option value="" disabled hidden>Selecione o Cliente</option>
+           <select 
+              name="cliente_id" 
+              className={styles.input}
+              defaultValue="" 
+            >
+              <option value="">Selecione o Cliente (Opcional)</option>
+              
               {cliente.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
                 </option>
               ))}
             </select>
-
+            [
             <button className={styles.button} type="submit">
               Concluir
             </button>
