@@ -10,6 +10,8 @@ import { ModalMaquinasPendentesOro } from "./modalCardMaquinasPendentesOro";
 import { ModalDocumentacaoTecnica } from "./modalCardDocumentacaoTecnica";
 import { ModalOrdemdeServico } from "./modalCardTickets";
 import { ModalCardEstabilizadores } from "./modalCardEstabilizadores";
+import { ModalCliente } from "./modalCliente";
+
 import { useEffect } from "react";
 
 export default function GlobalModal() {
@@ -69,6 +71,7 @@ export default function GlobalModal() {
         {modalType === 'documentacaoTecnica' && <ModalDocumentacaoTecnica data={modalData}/>}
         {modalType === 'OrdemdeServico' && <ModalOrdemdeServico data={modalData}/>}
         {modalType === 'Estabilizadores' && <ModalCardEstabilizadores data={modalData}/>}
+        {modalType === 'cliente' && <ModalCliente data={modalData}/>}
       </div>
     </div>
   );

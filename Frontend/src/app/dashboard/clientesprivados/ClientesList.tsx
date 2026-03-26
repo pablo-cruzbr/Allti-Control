@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './cliente.module.scss';
 import { FaRegTrashAlt } from "react-icons/fa";
-import { ModalContext } from '@/provider/compras';
-import { ClientesProps, ClienteResponse } from '@/lib/getCliente.type';
+import { useGlobalModal } from '@/provider/GlobalModalProvider'; // Importando o modal global
+import { ClienteResponse, ClientesProps } from '@/lib/getCliente.type';
 import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
 
@@ -14,17 +14,16 @@ interface Props {
 }
 
 export default function ClientesList({ clienteData }: Props) {
-  
   const { 
     controles = [], 
     total = 0, 
   } = clienteData || {};
   
-  const { onRequestOpen } = useContext(ModalContext);
+  const { openModal } = useGlobalModal();
   const router = useRouter();
 
-  async function handleDetailCompra(cliente_id: string, cliente: ClientesProps) {
-    await onRequestOpen(cliente_id);
+  async function handleDetailCliente(cliente: ClientesProps) {
+    openModal('cliente', [cliente]);
   }
 
   async function handleAddCliente() {
@@ -35,12 +34,9 @@ export default function ClientesList({ clienteData }: Props) {
     try {
       const token = getCookieClient();
 
-      await api.delete(`/deletedesolicitacaodecompras/${clienteId}`, {
+      await api.delete(`/deletecliente/${clienteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-        },
-        params: {
-          compra_id: clienteId,
         },
       });
 
@@ -64,17 +60,17 @@ export default function ClientesList({ clienteData }: Props) {
       </div>
 
       <div className={styles.cardsContainer}>
-              <div className={styles.card}>
-                <p className={styles.cardTitle}>Total</p>
-                <strong className={styles.cardNumber}>{total}</strong>
-              </div>  
+        <div className={styles.card}>
+          <p className={styles.cardTitle}>Total</p>
+          <strong className={styles.cardNumber}>{total}</strong>
+        </div>  
       </div>
 
       <div className={styles.listContainer}>
         {controles.map((cliente) => (
           <div
             key={cliente.id}
-            onClick={() => handleDetailCompra(cliente.id, cliente)}
+            onClick={() => handleDetailCliente(cliente)}
             className={styles.list}
           >
             <div className={styles.clientDetail}>
@@ -100,8 +96,10 @@ export default function ClientesList({ clienteData }: Props) {
 
               <FaRegTrashAlt
                 onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteCliente(cliente.id);
+                  e.stopPropagation(); 
+                  if(confirm("Tem certeza que deseja excluir este cliente?")) {
+                    handleDeleteCliente(cliente.id);
+                  }
                 }}
                 className={styles.iconTrash}
               />

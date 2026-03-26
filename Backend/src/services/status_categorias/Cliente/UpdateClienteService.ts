@@ -1,7 +1,7 @@
 import prismaClient from "../../../prisma";
 
 interface ClienteRequest {
-    id: string; // Adicionado o ID como obrigatório
+    id: string; 
     name: string;
     endereco: string;
     cnpj: string;
@@ -9,7 +9,6 @@ interface ClienteRequest {
 
 class UpdateClienteService {
     async execute({ id, name, endereco, cnpj }: ClienteRequest) {
-        // Validações básicas
         if (!id) {
             throw new Error('ID do cliente é obrigatório para atualização!');
         }
