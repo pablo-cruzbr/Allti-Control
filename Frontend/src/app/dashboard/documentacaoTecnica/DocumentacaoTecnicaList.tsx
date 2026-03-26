@@ -62,8 +62,7 @@ function handlerefresh(){
       });
 
       console.log("Removido com sucesso:", id);
-      router.refresh(); //Atualiza a Pagina logo após apagar o card.
-
+      router.refresh(); 
     } catch (error) {
       console.error("Erro ao deletar a compra:", error);
     }
