@@ -9,8 +9,12 @@ import { HiOutlinePencilSquare } from "react-icons/hi2";
 import EditClienteMunicipalForm from "./EditClienteMunicipalForm"; 
 import { useRouter } from 'next/navigation';
 
-export function ModalClienteMunicipal() {
- const { closeModal, modalData, modalType, isOpen } = useGlobalModal();
+interface ModalProps {
+  data?: any; 
+}
+
+export function ModalClienteMunicipal({ data }: ModalProps) {
+  const { closeModal, modalData, modalType, isOpen } = useGlobalModal();
 
   const instituicao: ClientesMunicipaisProps | undefined = modalData?.[0] || modalData;
   const [IsEditing, setIsEditing] = useState(false);

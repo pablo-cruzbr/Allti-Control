@@ -18,6 +18,7 @@ export type ModalType =
   | 'Estabilizadores'
   | 'cliente'
   | 'clienteMunicipal'
+  | 'ramaisSetores'
   | null;
 
 interface ModalContextProps {

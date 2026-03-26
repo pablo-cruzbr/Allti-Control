@@ -181,7 +181,6 @@ router.get('/liststatusprioridade', isAuthenticated, new ListStatusUrgenciaContr
 router.get('/listtipodechamado', isAuthenticated, new ListtipodeChamadoController().handle);
 router.get('/listtipodeordemdeservico', isAuthenticated, new ListtipodeOrdemdeServicoController().handle);
 
-
 // ============================================================
 // 4. OPERAÇÃO: ORDEM DE SERVIÇO (TÉCNICOS E ADM)
 // ============================================================

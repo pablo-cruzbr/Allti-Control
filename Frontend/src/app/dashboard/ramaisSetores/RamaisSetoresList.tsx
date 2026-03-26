@@ -7,6 +7,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { RamaisSetoresProps } from '@/lib/getRamaisSetores.type';
 import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
+import { useGlobalModal } from '@/provider/GlobalModalProvider';
 
 interface Props {
   ramaisData: RamaisSetoresProps[];
@@ -17,8 +18,8 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
   const [searchRamal, setSearchRamal] = useState<string>("");
 
   const router = useRouter();
+  const { openModal } = useGlobalModal();
 
-  // Filtro simples por usuário e ramal
   const filteredRamais = ramaisData.filter((ramal) => {
     const matchUsuario = searchUsuario
       ? ramal.usuario.toLowerCase().includes(searchUsuario.toLowerCase())
@@ -31,7 +32,13 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
     return matchUsuario && matchRamal;
   });
 
-  async function handleDeleteRamal(ramal_id: string) {
+  function handleOpenModal(ramal: RamaisSetoresProps) {
+    openModal('ramaisSetores', [ramal]);
+  }
+
+  async function handleDeleteRamal(ramal_id: string, e: React.MouseEvent) {
+    e.stopPropagation(); 
+    
     try {
       const token = getCookieClient();
 
@@ -85,7 +92,12 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
         )}
 
         {filteredRamais.map((ramal) => (
-          <div key={ramal.id} className={styles.list}>
+          <div 
+            key={ramal.id} 
+            className={styles.list}
+            onClick={() => handleOpenModal(ramal)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className={styles.clientDetail}>
               <p className={`${styles.field} ${styles.name}`}>
                 <strong>Usuário:</strong> {ramal.usuario}
@@ -99,7 +111,7 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
               <p className={`${styles.field} ${styles.name}`}>
                 <strong>Setor:</strong> {ramal.setor?.name}
               </p>
-             
+              
               {ramal.cliente?.name ? (
                 <p className={`${styles.field} ${styles.name}`}>
                   <strong>Cliente:</strong> {ramal.cliente.name}
@@ -109,6 +121,11 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
                   <strong>Instituição/Unidade:</strong> {ramal.instituicaoUnidade.name}
                 </p>
               ) : null}
+
+              <FaRegTrashAlt
+                onClick={(e) => handleDeleteRamal(ramal.id, e)}
+                className={styles.iconTrash}
+              />
 
             </div>
           </div>
