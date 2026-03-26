@@ -76,6 +76,14 @@
   cursor: pointer;
   transition: all 0.3s ease;
 
+  span {
+    flex: 1;
+  }
+
+  svg:last-child {
+    margin-left: auto; 
+  }
+
   &:hover {
     background: #F5F7FA;
     color: #4E3182;
