@@ -57,7 +57,7 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
         tipodeInstituicaoUnidade_id: form.tipodeInstituicaoUnidade_id
       };
 
-      await api.patch(`/instituicao/${instituicao.id}`, data, {
+      await api.patch(`/instituicaounidade/${instituicao.id}`, data, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
