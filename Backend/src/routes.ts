@@ -215,6 +215,7 @@ router.delete('/deletecontroledelaudotecnico/:id', isAuthenticated, can(['ADMIN'
 router.post('/solicitacaodecompras', isAuthenticated, new CreateSolicitacaodeComprasController().handle);
 router.delete('/deletedesolicitacaodecompras/:id', isAuthenticated, can(['ADMIN']), new DeleteSolicitacaodeComprasController().handle);
 
+router.get('/listdocumentacaotecnica', isAuthenticated, new ListDocumentacaoTecnicaController().handle);
 router.post('/documentacaotecnica', isAuthenticated, new CreateDocumentacaoTecnicaController().handle);
 router.delete('/deletedocumentacaotecnica/:id', isAuthenticated, can(['ADMIN']), new DeleteDocumentacaoTecnicaController().handle);
 
