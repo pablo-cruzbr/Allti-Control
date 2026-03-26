@@ -106,6 +106,7 @@ import { CreatetipodeOrdemdeServicoController } from "./controllers/status categ
 import { ListtipodeOrdemdeServicoController } from "./controllers/status categorias/tipodeOrdemdeServico/ListTipodeOrdemdeServicoController";
 import { can } from "./Middleware/can";
 import { UpdateClienteController } from "./controllers/status categorias/cliente/UpdateClienteController";
+import { UpdateInstituicaoUnidadeController } from "./controllers/status categorias/tipodeInsituicaoUnidade/UpdateInstituicaoUnidadeController";
 const router = Router();
 //get,post, update, delete
 
@@ -149,6 +150,7 @@ router.delete('/deleteinstituicao', isAuthenticated, can(['ADMIN']), new RemoveI
 router.get('/listinstuicao', isAuthenticated, new ListInstituicaoUnidadeController().handle);
 router.post('/tipodeinstituicaounidade', isAuthenticated, can(['ADMIN']), new CreatetipodeInstituicaoUnidadeController().handle);
 router.get('/listtipodeinstituicaounidade', isAuthenticated, new ListtipoInsituicaoUnidadeController().handle);
+router.patch('/instituicaounidade/:id',  isAuthenticated, can(['ADMIN']), new UpdateInstituicaoUnidadeController().handle);
 
 // --- Tecnico ---
 router.post('/tecnico', isAuthenticated, can(['ADMIN']), new CreateTecnicoController().handle);
