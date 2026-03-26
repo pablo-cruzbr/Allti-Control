@@ -9,9 +9,7 @@ async function getClientes(): Promise<ClienteMunicipaisResponse> {
     const response = await api.get('/listinstuicao', {
       headers: { Authorization: `Bearer ${token}` },
     });
-
-    console.log('/listinstuicao response.data:', response.data);
-
+    
     const instituicoes: ClientesMunicipaisProps[] = response.data?.instituicoes ?? [];
 
     return {
