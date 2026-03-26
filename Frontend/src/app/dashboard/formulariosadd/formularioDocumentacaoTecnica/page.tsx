@@ -164,7 +164,6 @@ export default function FormularioDocumentacaoTecnica() {
                 </option>
               ))}
             </select>
-            [
             <button className={styles.button} type="submit">
               Concluir
             </button>

@@ -99,8 +99,9 @@ function handlerefresh(){
         <strong>Tecnico: </strong> {documentacaotecnica.tecnico.name} 
       </p>
       
-      <p className={`${styles.field} ${styles.tecnico}`}>
-        <strong>Cliente: </strong> {documentacaotecnica.cliente.name} 
+     <p className={`${styles.field} ${styles.tecnico}`}>
+        <strong>Cliente: </strong> 
+        {documentacaotecnica.cliente?.name || "Nenhum cliente vinculado"}
       </p>
       <p className={`${styles.field} ${styles.data}`}>
                 <strong>Data/Hora:</strong>{" "}
