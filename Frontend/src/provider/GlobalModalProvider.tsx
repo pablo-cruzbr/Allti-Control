@@ -17,6 +17,7 @@ export type ModalType =
   | 'OrdemdeServico'
   | 'Estabilizadores'
   | 'cliente'
+  | 'clienteMunicipal'
   | null;
 
 interface ModalContextProps {

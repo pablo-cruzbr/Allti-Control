@@ -1,12 +1,10 @@
-// app/dashboard/compras/ClienteMunicipalList.tsx
-
 'use client';
 
-import React, { useContext } from 'react';
+import React from 'react'; 
 import { useRouter } from 'next/navigation';
 import styles from './cliente.module.scss';
 import { FaRegTrashAlt } from "react-icons/fa";
-import { ModalContext } from '@/provider/compras';
+import { useGlobalModal } from '@/provider/GlobalModalProvider'; 
 import { ClientesMunicipaisProps, ClienteMunicipaisResponse } from '@/lib/getClientesMunicipais.type';
 import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
@@ -21,11 +19,14 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
     total = 0,
   } = clienteData || {};
 
-  const { onRequestOpen } = useContext(ModalContext);
+  // Usando o hook global para abrir o modal
+  const { openModal } = useGlobalModal();
   const router = useRouter();
 
-  async function handleDetailCompra(cliente_id: string, cliente: ClientesMunicipaisProps) {
-    await onRequestOpen(cliente_id);
+  // Função ajustada para disparar o tipo 'clienteMunicipal'
+  async function handleDetailCompra(cliente: ClientesMunicipaisProps) {
+    // Passamos o tipo que definimos no Provider e o objeto cliente em um array
+    openModal('clienteMunicipal', [cliente]);
   }
 
   async function handleAddCliente() {
@@ -33,9 +34,12 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
   }
 
   async function handleDeleteCliente(clienteId: string) {
+    if(!confirm("Tem certeza que deseja excluir este cliente?")) return;
+
     try {
       const token = getCookieClient();
 
+      // Ajuste a rota de delete se necessário, pois aqui parece estar a de 'compras'
       await api.delete(`/deletedesolicitacaodecompras/${clienteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -45,7 +49,6 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
         },
       });
 
-      console.log('Removido com sucesso:', clienteId);
       router.refresh();
     } catch (error) {
       console.error('Erro ao deletar o cliente:', error);
@@ -75,7 +78,8 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
         {controles.map((cliente) => (
           <div
             key={cliente.id}
-            onClick={() => handleDetailCompra(cliente.id, cliente)}
+            // Chamamos a função passando o objeto cliente inteiro
+            onClick={() => handleDetailCompra(cliente)}
             className={styles.list}
           >
             <div className={styles.clientDetail}>
@@ -87,7 +91,6 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
                 <strong>Tipo: </strong>
                 {cliente.tipodeinstituicaoUnidade?.name || "Não informado"}
               </p>
-
 
               <p className={`${styles.field} ${styles.name}`}>
                 <strong>Endereço: </strong>{cliente.endereco}
