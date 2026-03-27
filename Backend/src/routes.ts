@@ -127,7 +127,7 @@ router.post('/session', new AuthUserController().handle); // Login
 // Apenas ADM pode listar todos os usuários do sistema
 router.get('/listusers', isAuthenticated, can(['ADMIN']), new ListUserController().handle);
 router.get('/users/detail', isAuthenticated, new DetailUserController().handle);
-router.patch('/user/update', isAuthenticated, can(['ADMIN']), new UpdateUserController().handle);
+router.patch('/user/update/:id', isAuthenticated, can(['ADMIN']), new UpdateUserController().handle);
 // ============================================================
 // 2. CONFIGURAÇÕES E CATEGORIAS (ACESSO RESTRITO: ADM)
 // ============================================================

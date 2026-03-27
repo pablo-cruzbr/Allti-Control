@@ -3,8 +3,10 @@ import { UpdateUserService } from "../../services/user/UpdateUSerService";
 
 class UpdateUserController {
   async handle(req: Request, res: Response) {
+  
+    const { id } = req.params; 
+
     const { 
-      user_id, 
       name, 
       email, 
       password, 
@@ -16,8 +18,9 @@ class UpdateUserController {
     const updateUserService = new UpdateUserService();
 
     try {
+
       const user = await updateUserService.execute({
-        user_id, 
+        user_id: id, 
         name,
         email,
         password,
@@ -27,7 +30,7 @@ class UpdateUserController {
       });
 
       return res.json(user);
-    } catch (error) {
+    } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
   }

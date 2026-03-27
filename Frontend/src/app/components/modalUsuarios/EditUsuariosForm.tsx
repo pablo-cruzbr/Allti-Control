@@ -91,7 +91,7 @@ export default function EditUsuariosForm({ dados, onClose }: Props) {
         instituicaoUnidade_id: form.instituicaoUnidadeId || null
       };
 
-      await api.put(`/users/${dados.id}`, payload, {
+      await api.patch(`/user/update/${dados.id}`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
