@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './usuario.module.scss';
 import { FaRegTrashAlt } from 'react-icons/fa';
-import { ModalContext } from '@/provider/compras';
+import { useGlobalModal } from '@/provider/GlobalModalProvider'; 
 import { UsuariosProps, UsuariosPropsResponse } from '@/lib/getUsuario.type';
 import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
@@ -15,15 +15,16 @@ interface Props {
 
 export default function UsuarioList({ usuariosData }: Props) {
   const { controles = [], total = 0 } = usuariosData || {};
-  const { onRequestOpen } = useContext(ModalContext);
+
+  const { openModal } = useGlobalModal();
   const router = useRouter();
 
-  // 🔹 Estados para filtro e busca
   const [filterType, setFilterType] = useState<'all' | 'cliente' | 'instituicao'>('all');
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  async function handleDetail(usuario_id: string, usuario: UsuariosProps) {
-    await onRequestOpen(usuario_id);
+  // 🔹 Abre o modal passando o tipo 'ramaisSetores' e o usuário dentro de um array
+  async function handleDetail(usuario: UsuariosProps) {
+    openModal('ramaisSetores', [usuario]);
   }
 
   async function handleAddUserCorporativo() {
@@ -35,9 +36,10 @@ export default function UsuarioList({ usuariosData }: Props) {
   }
 
   async function handleDeleteUsuario(usuarioId: string) {
+    if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+
     try {
       const token = getCookieClient();
-
       await api.delete(`/deletedesolicitacaodecompras/${usuarioId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -47,14 +49,12 @@ export default function UsuarioList({ usuariosData }: Props) {
         },
       });
 
-      console.log('Removido com sucesso:', usuarioId);
       router.refresh();
     } catch (error) {
       console.error('Erro ao deletar o usuário:', error);
     }
   }
 
-  // 🔹 Função para filtrar usuários
   const filteredUsuarios = controles.filter((usuario) => {
     const searchLower = searchTerm.toLowerCase();
 
@@ -76,40 +76,38 @@ export default function UsuarioList({ usuariosData }: Props) {
     <section>
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>Usuários Cadastrados na Plataforma</h1>
-        <p className = {styles.pClient}>Pesquise por nome, empresa ou instituição</p>
+        <p className={styles.pClient}>Pesquise por nome, empresa ou instituição</p>
 
         <div className={styles.actions}>
-           <h1 className={styles.titleClient}>Cadastrar:</h1>
+          <h1 className={styles.titleClient}>Cadastrar:</h1>
           <button className={styles.button} onClick={handleAddUserCorporativo}>
-              Usuário Corporativo
-            </button>
-            <button className={styles.button} onClick={handleAddUserMunicipal}>
-             Usuário Municipal
-            </button>
+            Usuário Corporativo
+          </button>
+          <button className={styles.button} onClick={handleAddUserMunicipal}>
+            Usuário Municipal
+          </button>
         </div>
 
         <div className={styles.actions}>
           <div className={styles.searchContainer}>
-          <input
-            type="text"
-            placeholder="Pesquisar por nome, email, instituição ou cliente..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
+            <input
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
 
-          <select
-            className={styles.select}
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value as 'all' | 'cliente' | 'instituicao')}
-          >
-            <option value="all">Todos</option>
-            <option value="cliente">Clientes</option>
-            <option value="instituicao">Instituições</option>
-          </select>
+            <select
+              className={styles.select}
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value as any)}
+            >
+              <option value="all">Todos</option>
+              <option value="cliente">Clientes</option>
+              <option value="instituicao">Instituições</option>
+            </select>
           </div>
-
-          
         </div>
       </div>
 
@@ -124,15 +122,16 @@ export default function UsuarioList({ usuariosData }: Props) {
         {filteredUsuarios.map((usuario) => (
           <div
             key={usuario.id}
-            onClick={() => handleDetail(usuario.id, usuario)}
+            onClick={() => handleDetail(usuario)}
             className={styles.list}
+            style={{ cursor: 'pointer' }}
           >
             <div className={styles.clientDetail}>
               <p className={`${styles.field} ${styles.name}`}>
                 <strong>Nome: </strong> {usuario.name}
               </p>
 
-               <p className={`${styles.field} ${styles.name}`}>
+              <p className={`${styles.field} ${styles.name}`}>
                 <strong>Setor: </strong> {usuario.setor?.name || "Sem Setor"}
               </p>
 
@@ -140,14 +139,12 @@ export default function UsuarioList({ usuariosData }: Props) {
                 <strong>Email: </strong> {usuario.email}
               </p>
 
-              {/* Renderiza somente se houver Instituição */}
               {usuario.instituicaoUnidade?.name && (
                 <p className={`${styles.field} ${styles.tecnico}`}>
                   <strong>Instituição: </strong> {usuario.instituicaoUnidade.name}
                 </p>
               )}
 
-              {/* Renderiza somente se houver Cliente */}
               {usuario.cliente?.name && (
                 <p className={`${styles.field} ${styles.tecnico}`}>
                   <strong>Empresa: </strong> {usuario.cliente.name}

@@ -13,6 +13,7 @@ import { ModalCardEstabilizadores } from "./modalCardEstabilizadores";
 import { ModalCliente } from "./modalCliente";
 import { ModalClienteMunicipal } from "./modalClienteMunicipal";
 import { ModalRamaisSetores } from "./modalRamaisSetores";
+import { ModalUsuarios } from "./modalUsuarios";
 
 import { useEffect } from "react";
 
@@ -76,6 +77,7 @@ export default function GlobalModal() {
         {modalType === 'cliente' && <ModalCliente data={modalData}/>}
         {modalType === 'clienteMunicipal' && <ModalClienteMunicipal data={modalData}/>}
         {modalType === 'ramaisSetores' && <ModalRamaisSetores data={modalData}/>}
+        {modalType === 'ramaisSetores' && <ModalUsuarios data={modalData}/>}
 
       </div>
     </div>

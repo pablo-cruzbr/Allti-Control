@@ -19,6 +19,7 @@ export type ModalType =
   | 'cliente'
   | 'clienteMunicipal'
   | 'ramaisSetores'
+  | 'usuarios'
   | null;
 
 interface ModalContextProps {

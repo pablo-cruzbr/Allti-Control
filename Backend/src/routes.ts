@@ -108,6 +108,7 @@ import { can } from "./Middleware/can";
 import { UpdateClienteController } from "./controllers/status categorias/cliente/UpdateClienteController";
 import { UpdateInstituicaoUnidadeController } from "./controllers/status categorias/tipodeInsituicaoUnidade/UpdateInstituicaoUnidadeController";
 import { UpdateInformacoesSetorController } from "./controllers/status categorias/setor/informacoessetor/UpdateInformacoesSetorController";
+import { UpdateUserController } from "./controllers/user/UpdateUserController";
 const router = Router();
 //get,post, update, delete
 
@@ -126,7 +127,7 @@ router.post('/session', new AuthUserController().handle); // Login
 // Apenas ADM pode listar todos os usuários do sistema
 router.get('/listusers', isAuthenticated, can(['ADMIN']), new ListUserController().handle);
 router.get('/users/detail', isAuthenticated, new DetailUserController().handle);
-
+router.patch('/user/update', isAuthenticated, can(['ADMIN']), new UpdateUserController().handle);
 // ============================================================
 // 2. CONFIGURAÇÕES E CATEGORIAS (ACESSO RESTRITO: ADM)
 // ============================================================
