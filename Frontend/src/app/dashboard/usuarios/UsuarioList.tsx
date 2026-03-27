@@ -24,7 +24,7 @@ export default function UsuarioList({ usuariosData }: Props) {
 
   // 🔹 Abre o modal passando o tipo 'ramaisSetores' e o usuário dentro de um array
   async function handleDetail(usuario: UsuariosProps) {
-    openModal('ramaisSetores', [usuario]);
+    openModal('usuarios', [usuario]);
   }
 
   async function handleAddUserCorporativo() {

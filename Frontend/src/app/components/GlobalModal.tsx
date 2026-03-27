@@ -77,7 +77,7 @@ export default function GlobalModal() {
         {modalType === 'cliente' && <ModalCliente data={modalData}/>}
         {modalType === 'clienteMunicipal' && <ModalClienteMunicipal data={modalData}/>}
         {modalType === 'ramaisSetores' && <ModalRamaisSetores data={modalData}/>}
-        {modalType === 'ramaisSetores' && <ModalUsuarios data={modalData}/>}
+        {modalType === 'usuarios' && <ModalUsuarios data={modalData}/>}
 
       </div>
     </div>

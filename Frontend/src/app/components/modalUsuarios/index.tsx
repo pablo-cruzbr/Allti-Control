@@ -33,12 +33,12 @@ export function ModalUsuarios({ data }: ModalProps) {
   }, [isOpen]);
 
   useEffect(() => {
-    if (modalType === 'ramaisSetores' && !usuario) {
+    if (modalType === 'usuarios' && !usuario) {
       closeModal();
     }
   }, [usuario, modalType, closeModal]);
 
-  if (modalType !== 'ramaisSetores' || !isOpen || !usuario) return null;
+  if (modalType !== 'usuarios' || !isOpen || !usuario) return null;
 
   return (
     <dialog className={styles.dialogContainer} open={true}>
