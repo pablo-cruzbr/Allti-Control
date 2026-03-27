@@ -8,6 +8,8 @@ import { RamaisSetoresProps } from '@/lib/getRamaisSetores.type';
 import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
 import { useGlobalModal } from '@/provider/GlobalModalProvider';
+import { LuRefreshCcw } from "react-icons/lu";
+import { toast } from 'sonner';
 
 interface Props {
   ramaisData: RamaisSetoresProps[];
@@ -16,7 +18,8 @@ interface Props {
 export default function RamaisSetoresList({ ramaisData }: Props) {
   const [searchUsuario, setSearchUsuario] = useState<string>("");
   const [searchRamal, setSearchRamal] = useState<string>("");
-
+ 
+  const handleRefresh = () => router.refresh(); toast.success("Lista atualizada com sucesso!");
   const router = useRouter();
   const { openModal } = useGlobalModal();
 
@@ -83,6 +86,7 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
           >
             Novo Registro
           </button>
+          <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
         </div>
       </div>
 
