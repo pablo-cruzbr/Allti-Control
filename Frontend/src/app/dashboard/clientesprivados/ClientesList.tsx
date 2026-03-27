@@ -7,6 +7,9 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { useGlobalModal } from '@/provider/GlobalModalProvider'; // Importando o modal global
 import { ClienteResponse, ClientesProps } from '@/lib/getCliente.type';
 import { getCookieClient } from '@/lib/cookieClient';
+import { LuRefreshCcw } from "react-icons/lu";
+import { toast } from 'sonner';
+
 import { api } from '@/services/api';
 
 interface Props {
@@ -21,6 +24,12 @@ export default function ClientesList({ clienteData }: Props) {
   
   const { openModal } = useGlobalModal();
   const router = useRouter();
+
+  
+  const handleRefresh = () => {
+    router.refresh();
+    toast.success("Lista atualizada com sucesso!");
+  };
 
   async function handleDetailCliente(cliente: ClientesProps) {
     openModal('cliente', [cliente]);
@@ -56,6 +65,8 @@ export default function ClientesList({ clienteData }: Props) {
           <button className={styles.button} onClick={handleAddCliente}>
             Cadastrar Novo Cliente
           </button>
+          <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
+
         </div>
       </div>
 
