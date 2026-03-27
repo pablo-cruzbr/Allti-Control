@@ -139,29 +139,31 @@ export default function Signup() {
               Selecione um Instituição 
             </p>
 
-            <select name="instituicaoUnidade" className={styles.input} required>
-              {instituicoes.length === 0 ? (
-                <option>Carregando...</option>
+           <select name="instituicaoUnidade" className={styles.input} required defaultValue="">
+              <option value="" disabled> Selecione uma Instituição </option>
+              {loading ? (
+                <option>Carregando Instituições...</option>
               ) : (
-                instituicoes.map((instituicao, index) => (
-                  <option key={instituicao.id} value={index}>
-                    {instituicao.name}
+               instituicoes.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
                   </option>
                 ))
               )}
             </select>
-
+          
             <p className={styles.text}>
               Selecione um Setor 
             </p>
 
-            <select name="setor" className={styles.input} required>
-              {setor.length === 0 ? (
-                <option>Carregando...</option>
+            <select name="setor" className={styles.input} required defaultValue="">
+              <option value="" disabled> Escolha um setor </option>
+              {loading ? (
+                <option>Carregando setores...</option>
               ) : (
-                setor.map((setor, index) => (
-                  <option key={setor.id} value={index}>
-                    {setor.name}
+                setor.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
                   </option>
                 ))
               )}
