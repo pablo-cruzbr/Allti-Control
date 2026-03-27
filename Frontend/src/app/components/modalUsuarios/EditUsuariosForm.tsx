@@ -77,31 +77,37 @@ export default function EditUsuariosForm({ dados, onClose }: Props) {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
-    if (!dados?.id) return;
+const handleSubmit = async () => {
+  if (!dados?.id) return;
 
-    try {
-      const token = getCookieClient();
-      
-      const payload = {
-        name: form.name,
-        email: form.email,
-        setor_id: form.setorId,
-        cliente_id: form.clienteId || null,
-        instituicaoUnidade_id: form.instituicaoUnidadeId || null
-      };
+  try {
+    const token = getCookieClient();
+    
+    // Garanta que se o ID for uma string vazia, ele envie null
+    const payload = {
+      name: form.name,
+      email: form.email,
+      // Se form.setorId for "" (vazio), o Prisma quebra a chave estrangeira
+      setor_id: form.setorId || null, 
+      cliente_id: form.clienteId || null,
+      instituicaoUnidade_id: form.instituicaoUnidadeId || null
+    };
 
-      await api.patch(`/user/update/${dados.id}`, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+    console.log("Enviando Payload para o Backend:", payload);
 
-      router.refresh(); 
-      onClose();
+    await api.patch(`/user/update/${dados.id}`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-    } catch (err: any) {
-      alert("Erro ao atualizar usuário.");
-    }
-  };
+    router.refresh(); 
+    onClose();
+
+  } catch (err: any) {
+    const errorMessage = err.response?.data?.error || "Erro desconhecido";
+    console.error("ERRO DO PRISMA NO BACKEND:", errorMessage);
+    alert(`Erro ao atualizar: Verifique se o Setor selecionado é válido.`);
+  }
+};
 
   if (loading) return <div className={styles.editForm}><p>Carregando opções...</p></div>;
 
@@ -136,8 +142,8 @@ export default function EditUsuariosForm({ dados, onClose }: Props) {
         <label>Setor</label>
         <select name="setorId" value={form.setorId} onChange={handleChange}>
           <option value="">Selecione um setor</option>
-          {setores.map(s => (
-            <option key={s.id} value={s.id}>{s.name}</option>
+          {setores.map(setor => (
+            <option key={setor.id} value={setor.id}>{setor.name}</option>
           ))}
         </select>
       </div>
