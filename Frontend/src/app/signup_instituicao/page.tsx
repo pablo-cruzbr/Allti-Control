@@ -7,6 +7,8 @@ import logo from "../../assets/Logo9.svg";
 import { api } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getCookieClient } from "@/lib/cookieClient";
+
 export const dynamic = 'force-dynamic';
 interface InstituicaoUnidadeProps {
   id: string;
@@ -29,34 +31,45 @@ export default function Signup() {
   const [instituicoes, setInstituicoes] = useState<InstituicaoUnidadeProps[]>([]);
   const [setor, setSetor] = useState<SetorProps[]>([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  //useEffct carrega as instituições ao iniciar os componentes
-  useEffect(() => {
-    async function fetchInstituicoes() {
+ useEffect(() => {
+    async function loadResources() {
       try {
-        const response = await api.get("/listinstuicao"); 
-        setInstituicoes(response.data.instituicoes);
-      } catch (err) {
-        console.log("Erro ao buscar instituições:", err);
-        setError("Erro ao carregar instituições");
-      }
-    }
-    fetchInstituicoes();
-  }, []);
+        setLoading(true);
+        setError("");
+      
+        const token = typeof getCookieClient === 'function' ? getCookieClient() : null;
+        const config = token 
+          ? { headers: { Authorization: `Bearer ${token}` } } 
+          : {};
+        
+        const [resInstituicoes, resSetores] = await Promise.all([
+          api.get("/listinstuicao", config),
+          api.get("/listsetores", config)
+        ]);
 
-  //useEffect carrega os setores ao iniciar os componentes
-  useEffect(() => {
-    async function fetchSetor(){
-      try{
-        const response = await api.get("/listsetores");
-        setSetor(response.data);
-      }catch (err){
-        console.log("Erro ao buscar Setor:", err);
-        setError("Erro ao carregar Setor");
+        if (resInstituicoes.data && resInstituicoes.data.instituicoes) {
+          setInstituicoes(resInstituicoes.data.instituicoes);
+        } else {
+          setInstituicoes(resInstituicoes.data || []);
+        }
+        setSetor(resSetores.data || [])
+
+      } catch (err: any) {
+       
+        if (err.response?.status === 401) {
+          setError("Sessão expirada ou sem permissão. Tente fazer login novamente.");
+        } else {
+          setError("Erro ao carregar listas de instituições e setores.");
+        }
+      } finally {
+        setLoading(false);
       }
     }
-    fetchSetor();
-  }, [])
+
+    loadResources();
+  }, []); 
 
   function handleBack(){
     router.push('/dashboard/usuarios')
