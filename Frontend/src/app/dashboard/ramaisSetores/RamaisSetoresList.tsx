@@ -16,27 +16,29 @@ interface Props {
 }
 
 export default function RamaisSetoresList({ ramaisData }: Props) {
-  const [searchUsuario, setSearchUsuario] = useState<string>("");
-  const [searchRamal, setSearchRamal] = useState<string>("");
- 
+    const [searchUsuario, setSearchUsuario] = useState<string>("");
+    const [searchRamal, setSearchRamal] = useState<string>("");
+    const [filterType, setFilterType] = useState<'all' | 'cliente' | 'instituicao'>('all');
+
+    const filteredRamais = ramaisData.filter((ramal) => {
+    const matchUsuario = ramal.usuario.toLowerCase().includes(searchUsuario.toLowerCase());
+    const matchRamal = ramal.ramal.toLowerCase().includes(searchRamal.toLowerCase());
+
+    const matchesFilterType =
+      filterType === 'all' ||
+      (filterType === 'cliente' && !!ramal.cliente?.name) ||
+      (filterType === 'instituicao' && !!ramal.instituicaoUnidade?.name);
+
+    return matchUsuario && matchRamal && matchesFilterType;
+  });
+
+
    const handleRefresh = () => {
     router.refresh();
     toast.success("Lista atualizada com sucesso!");
     }
   const router = useRouter();
   const { openModal } = useGlobalModal();
-
-  const filteredRamais = ramaisData.filter((ramal) => {
-    const matchUsuario = searchUsuario
-      ? ramal.usuario.toLowerCase().includes(searchUsuario.toLowerCase())
-      : true;
-
-    const matchRamal = searchRamal
-      ? ramal.ramal.toLowerCase().includes(searchRamal.toLowerCase())
-      : true;
-
-    return matchUsuario && matchRamal;
-  });
 
   function handleOpenModal(ramal: RamaisSetoresProps) {
     openModal('ramaisSetores', [ramal]);
@@ -81,6 +83,17 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
               onChange={(e) => setSearchRamal(e.target.value)}
               className={styles.searchInput}
             />
+
+             <select
+            className={styles.select}
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value as any)} 
+          >
+            <option value="all">Todos</option>
+            <option value="cliente">Apenas Clientes</option>
+            <option value="instituicao">Apenas Instituições</option>
+          </select>
+
           </div>
 
           <button
