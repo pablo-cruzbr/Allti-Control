@@ -162,6 +162,7 @@ export default function Sidebar() {
               </div>
               {dropdowns.controles && (
                 <div className={styles.dropdown}>
+                  <Link href="/dashboard/usuarios" className={styles.subItem}>Gerenciar Usuários</Link>
                   <Link href="/dashboard/controles/equipamentos" className={styles.subItem}>Lista de Máquinas</Link>
                   <Link href="/dashboard/controles/assistenciaTecnica" className={styles.subItem}>Assistência Técnica</Link>
                   <Link href="/dashboard/controles/laudoTecnico" className={styles.subItem}>Laudo Técnico</Link>
@@ -196,7 +197,6 @@ export default function Sidebar() {
                   <Link href="/dashboard/formulariosadd/formularioMaquinas" className={styles.subItem}>Nova Máquina</Link>
                   <Link href="/dashboard/formulariosadd/formularioTecnicoAdd" className={styles.subItem}>Novo Técnico</Link>
                    <Link href="/dashboard/formulariosadd/formularioSetores" className={styles.subItem}>Novo Setor</Link>
-                  <Link href="/dashboard/usuarios" className={styles.subItem}>Gerenciar Usuários</Link>
                 </div>
               )}
             </div>
