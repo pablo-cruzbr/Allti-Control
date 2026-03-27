@@ -63,7 +63,7 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
   return (
     <section>
       <div className={styles.headerClient}>
-        <h1 className={styles.titleClient}>Lista de Ramais e Setores</h1>
+        <h1 className={styles.titleClient}>Lista de Ramais e Setores - Tickets</h1>
         <div className={styles.actions}>
           <div className={styles.searchContainer}>
             <input
