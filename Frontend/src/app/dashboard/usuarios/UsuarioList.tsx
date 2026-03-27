@@ -8,6 +8,8 @@ import { useGlobalModal } from '@/provider/GlobalModalProvider';
 import { UsuariosProps, UsuariosPropsResponse } from '@/lib/getUsuario.type';
 import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
+import { toast } from 'sonner';
+import { LuRefreshCcw } from "react-icons/lu";
 
 interface Props {
   usuariosData: UsuariosPropsResponse;
@@ -18,7 +20,10 @@ export default function UsuarioList({ usuariosData }: Props) {
 
   const { openModal } = useGlobalModal();
   const router = useRouter();
-
+  const handleRefresh = () => {
+  router.refresh();
+  toast.success("Lista atualizada com sucesso!");
+  }
   const [filterType, setFilterType] = useState<'all' | 'cliente' | 'instituicao'>('all');
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -86,6 +91,7 @@ export default function UsuarioList({ usuariosData }: Props) {
           <button className={styles.button} onClick={handleAddUserMunicipal}>
             Usuário Municipal
           </button>
+           <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
         </div>
 
         <div className={styles.actions}>

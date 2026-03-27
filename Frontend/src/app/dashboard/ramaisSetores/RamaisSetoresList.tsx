@@ -19,7 +19,10 @@ export default function RamaisSetoresList({ ramaisData }: Props) {
   const [searchUsuario, setSearchUsuario] = useState<string>("");
   const [searchRamal, setSearchRamal] = useState<string>("");
  
-  const handleRefresh = () => router.refresh(); toast.success("Lista atualizada com sucesso!");
+   const handleRefresh = () => {
+    router.refresh();
+    toast.success("Lista atualizada com sucesso!");
+    }
   const router = useRouter();
   const { openModal } = useGlobalModal();
 
