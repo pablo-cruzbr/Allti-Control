@@ -18,6 +18,8 @@ export default function EditRamalSetorForm({ dados, onClose }: Props) {
   const router = useRouter();
   const [clientes, setClientes] = useState<{id: string, name: string}[]>([]);
   const [instituicoes, setInstituicoes] = useState<{id: string, name: string}[]>([]);
+  const [setores, setSetores] = useState<{id: string, name: string}[]>([]);
+  
   const [form, setForm] = useState({
     usuario: '',
     ramal: '',
@@ -33,9 +35,10 @@ useEffect(() => {
   async function loadOptions() {
     try {
       const token = getCookieClient();
-      const [resClientes, resInstituicoes] = await Promise.all([
+      const [resClientes, resInstituicoes, resSetores] = await Promise.all([
         api.get('/listcliente', { headers: { Authorization: `Bearer ${token}` } }),
-        api.get('/listinstuicao', { headers: { Authorization: `Bearer ${token}` } })
+        api.get('/listinstuicao', { headers: { Authorization: `Bearer ${token}` } }),
+        api.get('listsetores', { headers: { Authorization: `Bearer ${token}` } })
       ]);
 
       if (resClientes.data && resClientes.data.controles) {
@@ -44,6 +47,10 @@ useEffect(() => {
 
       if (resInstituicoes.data && resInstituicoes.data.instituicoes) {
         setInstituicoes(resInstituicoes.data.instituicoes);
+      }
+      
+       if (resSetores.data && resSetores.data) {
+        setSetores(resSetores.data);
       }
 
     } catch (err) {
@@ -146,15 +153,15 @@ useEffect(() => {
         />
       </div>
 
-      <div className={styles.fieldGroup}>
-        <label>Setor Atual</label>
-        <input
-          type="text"
-          value={dados.setor?.name}
-          disabled
-          style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
-        />
-      </div>
+         <div className={styles.fieldGroup}>
+      <label>Setor Atual</label>
+      <select name="setorId" value={form.setorId} onChange={handleChange}>
+        <option value="">Selecione um setor</option>
+        {setores.map(c => (
+          <option key={c.id} value={c.id}>{c.name}</option>
+        ))}
+      </select>
+    </div>
 
       <div className={styles.fieldGroup}>
       <label>Alterar Cliente</label>
