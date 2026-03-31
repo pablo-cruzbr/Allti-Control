@@ -51,7 +51,7 @@ export default function FormularioTicket() {
         const [tipoRes, statusRes, tipodeordemRes] = await Promise.all([
           api.get("/listtipodechamado", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
-           api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
         setTiposOrdem(tipodeordemRes.data.controles || tipodeordemRes.data || []);
         setTipo(tipoRes.data.controles || tipoRes.data || []);
@@ -66,94 +66,124 @@ export default function FormularioTicket() {
   }, []);
 
   async function handleSearchRamal() {
-  if (!ramalInput) {
-    alert("Digite um ramal");
-    return null;
-  }
+    if (!ramalInput) {
+      alert("Digite um ramal");
+      return null;
+    }
 
-  try {
-    setFetching(true);
-    const token = await getCookieClient();
-    const res = await api.get<UsuarioDataProps[]>("/listinformacoessetor", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      setFetching(true);
+      const token = await getCookieClient();
+      const res = await api.get<UsuarioDataProps[]>("/listinformacoessetor", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const encontrado = res.data.find((item) => item.ramal === ramalInput);
+      const encontrado = res.data.find((item) => item.ramal === ramalInput);
 
-    if (encontrado) {
-      setUsuarioEncontrado(encontrado);
-      return encontrado; 
-    } else {
-      setUsuarioEncontrado(null);
-      alert("Ramal não encontrado.");
+      if (encontrado) {
+        setUsuarioEncontrado(encontrado);
+        setNameInput(encontrado.usuario); 
+        return encontrado; 
+      } else {
+        setUsuarioEncontrado(null);
+        alert("Ramal não encontrado.");
+        return null; 
+      }
+    } catch (err) {
       return null; 
+    } finally {
+      setFetching(false);
     }
-  } catch (err) {
-    return null; 
-  } finally {
-    setFetching(false);
   }
-}
 
-async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-  setLoading(true);
-
-  const formData = new FormData(event.currentTarget);
-  const TICKET_TYPE_ID = "9255770c-a7b5-400b-9773-8b249f04b9ed";
-
-  try {
-    const token = await getCookieClient();
-    if (!token) return;
-
-    let usuarioFinal = usuarioEncontrado;
-
-    if (!usuarioFinal || usuarioFinal.ramal !== ramalInput) {
-      usuarioFinal = await handleSearchRamal(); 
+  async function handleSearchName() {
+    if(!nameInput) {
+      alert("Digite um nome");
+      return null;
     }
 
-    if (!usuarioFinal) {
+    try {
+      setFetching(true);
+      const token = await getCookieClient();
+      const res = await api.get<UsuarioDataProps[]>("/listinformacoessetor", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const encontrado = res.data.find((item) => 
+        item.usuario.toLowerCase().includes(nameInput.toLowerCase())
+      );
+
+      if (encontrado) {
+        setUsuarioEncontrado(encontrado);
+        setRamalInput(encontrado.ramal); // Sincroniza o campo de ramal
+        return encontrado;
+      } else {
+        setUsuarioEncontrado(null);
+        alert("Usuário não encontrado.");
+        return null;
+      }
+    } catch (err) {
+      return null;
+    } finally {
+      setFetching(false);
+    }
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(event.currentTarget);
+    const TICKET_TYPE_ID = "9255770c-a7b5-400b-9773-8b249f04b9ed";
+
+    try {
+      const token = await getCookieClient();
+      if (!token) return;
+
+      let usuarioFinal = usuarioEncontrado;
+
+      if (!usuarioFinal) {
+        alert("Por favor, pesquise um usuário por ramal ou nome antes de concluir.");
+        setLoading(false);
+        return;
+      }
+
+      const decoded = jwtDecode<JwtPayload>(token);
+      const user_id = decoded.sub;
+      const numeroOS = Math.floor(10000 + Math.random() * 90000); 
+
+      const payload = {
+        numeroOS: numeroOS,
+        name: usuarioFinal.usuario, 
+        descricaodoProblemaouSolicitacao: formData.get("descricaodoProblemaouSolicitacao")?.toString(),
+        solucaodoproblema: formData.get("solucaodoproblema")?.toString(),
+        statusOrdemdeServico_id: formData.get("statusOrdemdeServico_id")?.toString() || undefined,
+        tipodeOrdemdeServico_id: TICKET_TYPE_ID, 
+        tipodeChamado_id: formData.get("tipodeChamado_id")?.toString() || undefined,
+        ramal: ramalInput,
+        informacoesSetorId: usuarioFinal.id,
+        user_id: user_id,
+        cliente_id: usuarioFinal.cliente?.id || null,
+        instituicaoUnidade_id: usuarioFinal.instituicaoUnidade?.id || null,
+        equipamento_id: null,
+        prioridade_id: null
+      };
+
+      await api.post("/ordemdeservico", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert("Ticket cadastrado com sucesso!");
+      router.refresh();
+      router.push("/dashboard/tickets");
+    } catch (err: any) {
+      console.error("Erro ao cadastrar:", err.response?.data || err.message);
+      alert("Erro ao cadastrar ticket. Verifique o console.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const decoded = jwtDecode<JwtPayload>(token);
-    const user_id = decoded.sub;
-    const numeroOS = Math.floor(10000 + Math.random() * 90000); 
-
-    const payload = {
-      numeroOS: numeroOS,
-      name: usuarioFinal.usuario, 
-      descricaodoProblemaouSolicitacao: formData.get("descricaodoProblemaouSolicitacao")?.toString(),
-      solucaodoproblema: formData.get("solucaodoproblema")?.toString(),
-      statusOrdemdeServico_id: formData.get("statusOrdemdeServico_id")?.toString() || undefined,
-      tipodeOrdemdeServico_id: TICKET_TYPE_ID, 
-      tipodeChamado_id: formData.get("tipodeChamado_id")?.toString() || undefined,
-      ramal: ramalInput,
-      informacoesSetorId: usuarioFinal.id,
-      user_id: user_id,
-      cliente_id: usuarioFinal.cliente?.id || null,
-      instituicaoUnidade_id: usuarioFinal.instituicaoUnidade?.id || null,
-      equipamento_id: null,
-      prioridade_id: null
-    };
-
-    console.log("Payload que será enviado:", payload);
-
-    const response = await api.post("/ordemdeservico", payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    alert("Ticket cadastrado com sucesso!");
-    router.refresh();
-    router.push("/dashboard/tickets");
-  } catch (err: any) {
-    console.error("Erro ao cadastrar:", err.response?.data || err.message);
-    alert("Erro ao cadastrar ticket. Verifique o console.");
-  } finally {
-    setLoading(false);
   }
-}
+
   return (
     <section>
       <div className={styles.headerClient}>
@@ -164,8 +194,27 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
       <div className={styles.container}>
         <section className={styles.login}>
           <form onSubmit={handleSubmit}>
+
+             <p>Pesquisar por Nome</p>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+              <input
+                type="text"
+                placeholder="Digite o nome do usuário..."
+                className={styles.input}
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+              />
+              <button 
+                type="button" 
+                className={styles.btnSearch} 
+                onClick={handleSearchName}
+                title="Pesquisar nome"
+              >
+                <IoSearchOutline size={22} color="currentColor" />
+              </button>
+            </div>
             
-            <p>Digite o Ramal do Usuário Atendido</p>
+            <p>Pesquisar por Ramal</p>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
               <input
                 type="text"
@@ -185,34 +234,36 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
             </div>
 
             {usuarioEncontrado && (
-        <div style={{ 
-          background: '#f4f4f4', 
-          padding: '15px', 
-          borderRadius: '8px', 
-          marginBottom: '20px', 
-          border: '1px solid #ddd',
-          color: '#333' 
-        }}>
-          <p><strong>Usuário:</strong> {usuarioEncontrado.usuario}</p>
-          <p><strong>Setor:</strong> {usuarioEncontrado.setor.name}</p>
-          <p><strong>Andar:</strong> {usuarioEncontrado.andar}</p>
+              <div style={{ 
+                background: '#f4f4f4', 
+                padding: '15px', 
+                borderRadius: '8px', 
+                marginBottom: '20px', 
+                border: '1px solid #ddd',
+                color: '#333' 
+              }}>
+                <p><strong>Usuário:</strong> {usuarioEncontrado.usuario}</p>
+                <p><strong>Ramal:</strong> {usuarioEncontrado.ramal}</p>
+                <p><strong>Setor:</strong> {usuarioEncontrado.setor.name}</p>
+                <p><strong>Andar:</strong> {usuarioEncontrado.andar}</p>
 
-        {usuarioEncontrado.cliente ? (
-          <>
-            <p><strong>Cliente:</strong> {usuarioEncontrado.cliente.name}</p>
-            <p><strong>Endereço:</strong> {usuarioEncontrado.cliente.endereco}</p>
-          </>
-        ) : usuarioEncontrado.instituicaoUnidade ? (
-          <>
-            <p><strong>Unidade:</strong> {usuarioEncontrado.instituicaoUnidade.name}</p>
-            <p><strong>Endereço:</strong> {usuarioEncontrado.instituicaoUnidade.endereco}</p>
-          </>
-        ) : (
-          <p><em>Nenhum vínculo (Cliente/Unidade) encontrado.</em></p>
-        )}
-      </div>
-    )}
-             <p>Adicione a Descrição do Problema</p>
+                {usuarioEncontrado.cliente ? (
+                  <>
+                    <p><strong>Cliente:</strong> {usuarioEncontrado.cliente.name}</p>
+                    <p><strong>Endereço:</strong> {usuarioEncontrado.cliente.endereco}</p>
+                  </>
+                ) : usuarioEncontrado.instituicaoUnidade ? (
+                  <>
+                    <p><strong>Unidade:</strong> {usuarioEncontrado.instituicaoUnidade.name}</p>
+                    <p><strong>Endereço:</strong> {usuarioEncontrado.instituicaoUnidade.endereco}</p>
+                  </>
+                ) : (
+                  <p><em>Nenhum vínculo (Cliente/Unidade) encontrado.</em></p>
+                )}
+              </div>
+            )}
+
+            <p>Adicione a Descrição do Problema</p>
             <div className={`${styles.input} ${styles.textAreaContainer}`}>
               <textarea
                 name="descricaodoProblemaouSolicitacao"
@@ -222,7 +273,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
               />
             </div>
 
-             <p>Adicione a Solução</p>
+            <p>Adicione a Solução</p>
             <div className={`${styles.input} ${styles.textAreaContainer}`}>
               <textarea
                 name="solucaodoproblema"
