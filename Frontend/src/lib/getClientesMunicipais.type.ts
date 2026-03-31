@@ -2,6 +2,7 @@ export interface ClientesMunicipaisProps{
     id: string;
     name: string;
     endereco: string;
+    telefone: string;
     created_at: string;   
 
     tipodeinstituicaoUnidade: {
