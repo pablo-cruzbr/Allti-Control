@@ -33,6 +33,7 @@ export default function FormularioTicket() {
   const [tipo, setTipo] = useState<ItemProps[]>([]);
   const [tiposOrdem, setTiposOrdem] = useState<ItemProps[]>([]);
   const [ramalInput, setRamalInput] = useState(''); 
+  const [nameInput, setNameInput] = useState(''); 
   const [usuarioEncontrado, setUsuarioEncontrado] = useState<UsuarioDataProps | null>(null);
   
   const [loading, setLoading] = useState(false);

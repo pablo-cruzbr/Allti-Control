@@ -16,7 +16,7 @@ type Props = {
 
 export default function EditClienteMunicipalForm({ instituicao, onClose }: Props) {
   const router = useRouter();
-
+  
   const [form, setForm] = useState({
     name: '',
     endereco: '',
@@ -25,6 +25,22 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
   });
 
   const [loading, setLoading] = useState(true);
+  const [tipos, setTipos] = useState<{ id: string, name: string }[]>([]);
+
+  useEffect(() => {
+    async function loadTipos() {
+      try {
+        const token = await getCookieClient();
+        const response = await api.get('/listtipodeinstituicaounidade', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setTipos(response.data);
+      } catch (err) {
+        console.error("Erro ao buscar tipos:", err);
+      }
+    }
+    loadTipos();
+  }, []);
 
   useEffect(() => {
     if (instituicao) {
@@ -38,7 +54,7 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
     }
   }, [instituicao]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -111,6 +127,22 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
           placeholder="11-0000-0000"
           rows={3}
         />
+      </div>
+
+      <div className={styles.fieldGroup}>
+        <label>Tipo de Instituição</label>
+        <select 
+          name="tipodeInstituicaoUnidade_id" 
+          value={form.tipodeInstituicaoUnidade_id} 
+          onChange={handleChange}
+        >
+          <option value="">Selecione um tipo</option>
+          {tipos.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className={styles.buttonArea}>
