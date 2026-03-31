@@ -4,11 +4,12 @@ interface ClienteRequest {
     id: string; 
     name: string;
     endereco: string;
+    telefone: string;
     cnpj: string;
 }
 
 class UpdateClienteService {
-    async execute({ id, name, endereco, cnpj }: ClienteRequest) {
+    async execute({ id, name, endereco, cnpj, telefone }: ClienteRequest) {
         if (!id) {
             throw new Error('ID do cliente é obrigatório para atualização!');
         }
@@ -21,7 +22,6 @@ class UpdateClienteService {
             throw new Error('CNPJ inválido!');
         }
 
-        // 1. Opcional: Verificar se o cliente existe antes (Evita erro 500 do Prisma)
         const clienteExists = await prismaClient.cliente.findUnique({
             where: { id }
         });
@@ -30,20 +30,21 @@ class UpdateClienteService {
             throw new Error('Cliente não encontrado!');
         }
 
-        // 2. Executar o update
         const cliente = await prismaClient.cliente.update({
             where: {
-                id: id // Agora o ID vem da interface
+                id: id 
             },
             data: {
                 name,
                 endereco,
-                cnpj
+                cnpj,
+                telefone
             },
             select: {
                 id: true,
                 name: true,
                 endereco: true,
+                telefone: true,
                 cnpj: true
             }
         });

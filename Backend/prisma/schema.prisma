@@ -48,6 +48,7 @@ model Cliente {
   created_at                    DateTime?                      @default(now())
   
   endereco                      String?
+  telefone String?
   cnpj String?
   controlesDeLaboratorio        controleDeLaboratorio[]
   informacoesSetor InformacoesSetor[]
@@ -99,6 +100,7 @@ model InstituicaoUnidade {
   updated_at                             DateTime?                                @default(now())
   created_at                             DateTime?                                @default(now())
   endereco                               String
+  telefone                               String?
   controlesDeLaboratorio                 controleDeLaboratorio[]
   informacoesSetores          InformacoesSetor[]   
   ordens                                 OrdemdeServico[]

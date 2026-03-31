@@ -10,7 +10,8 @@ class CreateClienteController {
         const cliente = await createClienteService.execute({
             name,
             endereco,
-            cnpj
+            cnpj,
+            telefone
         });
 
         return res.json(cliente);

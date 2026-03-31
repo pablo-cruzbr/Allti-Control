@@ -4,10 +4,11 @@ interface ClienteRequest {
     name: string;
     endereco: string;
     cnpj: string;
+    telefone: string
 }
 
 class CreateClienteService {
-    async execute({ name, endereco, cnpj }: ClienteRequest) {
+    async execute({ name, endereco, cnpj, telefone }: ClienteRequest) {
         if (!name || name.trim() === '') {
             throw new Error('Nome inválido!');
         }
@@ -16,18 +17,19 @@ class CreateClienteService {
             throw new Error('CNPJ inválido!');
         }
 
-        // Criar cliente no banco
         const cliente = await prismaClient.cliente.create({
             data: {
                 name,
                 endereco,
-                cnpj
+                cnpj,
+                telefone
             },
             select: {
                 id: true,
                 name: true,
                 endereco: true,
-                cnpj: true
+                cnpj: true,
+                telefone: true
             }
         });
 

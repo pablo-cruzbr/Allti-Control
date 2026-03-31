@@ -4,12 +4,13 @@ class ListClienteService{
     async execute() {
         const cliente = await prismaClient.cliente.findMany({
             orderBy: {
-                created_at: "desc" // Ordena do mais recente para o mais antigo
+                created_at: "desc" 
             },
             select: {
                 id: true,
                 name: true,
                 endereco: true,
+                telefone: true,
                 cnpj: true,
                 created_at: true
             }

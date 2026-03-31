@@ -10,8 +10,9 @@ class ListInstituicaoUnidadeService {
         id: true,
         name: true,
         endereco: true,
+        telefone: true,
         created_at: true,
-        // 🔹 Inclui o relacionamento
+        
         tipodeinstituicaoUnidade: {
           select: {
             id: true,

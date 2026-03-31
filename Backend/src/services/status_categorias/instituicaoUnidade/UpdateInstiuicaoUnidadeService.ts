@@ -4,11 +4,12 @@ interface InstituicaoRequest {
   id: string; 
   name: string;
   endereco: string;
+  telefone: string;
   tipodeInstituicaoUnidade_id: string;
 }
 
 class UpdateInstituicaoUnidadeService {
-  async execute({ id, name, endereco, tipodeInstituicaoUnidade_id }: InstituicaoRequest) {
+  async execute({ id, name, endereco, tipodeInstituicaoUnidade_id, telefone }: InstituicaoRequest) {
     if (!id) {
       throw new Error('ID da Instituição é obrigatório para atualização.');
     }
@@ -32,12 +33,14 @@ class UpdateInstituicaoUnidadeService {
         data: {
           name,
           endereco,
+          telefone,
           tipodeinstituicaoUnidade_id: tipodeInstituicaoUnidade_id,
         },
         select: {
           id: true,
           name: true,
           endereco: true,
+          telefone: true,
           tipodeinstituicaoUnidade_id: true,
         },
       });
