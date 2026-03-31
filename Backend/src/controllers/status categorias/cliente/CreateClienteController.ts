@@ -3,7 +3,7 @@ import { CreateClienteService } from "../../../services/status_categorias/Client
 
 class CreateClienteController {
     async handle(req: Request, res: Response){
-        const { name, endereco, cnpj } = req.body;
+        const { name, endereco, cnpj, telefone } = req.body;
 
         const createClienteService = new CreateClienteService();
 

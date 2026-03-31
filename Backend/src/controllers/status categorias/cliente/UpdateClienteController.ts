@@ -4,14 +4,15 @@ import { UpdateClienteService } from "../../../services/status_categorias/Client
 class UpdateClienteController {
     async handle(req: Request, res: Response) {
         const { id } = req.params;   
-        const { name, endereco, cnpj } = req.body;
+        const { name, endereco, cnpj, telefone } = req.body;
         const updateClienteService = new UpdateClienteService();
 
         const cliente = await updateClienteService.execute({
             id: id as string,
             name,
             endereco,
-            cnpj
+            cnpj,
+            telefone
         });
 
         return res.json(cliente);

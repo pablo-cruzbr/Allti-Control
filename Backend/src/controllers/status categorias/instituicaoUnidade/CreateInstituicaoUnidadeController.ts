@@ -3,7 +3,7 @@ import { CreateInstituicaoUnidadeService } from "../../../services/status_catego
 
 class CreateInstituicaoUnidadeController {
   async handle(req: Request, res: Response) {
-    const { name, endereco, tipodeInstituicaoUnidade_id } = req.body;
+    const { name, endereco, tipodeInstituicaoUnidade_id, telefone } = req.body;
 
     const createInstituicaoUnidadeService = new CreateInstituicaoUnidadeService();
 
@@ -11,6 +11,7 @@ class CreateInstituicaoUnidadeController {
       name,
       endereco,
       tipodeInstituicaoUnidade_id,
+      telefone
     });
 
     return res.json(instituicao);

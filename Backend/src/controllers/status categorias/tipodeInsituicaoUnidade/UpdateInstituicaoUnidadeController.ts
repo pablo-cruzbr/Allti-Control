@@ -4,7 +4,7 @@ import { UpdateInstituicaoUnidadeService } from "../../../services/status_catego
 class UpdateInstituicaoUnidadeController {
     async handle(req: Request, res: Response) {
         const { id } = req.params;
-        const { name, endereco, tipodeInstituicaoUnidade_id } = req.body;
+        const { name, endereco, tipodeInstituicaoUnidade_id, telefone } = req.body;
 
         if (!id) {
             return res.status(400).json({ error: "O ID da instituição é obrigatório para atualização." });
@@ -17,6 +17,7 @@ class UpdateInstituicaoUnidadeController {
                 id,
                 name,
                 endereco,
+                telefone,
                 tipodeInstituicaoUnidade_id
             });
             return res.json(instituicao);
