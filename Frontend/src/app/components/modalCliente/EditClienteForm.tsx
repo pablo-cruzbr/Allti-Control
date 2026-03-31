@@ -13,6 +13,7 @@ type Props = {
     id: string;
     name: string;
     endereco: string;
+    telefone: string;
     cnpj: string;
     created_at: string;
   };
@@ -26,6 +27,7 @@ export default function EditClienteForm({ cliente, onClose }: Props) {
     name: '',
     cnpj: '',
     endereco: '',
+    telefone: ''
   });
 
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,7 @@ export default function EditClienteForm({ cliente, onClose }: Props) {
         name: cliente.name ?? '',
         cnpj: cliente.cnpj ?? '',
         endereco: cliente.endereco ?? '',
+        telefone: cliente.telefone ?? ''
       });
       setLoading(false);
     }
@@ -59,7 +62,8 @@ const handleSubmit = async () => {
     const data = {
       name: form.name,
       cnpj: form.cnpj,
-      endereco: form.endereco
+      endereco: form.endereco,
+      telefone: form.telefone
     };
 
     await api.patch(`/cliente/${cliente.id}`, data, {
@@ -119,6 +123,17 @@ const handleSubmit = async () => {
           value={form.endereco}
           onChange={handleChange}
           placeholder="Rua, Número, Bairro, Cidade - UF"
+          rows={3}
+        />
+      </div>
+
+      <div className={styles.fieldGroup}>
+        <label>Telefone</label>
+        <textarea
+          name="telefone"
+          value={form.telefone}
+          onChange={handleChange}
+          placeholder="11-0000-0000"
           rows={3}
         />
       </div>

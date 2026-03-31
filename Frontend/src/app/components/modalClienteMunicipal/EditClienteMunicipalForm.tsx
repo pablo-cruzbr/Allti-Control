@@ -20,6 +20,7 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
   const [form, setForm] = useState({
     name: '',
     endereco: '',
+    telefone: '',
     tipodeInstituicaoUnidade_id: '',
   });
 
@@ -30,6 +31,7 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
       setForm({
         name: instituicao.name ?? '',
         endereco: instituicao.endereco ?? '',
+        telefone: instituicao.telefone ?? '',
         tipodeInstituicaoUnidade_id: instituicao.tipodeinstituicaoUnidade?.id ?? '',
       });
       setLoading(false);
@@ -54,6 +56,7 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
         id: instituicao.id, 
         name: form.name,
         endereco: form.endereco,
+        telefone: form.telefone,
         tipodeInstituicaoUnidade_id: form.tipodeInstituicaoUnidade_id
       };
 
@@ -95,6 +98,17 @@ export default function EditClienteMunicipalForm({ instituicao, onClose }: Props
           name="endereco"
           value={form.endereco}
           onChange={handleChange}
+          rows={3}
+        />
+      </div>
+
+      <div className={styles.fieldGroup}>
+        <label>Telefone</label>
+        <textarea
+          name="telefone"
+          value={form.telefone}
+          onChange={handleChange}
+          placeholder="11-0000-0000"
           rows={3}
         />
       </div>
