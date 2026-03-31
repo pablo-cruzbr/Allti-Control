@@ -65,6 +65,11 @@ export function ModalCliente({ data }: ModalClienteProps) {
             </p>
 
             <p className={styles.item}>
+              <b>Telefone:</b>
+              <span>{cliente.telefone ?? 'Telefone não atribuido'}</span>
+            </p>
+
+            <p className={styles.item}>
               <b>Data de Criação:</b>
               <span>
                 {cliente.created_at

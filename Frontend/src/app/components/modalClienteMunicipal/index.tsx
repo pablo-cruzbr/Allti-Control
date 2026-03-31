@@ -53,6 +53,12 @@ export function ModalClienteMunicipal({ data }: ModalProps) {
                   <b>Endereço:</b>
                   <span>{instituicao.endereco ?? '-'}</span>
                 </p>
+
+                <p className={styles.item}>
+                  <b>Telefone:</b>
+                  <span>{instituicao.telefone ?? 'Telefone não atribuido'}</span>
+                </p>
+
                 <p className={styles.item}>
                   <b>Tipo de Unidade:</b>
                   <span>{instituicao.tipodeinstituicaoUnidade?.name ?? '-'}</span>
