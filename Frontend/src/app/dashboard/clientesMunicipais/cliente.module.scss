@@ -1,6 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
 
-/* ===== HEADER ===== */
 .headerClient {
   font-family: "Poppins", sans-serif;
   margin-top: 20px;
@@ -26,36 +25,52 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
-    justify-content: space-between;
+    justify-content: flex-start;
     width: 100%;
     max-width: 100%;
 
+ .select {
+  max-width: 220px;
+  width: 100%;
+  padding: 0.6rem 2.5rem 0.6rem 0.8rem; 
+  border-radius: 10px;
+  border: 1px solid #dde6ed;
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  color: #4E3182;
+  outline: none;
+  background-color: #f9fbfd;
+  cursor: pointer;
+
+  appearance: none;
+  -webkit-appearance: none; 
+  -moz-appearance: none;    
+  
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234E3182' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  
+  background-position: calc(100% - 12px) center; 
+  background-size: 16px;
+  
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; 
+
+  &:focus {
+    border-color: #4E3182;
+    box-shadow: 0 0 0 3px rgba(78, 49, 130, 0.2);
+    background-position: calc(100% - 12px) center;
+  }
+
+  &:hover {
+    border-color: #4E3182;
+    background-color: #eef2ff;
+  }
+}
     .searchContainer {
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
       justify-content: flex-start;
       flex: 1;
-
-      .searchInput,
-      .select {
-        max-width: 220px;
-        width: 100%;
-        padding: 0.6rem 0.8rem;
-        border-radius: 10px;
-        border: 1px solid #dde6ed;
-        font-family: "Poppins", sans-serif;
-        font-size: 14px;
-        color: #4E3182;
-        outline: none;
-        background-color: #f9fbfd;
-        transition: all 0.3s ease;
-
-        &:focus {
-          border-color:#4E3182;
-          box-shadow: 0 0 0 3px rgba(53, 77, 240, 0.2);
-        }
-      }
 
       .searchInput::placeholder {
         color: #9ba9b9;

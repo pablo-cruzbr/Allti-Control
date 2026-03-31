@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react'; 
+import React, { useEffect, useState } from 'react'; 
 import { useRouter } from 'next/navigation';
 import styles from './cliente.module.scss';
 import { FaRegTrashAlt } from "react-icons/fa";
@@ -16,6 +16,11 @@ interface Props {
   clienteData: ClienteMunicipaisResponse;
 }
 
+interface TipoUnidade {
+  id: string;
+  name: string;
+}
+
 export default function ClienteMunicipalList({ clienteData }: Props) {
   const {
     controles = [],
@@ -24,9 +29,28 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
 
   const { openModal } = useGlobalModal();
   const router = useRouter();
-   
+
+  const [tipos, setTipos] = useState<TipoUnidade[]>([]);
+  const [selectedTipo, setSelectedTipo] = useState<string>("");
+  
+  useEffect(() => {
+    async function loadTipos() {
+      try {
+        const token = await getCookieClient();
+        const response = await api.get('/listtipodeinstituicaounidade', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setTipos(response.data);
+      } catch (err) {
+        console.error("Erro ao buscar tipos:", err);
+      }
+    }
+    loadTipos();
+  }, []);
+
   const handleRefresh = () => {
     router.refresh();
+    setSelectedTipo(""); 
     toast.success("Lista atualizada com sucesso!");
   };
 
@@ -58,12 +82,33 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
     }
   }
 
+  const filteredClientes = controles.filter(cliente => {
+    const matchTipo = selectedTipo 
+      ? cliente.tipodeinstituicaoUnidade?.id === selectedTipo 
+      : true;
+    
+    return matchTipo;
+  });
+
   return (
     <section>
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>Clientes Municipais</h1>
 
-        <div className={styles.actions}>
+       <div className={styles.actions}>
+        <select 
+          value={selectedTipo} 
+          onChange={(e) => setSelectedTipo(e.target.value)}
+          className={styles.select} // O CSS vai buscar .actions .select
+        >
+          <option value="">Todos os Tipos</option>
+          {tipos.map((tipo) => (
+            <option key={tipo.id} value={tipo.id}>
+              {tipo.name}
+            </option>
+          ))}
+        </select>
+
           <button className={styles.button} onClick={handleAddCliente}>
             Cadastrar Novo Cliente
           </button>
@@ -74,12 +119,14 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
       <div className={styles.cardsContainer}>
         <div className={styles.card}>
           <p className={styles.cardTitle}>Total</p>
-          <strong className={styles.cardNumber}>{total}</strong>
+          <strong className={styles.cardNumber}>
+            {selectedTipo ? filteredClientes.length : total}
+          </strong>
         </div>
       </div>
 
       <div className={styles.listContainer}>
-        {controles.map((cliente) => (
+        {filteredClientes.map((cliente) => (
           <div
             key={cliente.id}
             onClick={() => handleDetailCompra(cliente)}
@@ -121,6 +168,12 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
             </div>
           </div>
         ))}
+
+        {filteredClientes.length === 0 && (
+          <p style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
+            Nenhum cliente encontrado para este tipo.
+          </p>
+        )}
       </div>
     </section>
   );
