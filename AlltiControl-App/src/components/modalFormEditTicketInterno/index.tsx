@@ -49,7 +49,6 @@ export function ModalEditFormTicketInterno({
 }: ModalDetailOrderTecnicoProps) {
   const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 
-  // Inputs
   const [solucao, setSolucao] = useState("");
   const [descricaodoProblemaouSolicitacao, setDescricaoProblemaouSolicitacao] =
     useState("");
@@ -57,7 +56,6 @@ export function ModalEditFormTicketInterno({
   const [statusOrdemdeServico, setStatusOrdemdeServico] = useState("");
   const [informacoesSetor, setInformacoesSetor] = useState<Setor | string | null>(null);
 
-  // Ramal search
   const [ramal, setRamal] = useState("");
   const [setorInfo, setSetorInfo] = useState<Setor | null>(null);
   const [loadingRamal, setLoadingRamal] = useState(false);
@@ -93,7 +91,6 @@ export function ModalEditFormTicketInterno({
         setStatusOrdens(statusRes.data || []);
         setTiposChamado(tiposRes.data || []);
 
-        // Encontrar ordem específica
         const lista = ordensRes.data?.result?.controles || [];
         const ordem = lista.find((o: any) => o.id === ordemId);
 
@@ -104,7 +101,7 @@ export function ModalEditFormTicketInterno({
           setStatusOrdemdeServico(ordem.statusOrdemdeServico?.id || "");
           setInformacoesSetor(ordem.informacoesSetor?.id || "");
         } else {
-          // não achar ordem não é fatal — só avisar
+          
           console.warn("Ordem não encontrada: ", ordemId);
         }
       } catch (error) {
@@ -157,37 +154,44 @@ export function ModalEditFormTicketInterno({
 
  
   const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      const storageToken = await AsyncStorage.getItem("@AlltiService");
-      if (!storageToken) return;
-      const { token } = JSON.parse(storageToken);
+  const TICKET_TYPE_ID = "9255770c-a7b5-400b-9773-8b249f04b9ed";
 
-      await api.patch(
-        `/ordemdeservico/update/${ordemId}`,
-        {
-           solucao: solucao || null,
-          descricaodoProblemaouSolicitacao: descricaodoProblemaouSolicitacao || null,
+  try {
+    setLoading(true);
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
 
-          tipodeChamado_id: tipodeChamado || null,
-          statusOrdemdeServico_id: statusOrdemdeServico || null,
-          informacoesSetor_id:
-            informacoesSetor && typeof informacoesSetor === "object"
-              ? informacoesSetor.id
-              : informacoesSetor || null,
-              },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+    const payload = {
+      solucaodoproblema: solucao || null, // Verifique se na API mobile é 'solucao' ou 'solucaodoproblema' como na Web
+      descricaodoProblemaouSolicitacao: descricaodoProblemaouSolicitacao || null,
+      tipodeChamado_id: tipodeChamado || null,
+      statusOrdemdeServico_id: statusOrdemdeServico || null,
+      
+      tipodeOrdemdeServico_id: TICKET_TYPE_ID,
 
-      Alert.alert("Sucesso", "Ordem de Serviço atualizada com sucesso!");
-      handleCloseModal();
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Erro", "Erro ao atualizar. Tente novamente.");
-    } finally {
-      setLoading(false);
-    }
-  };
+      informacoesSetor_id:
+        informacoesSetor && typeof informacoesSetor === "object"
+          ? informacoesSetor.id
+          : informacoesSetor || null,
+    };
+
+    await api.patch(
+      `/ordemdeservico/update/${ordemId}`,
+      payload,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    Alert.alert("Sucesso", "Ticket atualizado com sucesso!");
+    handleCloseModal();
+    
+  } catch (error: any) {
+    console.error("Erro ao atualizar ticket:", error.response?.data || error.message);
+    Alert.alert("Erro", "Não foi possível atualizar o ticket. Tente novamente.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const dynamicStyles = StyleSheet.create({
     container: {
