@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './FormularioClientesMunicipais.module.scss';
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { api } from '@/services/api';
+import { toast } from 'sonner';
 import { getCookieClient } from '@/lib/cookieClient';
 export const dynamic = 'force-dynamic';
 interface ItemProps {
@@ -49,8 +50,10 @@ export default function FormularioClientesPrivados() {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
     const name = formData.get("name");
     const endereco = formData.get("endereco");
+    const telefone = formData.get("telefone");
     const tipodeInstituicaoUnidade_id = formData.get("tipodeInstituicaoUnidade_id") as string;
 
     if (!name || !endereco || !tipodeInstituicaoUnidade_id) {
@@ -61,6 +64,7 @@ export default function FormularioClientesPrivados() {
     console.log("Form Data enviado:", {
       name,
       endereco,
+      telefone,
       tipodeInstituicaoUnidade_id,
     });
 
@@ -69,11 +73,12 @@ export default function FormularioClientesPrivados() {
 
       await api.post(
         "/categoryintituicao",
-        { name, endereco, tipodeInstituicaoUnidade_id },
+        { name, endereco, telefone, tipodeInstituicaoUnidade_id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      router.push("/dashboard/clientesMunicipais");
+      toast.success('Cliente Municipal cadastrado com sucesso!');
+      form.reset();
+      //router.push("/dashboard/clientesMunicipais");
     } catch (err: any) {
       console.error("Erro ao enviar formulário:", err);
       if (err.response?.status === 400) {
@@ -110,6 +115,14 @@ export default function FormularioClientesPrivados() {
               required
               name="endereco"
               placeholder="Insira o endereço da Instituição"
+              className={styles.input}
+            />
+
+            <input
+              type="text"
+              required
+              name="telefone"
+              placeholder="Insira o telefone da Instituição"
               className={styles.input}
             />
 
