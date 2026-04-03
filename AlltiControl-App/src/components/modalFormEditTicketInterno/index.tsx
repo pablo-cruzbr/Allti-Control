@@ -57,10 +57,12 @@ export function ModalEditFormTicketInterno({
   const [informacoesSetor, setInformacoesSetor] = useState<Setor | string | null>(null);
 
   const [ramal, setRamal] = useState("");
+ 
   const [setorInfo, setSetorInfo] = useState<Setor | null>(null);
   const [loadingRamal, setLoadingRamal] = useState(false);
-
  
+  const [name, setName] = useState<string>("");
+  const [usuarioBusca, setUsuarioBusca] = useState<string>("");
   const [tiposChamado, setTiposChamado] = useState<TipoChamado[]>([]);
   const [statusOrdens, setStatusOrdens] = useState<StatusOrdem[]>([]);
 
@@ -141,6 +143,39 @@ export function ModalEditFormTicketInterno({
   } catch (err) {
     console.error(err);
     Alert.alert("Erro", "Não foi possível buscar o setor.");
+  }
+};
+
+const handlePesquisarUsuario = async () => {
+  if (!usuarioBusca.trim()) {
+    Alert.alert("Atenção", "Digite um nome de usuário para pesquisar.");
+    return;
+  }
+
+  try {
+    const storage = await AsyncStorage.getItem("@AlltiService");
+    if (!storage) return;
+
+    const { token } = JSON.parse(storage);
+
+    // 2. Chamada para a API passando o usuário como query param
+    const res = await api.get<Setor[]>(`/listinformacoessetor?usuario=${usuarioBusca}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const setorComUsuario = res.data.find((s) => 
+      s.usuario?.toLowerCase() === usuarioBusca.toLowerCase()
+    );
+
+    if (setorComUsuario) {
+      setSetorInfo(setorComUsuario);
+      setInformacoesSetor(setorComUsuario.id); 
+    } else {
+      Alert.alert("Aviso", "Usuário não encontrado em nenhum setor.");
+    }
+  } catch (err) {
+    console.error(err);
+    Alert.alert("Erro", "Não foi possível buscar as informações do usuário.");
   }
 };
 
@@ -243,13 +278,25 @@ export function ModalEditFormTicketInterno({
             />
 
             <View style={styles.row}>
-  <TextInput
-    placeholder="Digite o Ramal"
-    style={[styles.input, { flex: 1, marginRight: 8 }]}
-    value={ramal}
-    onChangeText={setRamal}
-    keyboardType="numeric"
-  />
+          <TextInput
+            placeholder="Busque o Ramal"
+            style={[styles.input, { flex: 1, marginRight: 8 }]}
+            value={ramal}
+            onChangeText={setRamal}
+            keyboardType="numeric"
+          />
+
+          <TextInput
+            placeholder="Nome do usuário"
+            style={[styles.input, { flex: 1 }]}
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="none" 
+            keyboardType="default" 
+            onSubmitEditing={handlePesquisarUsuario} 
+          />
+
+        
   <TouchableOpacity
     style={styles.buttonSmall}
     onPress={handlePesquisarRamal}

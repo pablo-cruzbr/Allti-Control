@@ -59,12 +59,14 @@ export function ModalFormTecnicoTickets({
   const [tipoChamadoId, setTipoChamadoId] = useState("");
   const [ramal, setRamal] = useState("");
   const [setorInfo, setSetorInfo] = useState<Setor | null>(null);
-
+  const [usuarioBusca, setUsuarioBusca] = useState<string>("");
+  const [informacoesSetor, setInformacoesSetor] = useState<Setor | string | null>(null);
+  
+  const [buscaGeral, setBuscaGeral] = useState("");
   const [statusList, setStatusList] = useState<StatusOrdem[]>([]);
   const [tiposChamado, setTiposChamado] = useState<TipoChamado[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Buscar status e tipos de chamado ao abrir o modal
   useEffect(() => {
     if (!visible) return;
 
@@ -94,36 +96,43 @@ export function ModalFormTecnicoTickets({
     })();
   }, [visible]);
 
-  // Pesquisar setor pelo ramal digitado
- const handlePesquisarRamal = async () => {
-  if (!ramal.trim()) {
-    Alert.alert("Atenção", "Digite um ramal válido.");
-    return;
-  }
+const handlePesquisaHibrida = async () => {
+  const normalizeString = (str: string) => 
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  const termo = buscaGeral.trim();
+  if (!termo) return;
 
   try {
     const storage = await AsyncStorage.getItem("@AlltiService");
     if (!storage) return;
+    const { token } = JSON.parse(storage);
 
-    const usuario: UsuarioStorage = JSON.parse(storage);
-    const token = usuario.token;
+    const ehNumero = /^\d+$/.test(termo);
+    const queryParam = ehNumero ? `ramal=${termo}` : `usuario=${termo}`;
 
-    // Agora retornando array
-    const res = await api.get<Setor[]>(`/listinformacoessetor?ramal=${ramal}`, {
+    const res = await api.get<Setor[]>(`/listinformacoessetor?${queryParam}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    const setorEncontrado = res.data.find((s) => s.ramal === ramal);
+    const termoNormalizado = normalizeString(termo);
 
-    if (setorEncontrado) {
-      setSetorInfo(setorEncontrado);
+    const encontrado = res.data.find((s) => {
+      if (ehNumero) return s.ramal === termo;
+      
+      const usuarioBancoNormalizado = normalizeString(s.usuario || "");
+      return usuarioBancoNormalizado.includes(termoNormalizado);
+    });
+
+    if (encontrado) {
+      setSetorInfo(encontrado);
+      setInformacoesSetor(encontrado.id);
     } else {
-      setSetorInfo(null);
-      Alert.alert("Atenção", "Nenhum setor encontrado para este ramal.");
+      Alert.alert("Aviso", `Nenhum registro para: ${termo}`);
     }
   } catch (err) {
     console.error(err);
-    Alert.alert("Erro", "Não foi possível buscar o setor.");
+    Alert.alert("Erro", "Falha na busca.");
   }
 };
 
@@ -236,17 +245,19 @@ export function ModalFormTecnicoTickets({
 
           <View style={styles.row}>
             <TextInput
-              placeholder="Digite o Ramal"
+              placeholder="Ramal ou Nome do Usuário"
               style={[styles.input, { flex: 1, marginRight: 8 }]}
-              value={ramal}
-              onChangeText={setRamal}
-              keyboardType="numeric"
+              value={buscaGeral}
+              onChangeText={setBuscaGeral}
+              autoCapitalize="none"
+              keyboardType="default" 
+              onSubmitEditing={handlePesquisaHibrida}
             />
             <TouchableOpacity
               style={styles.buttonSmall}
-              onPress={handlePesquisarRamal}
+              onPress={handlePesquisaHibrida}
             >
-              <Text style={styles.buttonText}>Pesquisar</Text>
+              <Text style={styles.buttonText}>Buscar</Text>
             </TouchableOpacity>
           </View>
 
