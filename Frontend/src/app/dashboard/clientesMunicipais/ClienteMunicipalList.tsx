@@ -50,23 +50,19 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
     loadTipos();
   }, []);
 
-  const filteredClienteMunicipais = controles.filter((cliente) => {
-  const searchLower = searchTerm.toLowerCase();
+    const filteredData = controles.filter((cliente) => {
+    const searchLower = searchTerm.toLowerCase();
 
-  const matchesSearch =
-    cliente.name.toLowerCase().includes(searchLower) ||
-    cliente.endereco.toLowerCase().includes(searchLower) ||
-    cliente.telefone.toLowerCase().includes(searchLower) ||
-    cliente.tipodeinstituicaoUnidade?.name?.toLowerCase().includes(searchLower);
+    const matchesSearch =
+      cliente.name?.toLowerCase().includes(searchLower) ||
+      cliente.endereco?.toLowerCase().includes(searchLower) ||
+      cliente.telefone?.toLowerCase().includes(searchLower) ||
+      cliente.tipodeinstituicaoUnidade?.name?.toLowerCase().includes(searchLower);
 
-  const matchesFilter =
-    selectedTipo === 'all' || 
-    cliente.tipodeinstituicaoUnidade?.name === selectedTipo;
+    const matchesFilter = selectedTipo === "" ? true : cliente.tipodeinstituicaoUnidade?.id === selectedTipo;
 
-  return matchesSearch && matchesFilter;
-});
-
-
+    return matchesSearch && matchesFilter;
+  });
   const handleRefresh = () => {
     router.refresh();
     setSelectedTipo(""); 
@@ -114,35 +110,34 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>Clientes Municipais</h1>
 
-       <div className={styles.actions}>
+        <div className={styles.actions}>
           <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
 
-          <input
-            type="text"
-            placeholder="Pesquisar..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-
-        <select 
-          value={selectedTipo} 
-          onChange={(e) => setSelectedTipo(e.target.value)}
-          className={styles.select} // O CSS vai buscar .actions .select
-        >
-          <option value="">Todos os Tipos</option>
-          {tipos.map((tipo) => (
-            <option key={tipo.id} value={tipo.id}>
-              {tipo.name}
-            </option>
-          ))}
-        </select>
-        </div>
+            <select 
+              value={selectedTipo} 
+              onChange={(e) => setSelectedTipo(e.target.value)}
+              className={styles.select}
+            >
+              <option value="">Todos os Tipos</option>
+              {tipos.map((tipo) => (
+                <option key={tipo.id} value={tipo.id}>
+                  {tipo.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <button className={styles.button} onClick={handleAddCliente}>
             Cadastrar Novo Cliente
           </button>
-           <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
+          <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
         </div>
       </div>
 
@@ -150,13 +145,14 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
         <div className={styles.card}>
           <p className={styles.cardTitle}>Total</p>
           <strong className={styles.cardNumber}>
-            {selectedTipo ? filteredClientes.length : total}
+            {/* Usa o tamanho da lista filtrada final */}
+            {filteredData.length}
           </strong>
         </div>
       </div>
 
       <div className={styles.listContainer}>
-        {filteredClientes.map((cliente) => (
+        {filteredData.map((cliente) => (
           <div
             key={cliente.id}
             onClick={() => handleDetailCompra(cliente)}
@@ -199,9 +195,9 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
           </div>
         ))}
 
-        {filteredClientes.length === 0 && (
+        {filteredData.length === 0 && (
           <p style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
-            Nenhum cliente encontrado para este tipo.
+            Nenhum cliente encontrado.
           </p>
         )}
       </div>
