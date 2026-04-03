@@ -30,6 +30,7 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
   const { openModal } = useGlobalModal();
   const router = useRouter();
 
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [tipos, setTipos] = useState<TipoUnidade[]>([]);
   const [selectedTipo, setSelectedTipo] = useState<string>("");
   
@@ -96,6 +97,16 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
         <h1 className={styles.titleClient}>Clientes Municipais</h1>
 
        <div className={styles.actions}>
+          <div className={styles.searchContainer}>
+
+          <input
+            type="text"
+            placeholder="Pesquisar..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+
         <select 
           value={selectedTipo} 
           onChange={(e) => setSelectedTipo(e.target.value)}
@@ -108,6 +119,7 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
             </option>
           ))}
         </select>
+        </div>
 
           <button className={styles.button} onClick={handleAddCliente}>
             Cadastrar Novo Cliente
