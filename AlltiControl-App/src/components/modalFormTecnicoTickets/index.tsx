@@ -153,6 +153,7 @@ const handlePesquisaHibrida = async () => {
       }
 
       const usuario: UsuarioStorage = JSON.parse(storage);
+      const TICKET_TYPE_ID = "9255770c-a7b5-400b-9773-8b249f04b9ed";
       const token = usuario.token;
 
       if (!usuario.id) {
@@ -168,6 +169,7 @@ const handlePesquisaHibrida = async () => {
         nomedoContatoaserProcuradonoLocal: null,
         user_id: usuario.id,
         tipodeChamado_id: tipoChamadoId,
+        tipodeOrdemdeServico_id: TICKET_TYPE_ID, 
         statusOrdemdeServico_id: statusId,
         cliente_id: usuario.cliente?.id || null,
         instituicaoUnidade_id: usuario.instituicaoUnidade?.id || null,
@@ -201,7 +203,7 @@ const handlePesquisaHibrida = async () => {
     >
       <View style={styles.overlay}>
         <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.title}>Criar e Concluir Ticket</Text>
+          <Text style={styles.title}>Criar um Ticket</Text>
 
           <TextInput
             placeholder="Descrição do Problema"
@@ -219,7 +221,7 @@ const handlePesquisaHibrida = async () => {
             multiline
           />
 
-          <Text style={styles.label}>Status</Text>
+          <Text style={styles.label}>Qual o Status do ticket</Text>
           <Picker
             selectedValue={statusId}
             onValueChange={setStatusId}

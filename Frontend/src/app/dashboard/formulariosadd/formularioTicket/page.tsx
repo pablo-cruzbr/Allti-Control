@@ -115,7 +115,7 @@ export default function FormularioTicket() {
 
       if (encontrado) {
         setUsuarioEncontrado(encontrado);
-        setRamalInput(encontrado.ramal); // Sincroniza o campo de ramal
+        setRamalInput(encontrado.ramal); 
         return encontrado;
       } else {
         setUsuarioEncontrado(null);
