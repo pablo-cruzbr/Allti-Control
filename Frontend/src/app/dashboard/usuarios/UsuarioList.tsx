@@ -27,7 +27,6 @@ export default function UsuarioList({ usuariosData }: Props) {
   const [filterType, setFilterType] = useState<'all' | 'cliente' | 'instituicao'>('all');
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  // 🔹 Abre o modal passando o tipo 'ramaisSetores' e o usuário dentro de um array
   async function handleDetail(usuario: UsuariosProps) {
     openModal('usuarios', [usuario]);
   }
