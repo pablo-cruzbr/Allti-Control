@@ -33,6 +33,7 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [tipos, setTipos] = useState<TipoUnidade[]>([]);
   const [selectedTipo, setSelectedTipo] = useState<string>("");
+  const [filterType, setFilterType] = useState<'all' | 'cliente' | 'instituicao'>('all');
   
   useEffect(() => {
     async function loadTipos() {
@@ -48,6 +49,23 @@ export default function ClienteMunicipalList({ clienteData }: Props) {
     }
     loadTipos();
   }, []);
+
+  const filteredClienteMunicipais = controles.filter((cliente) => {
+  const searchLower = searchTerm.toLowerCase();
+
+  const matchesSearch =
+    cliente.name.toLowerCase().includes(searchLower) ||
+    cliente.endereco.toLowerCase().includes(searchLower) ||
+    cliente.telefone.toLowerCase().includes(searchLower) ||
+    cliente.tipodeinstituicaoUnidade?.name?.toLowerCase().includes(searchLower);
+
+  const matchesFilter =
+    selectedTipo === 'all' || 
+    cliente.tipodeinstituicaoUnidade?.name === selectedTipo;
+
+  return matchesSearch && matchesFilter;
+});
+
 
   const handleRefresh = () => {
     router.refresh();
