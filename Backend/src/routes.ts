@@ -196,6 +196,21 @@ router.patch(
   new UpdateOrdemdeServicoService().handle.bind(new UpdateOrdemdeServicoService())
 );
 
+// --- Controle de Laboratorio ---
+
+// --- Outros Status (Laboratório, Compras, Reparo) ---
+router.post('/statusMaquinasPendentesLab', isAuthenticated, new CreatestatusMaquinasPendentesController().handle);
+router.get('/liststatusMaquinasPendentesLab', isAuthenticated, new ListMaquinasPendentesLabController().handle);
+router.post('/statusMaquinasPendentesOro', isAuthenticated, new CreatestatusMaquinasPendentesOroController().handle);
+router.get('/liststatusMaquinasPendentesOro', isAuthenticated, new ListMaquinasPendentesOroController().handle);
+router.post('/statuscontrolledeLaboratorio', isAuthenticated, new CreatestatusControlledeLaboratorioController().hadle);
+router.get('/listcontrolledeLaboratorio', isAuthenticated, new ListstatusControlleLaboratioController().handle);
+router.post('/statuscompras', isAuthenticated, new CreateStatusComprasController().handle);
+router.get('/liststatuscompras', isAuthenticated, new ListStatusComprasController().handle);
+router.post('/statusreparo', isAuthenticated, new CreateStatusReparoController().handle);
+router.get('/liststatusreparo', isAuthenticated, new ListstatusReparoController().handle);
+
+
 // --- Controle de Tempo e Assinaturas ---
 router.patch("/ordemdeservico/iniciar/:id", isAuthenticated, timeOrdemDeServicoController.iniciar);
 router.patch("/ordemdeservico/concluir/:id", isAuthenticated, timeOrdemDeServicoController.concluir);
