@@ -8,6 +8,7 @@ import { ModalLaboratorio } from "./modalCardLaboratorio";
 import { ModalMaquinasPendentesLab } from "./modalCardMaquinasPendentesLab";
 import { ModalMaquinasPendentesOro } from "./modalCardMaquinasPendentesOro";
 import { ModalDocumentacaoTecnica } from "./modalCardDocumentacaoTecnica";
+import { ModalCardEquipamento } from "./modalCardEquipamento";
 import { ModalOrdemdeServico } from "./modalCardTickets";
 import { ModalCardEstabilizadores } from "./modalCardEstabilizadores";
 import { ModalCliente } from "./modalCliente";
@@ -78,6 +79,7 @@ export default function GlobalModal() {
         {modalType === 'clienteMunicipal' && <ModalClienteMunicipal data={modalData}/>}
         {modalType === 'ramaisSetores' && <ModalRamaisSetores data={modalData}/>}
         {modalType === 'usuarios' && <ModalUsuarios data={modalData}/>}
+        {modalType === 'equipamento' && <ModalCardEquipamento data={modalData}/>}
 
       </div>
     </div>

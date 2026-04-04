@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './cardListEquipamento.module.scss';
 import { FaRegTrashAlt } from "react-icons/fa";
-import { ModalLaboratorio } from '@/app/components/modalCardLaboratorio';
+// Removi o ModalLaboratorio se não for usar, mas mantenha se for padrão
 import { useGlobalModal } from '@/provider/GlobalModalProvider';
 import { EquipamentoProps } from '@/lib/getEquipamento.type';
 import { getCookieClient } from '@/lib/cookieClient';
@@ -16,12 +16,14 @@ interface Props {
 }
 
 export default function EquipamentoList({ Equipamento }: Props) {
-  const { openModal } = useGlobalModal();
+  const { openModal } = useGlobalModal(); // Hook do seu provider global
   const router = useRouter();
   const [searchPatrimonio, setSearchPatrimonio] = useState<string>(""); 
 
-  async function handleDetailLaudoTecnico(laboratorio: EquipamentoProps) {
-   // openModal('laboratorio', [laboratorio]);
+  // --- FUNÇÃO ATUALIZADA ---
+  async function handleDetailEquipamento(equipamento: EquipamentoProps) {
+    // Chamando o modal do tipo 'equipamento' e passando os dados
+    openModal('equipamento', [equipamento]);
   }
 
   async function handleAddCard() {
@@ -32,7 +34,6 @@ export default function EquipamentoList({ Equipamento }: Props) {
     router.refresh();
   }
 
-  // --- Filtragem por patrimônio
   const filteredEquipamento = Equipamento.filter(equip => 
     searchPatrimonio
       ? equip.patrimonio?.toLowerCase().includes(searchPatrimonio.toLowerCase())
@@ -40,6 +41,8 @@ export default function EquipamentoList({ Equipamento }: Props) {
   );
 
   async function handleDeleteCardEquipamento(equipamento_id: string) {
+    if(!confirm("Deseja realmente excluir este equipamento?")) return;
+
     try {
       const token = await getCookieClient();
 
@@ -49,10 +52,9 @@ export default function EquipamentoList({ Equipamento }: Props) {
         },
       });
 
-      console.log("Removido com sucesso:", equipamento_id);
       router.refresh();
     } catch (error) {
-      console.error("Erro ao deletar a compra:", error);
+      console.error("Erro ao deletar o equipamento:", error);
     }
   }
 
@@ -62,13 +64,13 @@ export default function EquipamentoList({ Equipamento }: Props) {
         <h1 className={styles.titleClient}>Controle de Equipamentos Cadastrados</h1>
         <div className={styles.actions}>
           <div className={styles.searchContainer}>
-          <input 
-            type="text"
-            placeholder="Pesquisar por patrimônio..."
-            value={searchPatrimonio}
-            onChange={(e) => setSearchPatrimonio(e.target.value)}
-           className={styles.searchInput}
-          />
+            <input 
+              type="text"
+              placeholder="Pesquisar por patrimônio..."
+              value={searchPatrimonio}
+              onChange={(e) => setSearchPatrimonio(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
           <button className={styles.button} onClick={handleAddCard}>
             Cadastrar um Novo Equipamento
@@ -81,12 +83,25 @@ export default function EquipamentoList({ Equipamento }: Props) {
         {filteredEquipamento.map((equipamento) => (
           <div
             key={equipamento.id}
-            onClick={() => handleDetailLaudoTecnico(equipamento)}
+            // ALTERADO PARA CHAMAR O MODAL DE EQUIPAMENTO
+            onClick={() => handleDetailEquipamento(equipamento)}
             className={styles.list}
           >
             <div className={styles.clientDetail}>
-              <p className={`${styles.field} ${styles.name}`}><strong>Nome da Maquina:</strong> {equipamento.name}</p>
-              <p className={`${styles.field} ${styles.name}`}><strong>Patrimônio:</strong> {equipamento.patrimonio}</p>
+              <p className={`${styles.field} ${styles.name}`}>
+                <strong>Nome da Maquina:</strong> {equipamento.name}
+              </p>
+              <p className={`${styles.field} ${styles.name}`}>
+                <strong>Patrimônio:</strong> {equipamento.patrimonio}
+              </p>
+              
+              {/* Exibe a Unidade se existir (Baseado no seu Service novo) */}
+              {equipamento.instituicaoUnidade && (
+                 <p className={styles.field}>
+                   <strong>Unidade:</strong> {equipamento.instituicaoUnidade.name}
+                 </p>
+              )}
+
               <p className={`${styles.field} ${styles.data}`}>
                 <strong>Data:</strong>{" "}
                 {equipamento.created_at
@@ -100,7 +115,7 @@ export default function EquipamentoList({ Equipamento }: Props) {
               </p>
               <FaRegTrashAlt
                 onClick={(e) => {
-                  e.stopPropagation();
+                  e.stopPropagation(); // Evita abrir o modal ao clicar na lixeira
                   handleDeleteCardEquipamento(equipamento.id);
                 }}
                 className={styles.iconTrash}

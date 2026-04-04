@@ -109,6 +109,7 @@ import { UpdateClienteController } from "./controllers/status categorias/cliente
 import { UpdateInstituicaoUnidadeController } from "./controllers/status categorias/tipodeInsituicaoUnidade/UpdateInstituicaoUnidadeController";
 import { UpdateInformacoesSetorController } from "./controllers/status categorias/setor/informacoessetor/UpdateInformacoesSetorController";
 import { UpdateUserController } from "./controllers/user/UpdateUserController";
+import { UpdateEquipamentoController } from "./controllers/status categorias/equipamento/UpdateEquipamentoController";
 const router = Router();
 //get,post, update, delete
 
@@ -164,6 +165,7 @@ router.get('/listtecnico', isAuthenticated, new ListTecnicoController().handle);
 router.post('/equipamento', isAuthenticated, can(['ADMIN']), new CreateEquipamentoController().handle);
 router.delete('/deleteequipamento/:id', isAuthenticated, can(['ADMIN']), new RemoveEquipamentoController().handle);
 router.get('/listequipamento', isAuthenticated, new ListEquipamentoController().handle);
+router.patch('/equipamento/:id',  isAuthenticated, can(['ADMIN']), new UpdateEquipamentoController().handle);
 
 
 // ============================================================

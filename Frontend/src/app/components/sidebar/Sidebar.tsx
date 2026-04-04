@@ -164,6 +164,7 @@ export default function Sidebar() {
                 <div className={styles.dropdown}>
                   <Link href="/dashboard/usuarios" className={styles.subItem}>Gerenciar Usuários</Link>
                   <Link href="/dashboard/controles/equipamentos" className={styles.subItem}>Equipamentos</Link>
+                  <Link href="/dashboard/controles/estabilizadores" className={styles.subItem}>Estabilizadores</Link>
                   <Link href="/dashboard/controles/assistenciaTecnica" className={styles.subItem}>Assistência Técnica</Link>
                   <Link href="/dashboard/controles/laudoTecnico" className={styles.subItem}>Laudo Técnico</Link>
                   <Link href="/dashboard/controles/laboratorio" className={styles.subItem}>Laboratório</Link>
