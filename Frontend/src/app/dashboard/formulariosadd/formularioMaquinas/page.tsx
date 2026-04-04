@@ -5,15 +5,35 @@ import styles from './FormularioMaquinas.module.scss';
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { api } from '@/services/api';
 import { getCookieClient } from '@/lib/cookieClient';
+
 export const dynamic = 'force-dynamic';
-interface ComprasProps {
+
+interface ItemProps {
   id: string;
   name: string;
 }
 
 export default function FormularioCompras() {
-  const [compras, setCompras] = useState<ComprasProps[]>([]);
+  const [instituicao, setInstituicao] = useState<ItemProps[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    async function loadInstituicoes() {
+      try {
+        const token = await getCookieClient();
+        const response = await api.get("/listinstuicao", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+    
+        const data = Array.isArray(response.data) ? response.data : response.data.instituicoes;
+        setInstituicao(data || []);
+      } catch (err) {
+        console.error("Erro ao carregar instituições:", err);
+      }
+    }
+
+    loadInstituicoes();
+  }, []);
 
   function handleBackCardCompras() {
     router.push('/dashboard/controles/equipamentos');
@@ -25,35 +45,30 @@ export default function FormularioCompras() {
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name");
     const patrimonio = formData.get("patrimonio");
-    console.log("Form Data:", {
-      name,
-      patrimonio,
-    });
+    const instituicaoUnidade_id = formData.get("instituicaoUnidade_id"); 
 
-   try {
-  const token = await getCookieClient();
-  console.log("TOKEN QUE ESTOU ENVIANDO:", token); // Copie isso e cole no jwt.io
+    try {
+      const token = await getCookieClient();
 
-  const response = await api.post("/equipamento", {
-    name,
-    patrimonio,
-  }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+      await api.post("/equipamento", {
+        name,
+        patrimonio,
+        instituicaoUnidade_id, 
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-  router.push("/dashboard/controles/equipamentos");
-} catch (err: any) {
-  // LOG DETALHADO DO ERRO
-  console.error("DETALHES DO ERRO 401:");
-  console.log("Mensagem do servidor:", err.response?.data); 
-  console.log("Status do erro:", err.response?.status);
-}}
+      router.push("/dashboard/controles/equipamentos");
+    } catch (err: any) {
+      console.error("Erro ao cadastrar equipamento:", err.response?.data || err.message);
+    }
+  }
 
   return (
     <section>
       <div className={styles.headerClient}>
-        <h1 className={styles.titleClient}> CADASTRO DE MÁQUINAS</h1>
-        <IoArrowBackCircleOutline size={30} color="#4B4B4B" onClick={handleBackCardCompras}/>
+        <h1 className={styles.titleClient}> CADASTRO DE EQUIPAMENTOS</h1>
+        <IoArrowBackCircleOutline size={30} color="#4B4B4B" onClick={handleBackCardCompras} style={{cursor: 'pointer'}}/>
         <button className={styles.button} onClick={handleBackCardCompras}>
           Voltar para Lista de Equipamentos
         </button>
@@ -77,6 +92,20 @@ export default function FormularioCompras() {
               placeholder="Digite o Patrimonio"
               className={styles.input}
             />
+
+            <select 
+              name="instituicaoUnidade_id" 
+              className={styles.input}
+              defaultValue=""
+              required // Se for obrigatório vincular a uma unidade
+            >
+              <option value="" disabled>Selecione uma instituição</option>
+              {instituicao.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
 
             <button className={styles.button} type="submit">
               Cadastrar
