@@ -12,6 +12,14 @@ class ListEquipamentoService{
                 name: true,
                 patrimonio: true,
                 created_at: true,
+                instituicaoUnidade: {
+                select: {
+                    id: true,
+                    name: true,
+                    endereco: true,
+                    telefone: true,
+                }
+                },
             }
         })
         return equipamento;
