@@ -102,13 +102,14 @@ model InstituicaoUnidade {
   endereco                               String
   telefone                               String?
   controlesDeLaboratorio                 controleDeLaboratorio[]
-  informacoesSetores          InformacoesSetor[]   
+  informacoesSetores                     InformacoesSetor[]   
   ordens                                 OrdemdeServico[]
   controlesdeAssistenciaTecnica          controleDeAssistenciaTecnica[]
   controlesdeLaudoTecnico                controleDeLaudoTecnico[]
   controlesDeMaquinasPendetesLaboratorio controleDeMaquinasPendentesLaboratorio[]
   controlesDeEstabilizadores             controledeEstabilizadores[]
   controlesDeMaquinasPendentesOro        controledeMaquinasPendentesOro[]
+  equipamento                             Equipamento[]
   documentacoesTecnicas                  documentacaoTecnica[]
   tipodeinstituicaoUnidade_id            String?
   tipodeinstituicaoUnidade               tipodeInstituicaoUnidade? @relation(fields: [tipodeinstituicaoUnidade_id], references: [id])
@@ -268,17 +269,22 @@ model prioridade {
 }
 
 model Equipamento {
-  id                                      String                                   @id @default(uuid())
-  name                                    String
-  patrimonio                              String
-  updated_at                              DateTime?                                @default(now())
-  created_at                              DateTime?                                @default(now())
+  id              String    @id @default(uuid())
+  name            String
+  patrimonio      String
+  updated_at      DateTime? @default(now())
+  created_at      DateTime? @default(now())
+
+  instituicaoUnidade_id String? 
+
+  instituicaoUnidade   InstituicaoUnidade? @relation(fields: [instituicaoUnidade_id], references: [id])
+
   controlesDeLaboratorio                  controleDeLaboratorio[]
   controlesDeAssistencia                  controleDeAssistenciaTecnica[]
   controlesdeLaudoTecnico                 controleDeLaudoTecnico[]
   controlesDeMaquinasPendentesLaboratorio controleDeMaquinasPendentesLaboratorio[]
   controlesDeMaquinasPendentesOro         controledeMaquinasPendentesOro[]
-  ordens                OrdemdeServico[]
+  ordens                                  OrdemdeServico[]
 
   @@map("equipamento")
 }
