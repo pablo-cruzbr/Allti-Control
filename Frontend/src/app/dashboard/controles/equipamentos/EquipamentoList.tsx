@@ -59,7 +59,7 @@ export default function EquipamentoList({ Equipamento }: Props) {
   return (
     <section>
       <div className={styles.headerClient}>
-        <h1 className={styles.titleClient}>Controle de Maquinas Cadastradas</h1>
+        <h1 className={styles.titleClient}>Controle de Equipamentos Cadastrados</h1>
         <div className={styles.actions}>
           <div className={styles.searchContainer}>
           <input 

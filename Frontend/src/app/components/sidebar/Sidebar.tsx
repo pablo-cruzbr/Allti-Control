@@ -163,7 +163,7 @@ export default function Sidebar() {
               {dropdowns.controles && (
                 <div className={styles.dropdown}>
                   <Link href="/dashboard/usuarios" className={styles.subItem}>Gerenciar Usuários</Link>
-                  <Link href="/dashboard/controles/equipamentos" className={styles.subItem}>Lista de Máquinas</Link>
+                  <Link href="/dashboard/controles/equipamentos" className={styles.subItem}>Equipamentos</Link>
                   <Link href="/dashboard/controles/assistenciaTecnica" className={styles.subItem}>Assistência Técnica</Link>
                   <Link href="/dashboard/controles/laudoTecnico" className={styles.subItem}>Laudo Técnico</Link>
                   <Link href="/dashboard/controles/laboratorio" className={styles.subItem}>Laboratório</Link>
@@ -194,7 +194,7 @@ export default function Sidebar() {
               {dropdowns.cadastros && (
                 <div className={styles.dropdown}>
                   <Link href="/dashboard/formulariosadd/formularioRamaisSetores" className={styles.subItem}>Novo Ramal</Link>
-                  <Link href="/dashboard/formulariosadd/formularioMaquinas" className={styles.subItem}>Nova Máquina</Link>
+                  <Link href="/dashboard/formulariosadd/formularioMaquinas" className={styles.subItem}>Novo Equipamento</Link>
                   <Link href="/dashboard/formulariosadd/formularioTecnicoAdd" className={styles.subItem}>Novo Técnico</Link>
                    <Link href="/dashboard/formulariosadd/formularioSetores" className={styles.subItem}>Novo Setor</Link>
                 </div>
