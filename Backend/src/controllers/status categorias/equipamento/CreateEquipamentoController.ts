@@ -4,10 +4,10 @@ import { CreateEquipamentoService } from "../../../services/status_categorias/Eq
 class CreateEquipamentoController {
     async handle(req: Request, res:Response){
        
-        const {name, patrimonio} = req.body
+        const {name, patrimonio, instituicaoUnidade_id} = req.body
         const createEquipamentoService = new CreateEquipamentoService();
 
-        const equipamento = await createEquipamentoService.execute(name, patrimonio);
+        const equipamento = await createEquipamentoService.execute(name, patrimonio, instituicaoUnidade_id);
 
         return res.json(equipamento)
     }

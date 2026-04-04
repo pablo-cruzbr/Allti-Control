@@ -3,10 +3,11 @@ import prismaClient from "../../../prisma";
 interface EquipamentoRequest{
     name: string;
     patrimonio: string;
+    instituicaoUnidade_id?: string;
 }
 
 class CreateEquipamentoService{
-    async execute(name, patrimonio){
+    async execute(name, patrimonio, instituicaoUnidade_id){
         if (name === ''){
             throw new Error('Name Invalid');
         }
@@ -25,12 +26,14 @@ class CreateEquipamentoService{
             data:{
                 name:name,
                 patrimonio: patrimonio,
+                instituicaoUnidade_id: instituicaoUnidade_id
             },
 
             select:{
                 id: true,
                 name: true,
-                patrimonio: true
+                patrimonio: true,
+                instituicaoUnidade_id: true
             }
         })
         return equipamento
