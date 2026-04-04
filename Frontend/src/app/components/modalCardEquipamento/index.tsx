@@ -7,22 +7,27 @@ import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { useGlobalModal } from '@/provider/GlobalModalProvider';
 import { EquipamentoProps } from '@/lib/getEquipamento.type';
 import { useRouter } from 'next/navigation';
-
+import EditEquipamentoForm from './EditEquipamentoForm'; 
 
 interface ModalProps {
   data: any; 
 }
 
 export function ModalCardEquipamento({ data }: ModalProps) {
- const { closeModal, modalData, modalType, isOpen } = useGlobalModal();
+  const { closeModal, modalData, modalType, isOpen } = useGlobalModal();
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
+  
   const equipamento: EquipamentoProps | undefined = modalData?.[0] || modalData;
 
   function handleRefresh() {
     router.refresh();
     closeModal();
   }
+
+  useEffect(() => {
+    if (!isOpen) setIsEditing(false);
+  }, [isOpen]);
 
   useEffect(() => {
     if (modalType === 'equipamento' && !equipamento) {
@@ -40,10 +45,13 @@ export function ModalCardEquipamento({ data }: ModalProps) {
             <IoIosCloseCircleOutline size={40} color="#4E3182" />
           </button>
           
-          <h2>DETALHES DO EQUIPAMENTO</h2>
+          <h2>{isEditing ? "EDITAR EQUIPAMENTO" : "DETALHES DO EQUIPAMENTO"}</h2>
 
           {isEditing ? (
-            <p>Formulário de Edição em breve...</p>
+            <EditEquipamentoForm 
+              equipamento={equipamento} 
+              onClose={() => setIsEditing(false)} 
+            />
           ) : (
             <>
               <span className={styles.itemSolicitado}>
