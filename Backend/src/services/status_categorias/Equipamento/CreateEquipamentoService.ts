@@ -36,7 +36,7 @@ class CreateEquipamentoService{
                 name: true,
                 patrimonio: true,
                 instituicaoUnidade_id: true,
-                 tipodeEquipamento_id: true
+                tipodeEquipamento_id: true
             }
         })
         return equipamento
