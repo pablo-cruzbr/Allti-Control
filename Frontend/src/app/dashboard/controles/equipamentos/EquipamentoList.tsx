@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './cardListEquipamento.module.scss';
 import { FaRegTrashAlt } from "react-icons/fa";
-// Removi o ModalLaboratorio se não for usar, mas mantenha se for padrão
 import { useGlobalModal } from '@/provider/GlobalModalProvider';
 import { EquipamentoProps } from '@/lib/getEquipamento.type';
 import { getCookieClient } from '@/lib/cookieClient';
@@ -16,13 +15,12 @@ interface Props {
 }
 
 export default function EquipamentoList({ Equipamento }: Props) {
-  const { openModal } = useGlobalModal(); // Hook do seu provider global
+  const { openModal } = useGlobalModal(); 
   const router = useRouter();
   const [searchPatrimonio, setSearchPatrimonio] = useState<string>(""); 
 
-  // --- FUNÇÃO ATUALIZADA ---
   async function handleDetailEquipamento(equipamento: EquipamentoProps) {
-    // Chamando o modal do tipo 'equipamento' e passando os dados
+   
     openModal('equipamento', [equipamento]);
   }
 
@@ -83,7 +81,6 @@ export default function EquipamentoList({ Equipamento }: Props) {
         {filteredEquipamento.map((equipamento) => (
           <div
             key={equipamento.id}
-            // ALTERADO PARA CHAMAR O MODAL DE EQUIPAMENTO
             onClick={() => handleDetailEquipamento(equipamento)}
             className={styles.list}
           >
@@ -95,7 +92,6 @@ export default function EquipamentoList({ Equipamento }: Props) {
                 <strong>Patrimônio:</strong> {equipamento.patrimonio}
               </p>
               
-              {/* Exibe a Unidade se existir (Baseado no seu Service novo) */}
               {equipamento.instituicaoUnidade && (
                  <p className={styles.field}>
                    <strong>Unidade:</strong> {equipamento.instituicaoUnidade.name}
