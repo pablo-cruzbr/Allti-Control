@@ -167,6 +167,11 @@ router.delete('/deleteequipamento/:id', isAuthenticated, can(['ADMIN']), new Rem
 router.get('/listequipamento', isAuthenticated, new ListEquipamentoController().handle);
 router.patch('/equipamento/:id',  isAuthenticated, can(['ADMIN']), new UpdateEquipamentoController().handle);
 
+//--- Estabilizador---
+router.post('/controledeestabilizadores', isAuthenticated, can(['ADMIN']), new CreateControledeEstabilizadoresController().handle);
+router.get('/listcontroledeestabilizadores', isAuthenticated, new ListControledeEstabilizadoresController().handle);
+router.get('/liststatus/estabilizadores', isAuthenticated, new ListStatusEstabilizadoresController().handle);
+
 
 // ============================================================
 // 3. STATUS E PRIORIDADES (SISTEMA: ADM)

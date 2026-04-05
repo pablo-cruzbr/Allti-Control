@@ -16,7 +16,6 @@ interface ItemProps {
 export default function FormularioControledeEstabilizadores() {
   const router = useRouter();
 
-  // Apenas os campos que o backend espera
   const [form, setForm] = useState({
     idChamado: "",
     problema: "",

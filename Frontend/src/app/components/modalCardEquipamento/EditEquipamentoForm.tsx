@@ -8,6 +8,7 @@ import { EquipamentoProps } from "@/lib/getEquipamento.type";
 import { getCookieClient } from "@/lib/cookieClient";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { FaRegSave } from "react-icons/fa";
+import Select from 'react-select';
 
 type Instituicao = { id: string; name: string };
 
@@ -28,11 +29,16 @@ export default function EditEquipamentoForm({ equipamento, onClose }: Props) {
   const [instituicoesList, setInstituicoesList] = useState<Instituicao[]>([]);
   const [listsLoaded, setListsLoaded] = useState(false);
 
+  // Mapeia a lista para o formato do React Select
+  const options = instituicoesList.map(inst => ({
+    value: inst.id,
+    label: inst.name
+  }));
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = await getCookieClient();
-
         const instituicoesRes = await api.get('/listinstuicao', { 
           headers: { Authorization: `Bearer ${token}` } 
         });
@@ -46,7 +52,6 @@ export default function EditEquipamentoForm({ equipamento, onClose }: Props) {
         console.error("Erro ao buscar lista de instituições:", error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -60,15 +65,21 @@ export default function EditEquipamentoForm({ equipamento, onClose }: Props) {
     }
   }, [listsLoaded, equipamento]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (selectedOption: any) => {
+    setForm(prev => ({
+      ...prev,
+      instituicaoUnidade_id: selectedOption ? selectedOption.value : ""
+    }));
   };
 
   const handleSubmit = async () => {
     try {
       const token = await getCookieClient();
-      
       await api.patch(`/equipamento/${equipamento.id}`, {
         id: equipamento.id, 
         ...form
@@ -119,19 +130,60 @@ export default function EditEquipamentoForm({ equipamento, onClose }: Props) {
       />
 
       <p>Instituição / Unidade</p>
-      <select 
-        name="instituicaoUnidade_id" 
-        value={form.instituicaoUnidade_id} 
-        onChange={handleChange}
-      >
-        <option value="">Selecione a unidade</option>
-        {instituicoesList.map(inst => (
-          <option key={inst.id} value={inst.id}>{inst.name}</option>
-        ))}
-      </select>
+    <Select
+      instanceId="instituicao-select"
+      options={options}
+      placeholder="Selecione a unidade..."
+      noOptionsMessage={() => "Nenhuma unidade encontrada"}
+      value={options.find(opt => opt.value === form.instituicaoUnidade_id) || null}
+      onChange={handleSelectChange}
+      isSearchable={true}
+      className={styles.selectContainer}
+      styles={{
+        control: (base, state) => ({
+          ...base,
+          backgroundColor: '#fff',
+          borderRadius: '10px',
+          borderColor: state.isFocused ? '#4E3182' : '#ddd',
+          boxShadow: 'none',
+          '&:hover': { borderColor: '#4E3182' }
+        }),
+        menu: (base) => ({
+          ...base,
+          zIndex: 9999,
+          backgroundColor: '#fff'
+        }),
+        option: (base, state) => ({
+          ...base,
+          backgroundColor: state.isSelected 
+            ? '#4E3182' 
+            : state.isFocused 
+            ? '#f3effa' 
+            : '#fff',
+          color: state.isSelected 
+            ? '#fff' 
+            : '#4B4B4B', 
+          cursor: 'pointer',
+          padding: '10px 15px',
+          '&:active': { backgroundColor: '#4E3182' }
+        }),
+        singleValue: (base) => ({
+          ...base,
+          color: '#4B4B4B'
+        }),
+        input: (base) => ({
+          ...base,
+          color: '#4B4B4B' 
+        }),
+        placeholder: (base) => ({
+          ...base,
+          color: '#999'
+        })
+      }}
+    />
 
       <div className={styles.buttonArea}>
-        <button onClick={handleSubmit}>
+        <button onClick={handleSubmit} className={styles.buttonBuy}>
           <FaRegSave className={styles.iconButton} />
           Salvar Alterações
         </button>
