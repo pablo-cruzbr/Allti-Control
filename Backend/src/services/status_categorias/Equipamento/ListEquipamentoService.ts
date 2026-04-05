@@ -20,6 +20,12 @@ class ListEquipamentoService{
                     telefone: true,
                 }
                 },
+                tipodeEquipamento: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
             }
         })
         return equipamento;
