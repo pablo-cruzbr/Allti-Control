@@ -112,6 +112,7 @@ import { UpdateUserController } from "./controllers/user/UpdateUserController";
 import { UpdateEquipamentoController } from "./controllers/status categorias/equipamento/UpdateEquipamentoController";
 import { ListEstabilizadorController } from "./controllers/status categorias/estabilizador/ListEstabilizadorController";
 import { CreatetipodeEquipamentoController } from "./controllers/status categorias/tipodeEquipamento/CreateTipodeEquipamentoController";
+import { ListtipodeEquipamentoController } from "./controllers/status categorias/tipodeEquipamento/ListtipodeEquipamentoController";
 const router = Router();
 //get,post, update, delete
 
@@ -171,6 +172,8 @@ router.patch('/equipamento/:id',  isAuthenticated, can(['ADMIN']), new UpdateEqu
 
 // --- status tipo de equipamento ---
 router.post('/tipodeequipamento', isAuthenticated, can(['ADMIN']), new CreatetipodeEquipamentoController().handle);
+router.get('/list/tipo/equipamento', isAuthenticated, new ListtipodeEquipamentoController().handle);
+
 //--- Estabilizador---
 router.post('/controledeestabilizadores', isAuthenticated, can(['ADMIN']), new CreateControledeEstabilizadoresController().handle);
 router.get('/listcontroledeestabilizadores', isAuthenticated, new ListControledeEstabilizadoresController().handle);
