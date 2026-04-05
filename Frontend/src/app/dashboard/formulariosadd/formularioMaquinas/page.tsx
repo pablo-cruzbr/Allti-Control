@@ -5,6 +5,7 @@ import styles from './FormularioMaquinas.module.scss';
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { api } from '@/services/api';
 import { getCookieClient } from '@/lib/cookieClient';
+import Select from 'react-select';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,8 +15,15 @@ interface ItemProps {
 }
 
 export default function FormularioCompras() {
-  const [instituicao, setInstituicao] = useState<ItemProps[]>([]);
+  const [instituicoes, setInstituicoes] = useState<ItemProps[]>([]);
+  const [selectedInstituicao, setSelectedInstituicao] = useState<{ value: string; label: string } | null>(null);
   const router = useRouter();
+
+  // Mapeamento para o formato do React Select
+  const options = instituicoes.map(inst => ({
+    value: inst.id,
+    label: inst.name
+  }));
 
   useEffect(() => {
     async function loadInstituicoes() {
@@ -26,7 +34,7 @@ export default function FormularioCompras() {
         });
     
         const data = Array.isArray(response.data) ? response.data : response.data.instituicoes;
-        setInstituicao(data || []);
+        setInstituicoes(data || []);
       } catch (err) {
         console.error("Erro ao carregar instituições:", err);
       }
@@ -45,7 +53,14 @@ export default function FormularioCompras() {
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name");
     const patrimonio = formData.get("patrimonio");
-    const instituicaoUnidade_id = formData.get("instituicaoUnidade_id"); 
+    
+    // Pegamos o ID diretamente do estado do Select
+    const instituicaoUnidade_id = selectedInstituicao?.value;
+
+    if(!instituicaoUnidade_id){
+      alert("Por favor, selecione uma instituição.");
+      return;
+    }
 
     try {
       const token = await getCookieClient();
@@ -93,19 +108,54 @@ export default function FormularioCompras() {
               className={styles.input}
             />
 
-            <select 
-              name="instituicaoUnidade_id" 
-              className={styles.input}
-              defaultValue=""
-              required // Se for obrigatório vincular a uma unidade
-            >
-              <option value="" disabled>Selecione uma instituição</option>
-              {instituicao.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+            <div style={{ marginBottom: '1rem' }}>
+              <Select
+                instanceId="cadastro-equipamento-select"
+                options={options}
+                placeholder="Selecione uma instituição"
+                noOptionsMessage={() => "Nenhuma instituição encontrada"}
+                value={selectedInstituicao}
+                onChange={(option) => setSelectedInstituicao(option)}
+                isSearchable={true}
+                styles={{
+                  control: (base, state) => ({
+                    ...base,
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                    borderColor: state.isFocused ? '#4E3182' : '#ddd',
+                    boxShadow: 'none',
+                    minHeight: '45px',
+                    fontFamily: 'Poppins, sans-serif',
+                    '&:hover': { borderColor: '#4E3182' }
+                  }),
+                  menu: (base) => ({
+                    ...base,
+                    zIndex: 9999,
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    backgroundColor: state.isSelected 
+                      ? '#4E3182' 
+                      : state.isFocused 
+                      ? '#f3effa' 
+                      : '#fff',
+                    color: state.isSelected ? '#fff' : '#4B4B4B',
+                    cursor: 'pointer',
+                    fontFamily: 'Poppins, sans-serif',
+                    '&:active': { backgroundColor: '#4E3182' }
+                  }),
+                  singleValue: (base) => ({
+                    ...base,
+                    color: '#4B4B4B',
+                    fontFamily: 'Poppins, sans-serif',
+                  }),
+                  input: (base) => ({
+                    ...base,
+                    color: '#4B4B4B',
+                  }),
+                }}
+              />
+            </div>
 
             <button className={styles.button} type="submit">
               Cadastrar
