@@ -276,7 +276,9 @@ model Equipamento {
   created_at      DateTime? @default(now())
 
   instituicaoUnidade_id String? 
+  tipodeEquipamento_id String?
 
+  tipodeEquipamento TipodeEquipamento? @relation(fields: [tipodeEquipamento_id], references: [id])
   instituicaoUnidade   InstituicaoUnidade? @relation(fields: [instituicaoUnidade_id], references: [id])
 
   controlesDeLaboratorio                  controleDeLaboratorio[]
@@ -287,6 +289,15 @@ model Equipamento {
   ordens                                  OrdemdeServico[]
 
   @@map("equipamento")
+}
+
+model TipodeEquipamento {
+    id              String    @id @default(uuid())
+    name            String
+    updated_at      DateTime? @default(now())
+    created_at      DateTime? @default(now())
+
+    equipamento                             Equipamento[]
 }
 
 model controleDeAssistenciaTecnica {

@@ -110,6 +110,7 @@ import { UpdateInstituicaoUnidadeController } from "./controllers/status categor
 import { UpdateInformacoesSetorController } from "./controllers/status categorias/setor/informacoessetor/UpdateInformacoesSetorController";
 import { UpdateUserController } from "./controllers/user/UpdateUserController";
 import { UpdateEquipamentoController } from "./controllers/status categorias/equipamento/UpdateEquipamentoController";
+import { ListEstabilizadorController } from "./controllers/status categorias/estabilizador/ListEstabilizadorController";
 const router = Router();
 //get,post, update, delete
 
@@ -171,7 +172,7 @@ router.patch('/equipamento/:id',  isAuthenticated, can(['ADMIN']), new UpdateEqu
 router.post('/controledeestabilizadores', isAuthenticated, can(['ADMIN']), new CreateControledeEstabilizadoresController().handle);
 router.get('/listcontroledeestabilizadores', isAuthenticated, new ListControledeEstabilizadoresController().handle);
 router.get('/liststatus/estabilizadores', isAuthenticated, new ListStatusEstabilizadoresController().handle);
-
+router.get('/list/estabilizadores', isAuthenticated, new ListEstabilizadorController().handle);
 
 // ============================================================
 // 3. STATUS E PRIORIDADES (SISTEMA: ADM)

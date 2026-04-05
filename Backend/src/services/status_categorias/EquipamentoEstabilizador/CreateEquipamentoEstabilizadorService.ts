@@ -11,7 +11,7 @@ class CreateEquipamentoEstabilizadorService{
             throw new Error('Nome Invalido');
         }
 
-        const estabilizador = prismaClient.estabilizadores.create({
+        const estabilizador = prismaClient.equipamento.create({
             data:{
                 name: name,
                 patrimonio: patrimonio,
