@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { CreateTipodeEquipamentoService } from "../../../services/status_categorias/tipodeEquipamento/CreateTipodeEquipamentoService";
-class CreatetipodeChamadoController {
+class CreatetipodeEquipamentoController {
     async handle(req: Request, res: Response){
         const {name} = req.body;
 
@@ -12,4 +12,4 @@ class CreatetipodeChamadoController {
     }
 }
 
-export {CreatetipodeChamadoController}
+export {CreatetipodeEquipamentoController}
