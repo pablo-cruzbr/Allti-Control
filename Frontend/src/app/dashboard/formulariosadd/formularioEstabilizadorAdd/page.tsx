@@ -17,7 +17,7 @@ export default function formularioEstabilizadorAdd() {
   const router = useRouter();
 
   function handleBackCardEstabilizadores() {
-    router.push('/dashboard/controles/estabilizares');
+    router.push('/dashboard/controles/estabilizadores');
   }
 
   useEffect(() => {

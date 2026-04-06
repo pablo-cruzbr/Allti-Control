@@ -10,7 +10,8 @@ import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { FaRegSave } from "react-icons/fa";
 import Select from 'react-select';
 
-type Instituicao = { id: string; name: string };
+type Instituicao = { id: string; name: string; endereco: string};
+type tipodeEquipamento = {id: string; name: string}
 
 type Props = {
   equipamento: EquipamentoProps;
@@ -27,6 +28,7 @@ export default function EditEquipamentoForm({ equipamento, onClose }: Props) {
   });
 
   const [instituicoesList, setInstituicoesList] = useState<Instituicao[]>([]);
+  const [tipodeEquipamentoList, setTipodeEquipamentoList] = useState<tipodeEquipamento[]>([])
   const [listsLoaded, setListsLoaded] = useState(false);
 
   // Mapeia a lista para o formato do React Select
@@ -35,25 +37,36 @@ export default function EditEquipamentoForm({ equipamento, onClose }: Props) {
     label: inst.name
   }));
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await getCookieClient();
-        const instituicoesRes = await api.get('/listinstuicao', { 
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const token = await getCookieClient();
+      
+      const [instituicoesRes, tiposRes] = await Promise.all([
+        api.get('/listinstuicao', { 
           headers: { Authorization: `Bearer ${token}` } 
-        });
+        }),
+        api.get('/list/tipo/equipamento', { 
+          headers: { Authorization: `Bearer ${token}` } 
+        })
+      ]);
 
-        setInstituicoesList(Array.isArray(instituicoesRes.data.instituicoes)
-          ? instituicoesRes.data.instituicoes
-          : []);
+      setInstituicoesList(Array.isArray(instituicoesRes.data.instituicoes)
+        ? instituicoesRes.data.instituicoes
+        : []);
 
-        setListsLoaded(true);
-      } catch (error) {
-        console.error("Erro ao buscar lista de instituições:", error);
-      }
-    };
-    fetchData();
-  }, []);
+      setTipodeEquipamentoList(Array.isArray(tiposRes.data) 
+        ? tiposRes.data 
+        : tiposRes.data.tipos || []);
+
+      setListsLoaded(true);
+    } catch (error) {
+      console.error("Erro ao buscar dados:", error);
+    }
+  };
+
+  fetchData();
+}, []);
 
   useEffect(() => {
     if (listsLoaded && equipamento) {
