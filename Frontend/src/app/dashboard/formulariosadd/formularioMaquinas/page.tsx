@@ -18,8 +18,6 @@ export default function FormularioCompras() {
   const [instituicoes, setInstituicoes] = useState<ItemProps[]>([]);
   const [selectedInstituicao, setSelectedInstituicao] = useState<{ value: string; label: string } | null>(null);
   const router = useRouter();
-
-  // Mapeamento para o formato do React Select
   const options = instituicoes.map(inst => ({
     value: inst.id,
     label: inst.name
