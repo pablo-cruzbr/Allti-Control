@@ -24,7 +24,6 @@ export default function formularioEstabilizadorAdd() {
     async function fetchStatusCompras() {
       try {
         const token = await getCookieClient();
-        console.log("TOKEN DO USUÁRIO: ", token);
         const response = await api.get("/liststatuscompras", {
           headers: {
             Authorization: `Bearer ${token}`,
