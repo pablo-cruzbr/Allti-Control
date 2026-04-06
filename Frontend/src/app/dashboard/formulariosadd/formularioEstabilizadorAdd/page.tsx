@@ -53,8 +53,7 @@ export default function formularioEstabilizadorAdd() {
       const token = await getCookieClient();
       await api.post("/equipamento/esbilizadores", {
         name,
-        patrimonio,
-        
+        patrimonio,    
       },
         {
           headers:{
