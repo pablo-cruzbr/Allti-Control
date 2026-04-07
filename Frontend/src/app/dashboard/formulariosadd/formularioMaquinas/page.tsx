@@ -52,7 +52,6 @@ export default function FormularioCompras() {
     const name = formData.get("name");
     const patrimonio = formData.get("patrimonio");
     
-    // Pegamos o ID diretamente do estado do Select
     const instituicaoUnidade_id = selectedInstituicao?.value;
 
     if(!instituicaoUnidade_id){
