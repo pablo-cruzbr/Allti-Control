@@ -10,11 +10,10 @@ export interface EquipamentoProps{
     };
 
         tipodeEquipamento: {
-        select: {
-            id: true,
-            name: true
-        }
-    }
+        id: string;
+        name: string;
+    };
+    
 
     created_at?: string; 
 }
