@@ -45,7 +45,7 @@ export default function FormularioControledeEstabilizadores() {
       try {
         const token = await getCookieClient();
         const [equipRes, statusRes, instRes] = await Promise.all([
-          api.get("/list/estabilizador", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/list/estabilizadores", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/liststatus/estabilizadores", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } })
         ]);
