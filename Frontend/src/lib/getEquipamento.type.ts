@@ -8,7 +8,6 @@ export interface EquipamentoProps{
         name: string; 
         endereco: string;
     };
-
         tipodeEquipamento: {
         id: string;
         name: string;
