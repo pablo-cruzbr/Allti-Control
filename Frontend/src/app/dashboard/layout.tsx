@@ -1,15 +1,13 @@
 import Sidebar from '../components/sidebar/Sidebar';
 import styles from './dashboard.module.scss';
 import { ModalProvider } from '../../provider/compras';
-import { Toaster } from 'sonner'; // ✅ import do Sonner
-
+import { Toaster } from 'sonner'; 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display: "flex" }}>
       <Sidebar />
       <main className="main-content">
         {children}
-        {/* ✅ Adiciona o container do Sonner */}
        <Toaster
           position="bottom-right"
           richColors
@@ -24,7 +22,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             },
           }}
         />
-
       </main>
     </div>
   );
