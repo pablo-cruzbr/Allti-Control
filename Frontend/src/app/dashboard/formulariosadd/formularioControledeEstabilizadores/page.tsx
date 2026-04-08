@@ -33,7 +33,7 @@ export default function FormularioControledeEstabilizadores() {
   const [instituicoes, setInstituicoes] = useState<ItemProps[]>([]);
   const [listsLoaded, setListsLoaded] = useState(false);
 
-  const handleBack = () => router.push('/dashboard/controles/estabilizares');
+  const handleBack = () => router.push('/dashboard/controles/estabilizadores');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
