@@ -14,7 +14,6 @@ class CreateTipodeChamadoService{
             data:{
                 name:name,
             },
-
             select:{
                 id: true,
                 name: true,
