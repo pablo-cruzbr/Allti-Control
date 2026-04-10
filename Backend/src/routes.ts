@@ -113,6 +113,7 @@ import { UpdateEquipamentoController } from "./controllers/status categorias/equ
 import { ListEstabilizadorController } from "./controllers/status categorias/estabilizador/ListEstabilizadorController";
 import { CreatetipodeEquipamentoController } from "./controllers/status categorias/tipodeEquipamento/CreateTipodeEquipamentoController";
 import { ListtipodeEquipamentoController } from "./controllers/status categorias/tipodeEquipamento/ListtipodeEquipamentoController";
+import { ListAtividadePadraoController } from "./controllers/status categorias/Atividade/ListAtividadedeService";
 const router = Router();
 //get,post, update, delete
 
@@ -203,6 +204,11 @@ router.post('/ordemdeservico', isAuthenticated, new CreateOrdemServicoController
 router.get('/listordemdeservico', isAuthenticated, new ListOrdemdeServicoController().handle);
 router.get('/ordemdeservico/:id', isAuthenticated, new GetOrdemdeServicoByIdController().handle);
 
+// ============================================================
+// ATIVIDADES TÉCNICO
+// ============================================================
+router.get('/listatividade', isAuthenticated, new ListAtividadePadraoController().handle);
+
 router.patch(
   '/ordemdeservico/update/:id',
   isAuthenticated, 
@@ -251,6 +257,7 @@ router.delete('/deletedesolicitacaodecompras/:id', isAuthenticated, can(['ADMIN'
 router.get('/listdocumentacaotecnica', isAuthenticated, new ListDocumentacaoTecnicaController().handle);
 router.post('/documentacaotecnica', isAuthenticated, new CreateDocumentacaoTecnicaController().handle);
 router.delete('/deletedocumentacaotecnica/:id', isAuthenticated, can(['ADMIN']), new DeleteDocumentacaoTecnicaController().handle);
+
 
 
 // ============================================================
