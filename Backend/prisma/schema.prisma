@@ -198,15 +198,18 @@ model OrdemdeServico {
 
   fotos                             FotoOrdemServico[]
 
+  atividades                        AtividadeNoChamado[]
 
+  status               StatusOS @default(NAO_FINALIZADO)
+
+  atividadeRelacionada String?  
+  observacoes          String?  @db.Text
   
   informacoesSetorId                String?
   informacoesSetor                  InformacoesSetor?     @relation(fields: [informacoesSetorId], references: [id])
 
-
- equipamento_id String?  
- equipamento    Equipamento? @relation(fields: [equipamento_id], references: [id])
-
+  equipamentoid String?  
+  equipamento    Equipamento? @relation(fields: [equipamentoid], references: [id])
 
   cliente                           Cliente?              @relation(fields: [cliente_id], references: [id])
   instituicaoUnidade                InstituicaoUnidade?   @relation(fields: [instituicaoUnidade_id], references: [id])
@@ -214,18 +217,54 @@ model OrdemdeServico {
   tecnico                           Tecnico?              @relation(fields: [tecnico_id], references: [id])
   tipodeChamado                     TipodeChamado         @relation(fields: [tipodeChamado_id], references: [id])
 
- tipodeOrdemdeServico_id   String? 
- tipodeOrdemdeServico      TipodeOrdemdeServico? @relation(fields: [tipodeOrdemdeServico_id], references: [id])
+  tipodeOrdemdeServico_id   String? 
+  tipodeOrdemdeServico      TipodeOrdemdeServico? @relation(fields: [tipodeOrdemdeServico_id], references: [id])
 
   prioridade_id String?
   prioridade    prioridade?  @relation(fields: [prioridade_id], references: [id])
 
   user                              User                  @relation(fields: [user_id], references: [id])
 
-    formtecnico FormTecnico?
+  formtecnico FormTecnico?
 
   @@map("Ordem de Serviço v3")
 }
+
+model AtividadeNoChamado {
+  id                String          @id @default(uuid())
+  ordemServico      OrdemdeServico  @relation(fields: [ordemServicoId], references: [id])
+  ordemServicoId    String
+  atividadePadrao   AtividadePadrao @relation(fields: [atividadePadraoId], references: [id])
+  atividadePadraoId String
+
+  @@map("atividades_no_chamado")
+}
+
+model AtividadePadrao {
+  id        String             @id @default(uuid())
+  descricao String
+  categoria CategoriaAtividade
+  
+  chamados  AtividadeNoChamado[]
+
+  @@map("atividades_padrao")
+}
+
+enum CategoriaAtividade {
+  EXTERNO
+  LABORATORIO
+}
+
+enum StatusOS {
+  TODAS
+  NAO_FINALIZADO
+  FINALIZADO
+  FINALIZADO_MANUAL
+  FINALIZADO_PENDENCIA
+  PAUSADO
+}
+
+
 
 model FormTecnico {
   id          String @id @default(uuid())
@@ -234,13 +273,10 @@ model FormTecnico {
   solucao     String
   assinatura  String
 
-  // Relacionamento com Status
   status_id               String
-  // Relacionamento com Status
   statusOrdemdeServico_id String
   statusOrdemdeServico    statusOrdemdeServico @relation(fields: [statusOrdemdeServico_id], references: [id])
 
-  // Relacionamento com Ordem de Serviço
   ordemDeServico_id String         @unique
   ordemDeServico    OrdemdeServico @relation(fields: [ordemDeServico_id], references: [id])
 
