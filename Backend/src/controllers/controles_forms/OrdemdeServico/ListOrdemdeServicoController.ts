@@ -3,7 +3,7 @@ import { ListOrdemdeServicoService } from "../../../services/controles_forms/Ord
 
 class ListOrdemdeServicoController {
     async handle(req: Request, res: Response) {
-        const user_id = req.user_id;
+        const user_id = req.user_id as string;
         const service = new ListOrdemdeServicoService();
         const result = await service.execute({ user_id });
 

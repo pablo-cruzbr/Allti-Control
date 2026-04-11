@@ -131,14 +131,14 @@ class ListOrdemdeServicoService {
     const totalTicket = await prismaClient.ordemdeServico.count({
       where: {
         ...whereCondition,
-        tipodeOrdemdeServico: { is: { name: "TICKET" } },
+        tipodeOrdemdeServico: { name: "TICKET" },
       },
     });
 
     const totalOrdemdeServico = await prismaClient.ordemdeServico.count({
       where: {
         ...whereCondition,
-        tipodeOrdemdeServico: { is: { name: "ORDEM DE SERVICO" } },
+        tipodeOrdemdeServico: { name: "ORDEM DE SERVICO" },
       },
     });
 
