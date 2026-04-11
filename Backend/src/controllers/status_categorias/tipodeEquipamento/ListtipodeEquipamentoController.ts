@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { ListtipodeEquipamentoService } from "../../../services/status_categorias/tipodeEquipamento/ListtipodeEquipamentoService";
+import { ListtipodeEquipamentoService } from "../../../services/status_categorias/tipodeEquipamento/ListTipodeEquipamentoService";
 class ListtipodeEquipamentoController{
     async handle (req: Request, res: Response){
         const listtipodeEquipamentoService = new ListtipodeEquipamentoService();
