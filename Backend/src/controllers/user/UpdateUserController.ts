@@ -12,7 +12,8 @@ class UpdateUserController {
       password, 
       cliente_id, 
       setor_id, 
-      instituicaoUnidade_id 
+      instituicaoUnidade_id,
+      tecnico_id
     } = req.body;
 
     const updateUserService = new UpdateUserService();
@@ -26,6 +27,7 @@ class UpdateUserController {
         password,
         cliente_id,
         setor_id,
+        tecnico_id,
         instituicaoUnidade_id
       });
 

@@ -9,10 +9,20 @@ interface UserRequest {
     cliente_id?: string;
     setor_id?: string;
     instituicaoUnidade_id?: string; 
+    tecnico_id?: string; 
 }
 
 class UpdateUserService {
-    async execute({ user_id, name, email, password, cliente_id, setor_id, instituicaoUnidade_id }: UserRequest) {
+    async execute({ 
+        user_id, 
+        name, 
+        email, 
+        password, 
+        cliente_id, 
+        setor_id, 
+        instituicaoUnidade_id,
+        tecnico_id 
+    }: UserRequest) {
         
         const userExists = await prismaclient.user.findUnique({
             where: { id: user_id }
@@ -27,7 +37,8 @@ class UpdateUserService {
             email,
             cliente_id,
             setor_id,
-            instituicaoUnidade_id
+            instituicaoUnidade_id,
+            tecnico_id 
         };
 
         if (password) {
@@ -43,6 +54,7 @@ class UpdateUserService {
                 id: true,
                 name: true,
                 email: true,
+                tecnico_id: true, 
                 instituicaoUnidade: {
                     select: {
                         id: true,

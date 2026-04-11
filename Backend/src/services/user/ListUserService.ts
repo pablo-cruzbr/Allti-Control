@@ -10,6 +10,8 @@ class ListUserService {
         id: true,
         name: true,
         email: true,
+        role: true,       
+        tecnico_id: true, 
         created_at: true,
 
         setor: {
@@ -37,10 +39,8 @@ class ListUserService {
     });
 
     const total = await prismaClient.user.count();
-
-    const totalInsituicao = await prismaClient.instituicaoUnidade.count()
-
-    const totalcliente = await prismaClient.cliente.count()
+    const totalInsituicao = await prismaClient.instituicaoUnidade.count();
+    const totalcliente = await prismaClient.cliente.count();
 
     return {
       users,
