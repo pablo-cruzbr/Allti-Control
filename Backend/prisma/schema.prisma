@@ -22,12 +22,15 @@ model User {
   updated_at            DateTime?           @default(now())
   cliente_id            String?
   setor_id              String?
+  tecnico_id            String?
   instituicaoUnidade_id String?
   created_at            DateTime?           @default(now())
+ 
   ordensDeServico       OrdemdeServico[]
   cliente               Cliente?            @relation(fields: [cliente_id], references: [id])
   instituicaoUnidade    InstituicaoUnidade? @relation(fields: [instituicaoUnidade_id], references: [id])
   setor                 Setor?              @relation(fields: [setor_id], references: [id])
+  tecnico               Tecnico?              @relation(fields: [tecnico_id], references: [id])
 
   @@map("users")
 }
@@ -167,7 +170,7 @@ model Tecnico {
   controlesdeAssistenciatecnica controleDeAssistenciaTecnica[]
   controlesdeLaudoTecnico       controleDeLaudoTecnico[]
   documentacoesTecnicas         documentacaoTecnica[]
-
+  User                          User[]
   @@map("tecnico")
 }
 
