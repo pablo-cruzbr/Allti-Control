@@ -1,9 +1,38 @@
 import prismaClient from "../../../prisma";
 
+interface ListRequest {
+  user_id: string;
+}
+
 class ListOrdemdeServicoService {
-  async execute() {
-    // Lista todas as ordens de serviço
+  async execute({ user_id }: ListRequest) {
+    
+    const user = await prismaClient.user.findFirst({
+      where: { id: user_id },
+      select: {
+        role: true,
+        tecnico_id: true,
+      }
+    });
+
+    if (!user) {
+      throw new Error("Usuário não encontrado");
+    }
+
+    let whereCondition: any = {};
+
+    if (user.role === "TECNICO") {
+      if (!user.tecnico_id) {
+        return { 
+          controles: [], total: 0, totalAberta: 0, totalEmAndamento: 0, 
+          totalConcluida: 0, totalPausada: 0, totalTicket: 0, totalOrdemdeServico: 0 
+        }; 
+      }
+      whereCondition.tecnico_id = user.tecnico_id;
+    }
+
     const controles = await prismaClient.ordemdeServico.findMany({
+      where: whereCondition,
       orderBy: {
         created_at: "desc",
       },
@@ -20,24 +49,13 @@ class ListOrdemdeServicoService {
         solucao: true,
         assinante: true,
         equipamento:{
-          select:{
-            id: true,
-            name: true,
-            patrimonio: true,
-          }
+          select:{ id: true, name: true, patrimonio: true }
         },
         statusOrdemdeServico: {
-          select: {
-            id: true,
-            name: true,
-          },
+          select: { id: true, name: true },
         },
         instituicaoUnidade: {
-          select: {
-            id: true,
-            name: true,
-            endereco: true,
-          },
+          select: { id: true, name: true, endereco: true },
         },
         informacoesSetor:{
           select:{
@@ -45,140 +63,82 @@ class ListOrdemdeServicoService {
             usuario: true,
             ramal: true,
             andar: true,
-            setor: {
-              select: {
-                id: true,
-                name: true,
-                    },
-                },
-            instituicaoUnidade: {
-              select:{
-                id: true,
-                name: true,
-                endereco: true,
-              }
-            },
-            cliente: {
-              select: {
-                id: true,
-                name: true,
-                endereco: true,
-                cnpj: true
-              }
-            }
+            setor: { select: { id: true, name: true } },
+            instituicaoUnidade: { select: { id: true, name: true, endereco: true } },
+            cliente: { select: { id: true, name: true, endereco: true, cnpj: true } }
           }
         },
         cliente: {
-          select: {
-            id: true,
-            name: true,
-            endereco: true,
-          },
+          select: { id: true, name: true, endereco: true },
         },
         tecnico: {
-          select: {
-            id: true,
-            name: true,
-          },
+          select: { id: true, name: true },
         },
         tipodeChamado: {
-          select: {
-            id: true,
-            name: true,
-          },
+          select: { id: true, name: true },
         },
-
         tipodeOrdemdeServico: {
-          select:{
-            id: true,
-            name: true,
-          }
+          select:{ id: true, name: true }
         },
         prioridade: {
-          select:{
-            id: true,
-            name: true,
-          }
+          select:{ id: true, name: true }
         },
         user: {
           select: {
             id: true,
             name: true,
             email: true,
-
-            instituicaoUnidade: {
-              select: {
-                id: true,
-                name: true,
-                endereco: true,
-              }
-            },
-            cliente: {
-              select: {
-                id: true,
-                name: true,
-                endereco: true,
-              }
-            },
+            instituicaoUnidade: { select: { id: true, name: true, endereco: true } },
+            cliente: { select: { id: true, name: true, endereco: true } },
           },
         },
       },
     });
 
-    // Total de ordens
-    const total = await prismaClient.ordemdeServico.count();
+    // 4. Seus contadores originais, agora respeitando a Role (whereCondition)
+    const total = await prismaClient.ordemdeServico.count({
+        where: whereCondition
+    });
 
-    // Totais por status
     const totalAberta = await prismaClient.ordemdeServico.count({
       where: {
-        statusOrdemdeServico: {
-          name: "ABERTA",
-        },
+        ...whereCondition,
+        statusOrdemdeServico: { name: "ABERTA" },
       },
     });
 
     const totalEmAndamento = await prismaClient.ordemdeServico.count({
       where: {
-        statusOrdemdeServico: {
-          name: "EM ANDAMENTO",
-        },
+        ...whereCondition,
+        statusOrdemdeServico: { name: "EM ANDAMENTO" },
       },
     });
 
     const totalPausada = await prismaClient.ordemdeServico.count({
       where: {
-        statusOrdemdeServico: {
-          name: "PAUSADA",
-        },
+        ...whereCondition,
+        statusOrdemdeServico: { name: "PAUSADA" },
       },
     });
 
     const totalConcluida = await prismaClient.ordemdeServico.count({
       where: {
-        statusOrdemdeServico: {
-          name: "CONCLUIDA",
-        },
+        ...whereCondition,
+        statusOrdemdeServico: { name: "CONCLUIDA" },
       },
     });
 
-    
     const totalTicket = await prismaClient.ordemdeServico.count({
       where: {
-        tipodeOrdemdeServico: { 
-          is: {
-            name: "TICKET",
-          },
-        },
+        ...whereCondition,
+        tipodeOrdemdeServico: { is: { name: "TICKET" } },
       },
     });
 
-     const totalOrdemdeServico = await prismaClient.ordemdeServico.count({
+    const totalOrdemdeServico = await prismaClient.ordemdeServico.count({
       where: {
-        tipodeOrdemdeServico: { 
-          is: {
-            name: "ORDEM DE SERVICO",
-          },
-        },
+        ...whereCondition,
+        tipodeOrdemdeServico: { is: { name: "ORDEM DE SERVICO" } },
       },
     });
 

@@ -1,32 +1,14 @@
 import { Request, Response } from "express";
 import { ListOrdemdeServicoService } from "../../../services/controles_forms/OrdemdeServico/ListOrdemdeServicoService";
-class ListOrdemdeServicoController{
-    async handle(req: Request, res: Response){
+
+class ListOrdemdeServicoController {
+    async handle(req: Request, res: Response) {
+        const user_id = req.user_id;
         const service = new ListOrdemdeServicoService();
-        const {controles, 
-                total, 
-                totalAberta, 
-                totalConcluida, 
-                totalEmAndamento, 
-                totalPausada, 
-                totalTicket,
-                totalOrdemdeServico
+        const result = await service.execute({ user_id });
 
-        } = await service.execute()
-        const result = await service.execute();
-
-        return res.json({
-            result,
-            controles,
-            total,
-            totalAberta,
-            totalEmAndamento,
-            totalConcluida,
-            totalPausada,
-            totalTicket,
-            totalOrdemdeServico
-    });
+        return res.json(result);
     }
 }
 
-export {ListOrdemdeServicoController}
+export { ListOrdemdeServicoController };
