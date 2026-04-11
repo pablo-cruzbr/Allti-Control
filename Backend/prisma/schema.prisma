@@ -230,7 +230,7 @@ model OrdemdeServico {
 
   formtecnico FormTecnico?
 
-  @@map("Ordem de Serviço v3")
+  @@map("ordem_servico")
 }
 
 model AtividadeNoChamado {
