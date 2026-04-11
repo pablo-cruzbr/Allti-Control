@@ -113,7 +113,7 @@ import { UpdateEquipamentoController } from "./controllers/status categorias/equ
 import { ListEstabilizadorController } from "./controllers/status categorias/estabilizador/ListEstabilizadorController";
 import { CreatetipodeEquipamentoController } from "./controllers/status categorias/tipodeEquipamento/CreateTipodeEquipamentoController";
 import { ListtipodeEquipamentoController } from "./controllers/status categorias/tipodeEquipamento/ListtipodeEquipamentoController";
-import { ListAtividadePadraoController } from "./controllers/status categorias/Atividade/ListAtividadedeService";
+import { ListAtividadePadraoController } from "./controllers/status categorias/Atividade/ListAtividadePadraoController";
 const router = Router();
 //get,post, update, delete
 
