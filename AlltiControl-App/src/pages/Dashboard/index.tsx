@@ -91,28 +91,30 @@ export default function Dashboard() {
   ];
 
   // Carrega ordens de serviço
-  const loadOrdens = async () => {
-    setLoading(true);
-    try {
-      const storageToken = await AsyncStorage.getItem("@AlltiService");
-      if (!storageToken) return;
+ // Carrega ordens de serviço
+const loadOrdens = async () => {
+  setLoading(true);
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
 
-      const { token } = JSON.parse(storageToken);
-      if (!token) return;
+    const { token } = JSON.parse(storageToken);
+    if (!token) return;
 
-      const response = await api.get("/listordemdeservico", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const response = await api.get("/listordemdeservico", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      const ordens = response.data.result.controles || [];
-      setOrdensDeServico(ordens);
-      setFilteredOrdens(ordens);
-    } catch (error) {
-      console.error("Erro ao carregar ordens de serviço:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const ordens = response.data.controles || []; 
+    
+    setOrdensDeServico(ordens);
+    setFilteredOrdens(ordens);
+  } catch (error) {
+    console.error("Erro ao carregar ordens de serviço:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Carrega filtros de instituição e cliente
   const loadFilters = async () => {
