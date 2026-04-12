@@ -14,6 +14,7 @@ import {
 import { api } from '../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SignatureScreen, { SignatureViewRef } from 'react-native-signature-canvas';
+import { MaterialIcons } from '@expo/vector-icons'; // Importação necessária para o ícone
 
 interface ModalDetailOrderTecnicoProps {
   ordemId: string;
@@ -26,13 +27,11 @@ export function ModalDetailOrderFormTecnico({
 }: ModalDetailOrderTecnicoProps) {
   const { width: WIDTH, height: HEIGHT } = Dimensions.get('window');
 
-  // Inputs adicionais
   const [nameTecnico, setNameTecnico] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [solucao, setSolucao] = useState('');
   const [assinante, setAssinante] = useState('')
 
-  // Assinatura
   const [signature, setSignature] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const signatureRef = useRef<SignatureViewRef>(null);
@@ -55,14 +54,12 @@ export function ModalDetailOrderFormTecnico({
       if (!storageToken) return;
       const { token } = JSON.parse(storageToken);
 
-      // Envia assinatura para o backend (que vai para o Cloudinary)
       await api.patch(
         `/assinatura/${ordemId}`,
         { assinaturaBase64: signature },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Atualiza os outros campos da ordem
       await api.patch(
         `/ordemdeservico/update/${ordemId}`,
         {
@@ -106,9 +103,14 @@ export function ModalDetailOrderFormTecnico({
           keyboardShouldPersistTaps="handled"
         >
           <View style={dynamicStyles.container}>
-            <Text style={styles.title}>Adicionar Descrição Técnica</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+              <Text style={styles.title}>Adicionar Descrição Técnica</Text>
+              
+              <TouchableOpacity onPress={handleCloseModal}>
+                <MaterialIcons name="close" size={28} color="#4E3182" />
+              </TouchableOpacity>
+            </View>
 
-            {/* Inputs do Técnico */}
             <TextInput
               placeholder="Nome do Técnico"
               style={styles.input}
@@ -159,7 +161,6 @@ export function ModalDetailOrderFormTecnico({
               />
             </View>
 
-            {/* Botões da assinatura */}
             <View style={styles.signatureButtons}>
               <TouchableOpacity style={styles.buttonSmall} onPress={handleClear}>
                 <Text style={styles.buttonText}>Limpar</Text>
@@ -179,10 +180,6 @@ export function ModalDetailOrderFormTecnico({
               disabled={loading}
             >
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Salvar Ordem</Text>}
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.buttonClose} onPress={handleCloseModal}>
-              <Text style={styles.buttonText}>Fechar</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -210,7 +207,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
     color: '#111111',
   },
   input: {

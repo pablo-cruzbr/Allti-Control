@@ -10,10 +10,12 @@ import {
   Platform,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { api } from '../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SignatureScreen, { SignatureViewRef } from 'react-native-signature-canvas';
+import { MaterialIcons } from '@expo/vector-icons'; // Importação adicionada
 
 interface ModalDetailOrderTecnicoProps {
   ordemId: string;
@@ -26,17 +28,20 @@ export function ModalDetailOrderFormOSTecnica({
 }: ModalDetailOrderTecnicoProps) {
   const { width: WIDTH, height: HEIGHT } = Dimensions.get('window');
 
-  // Inputs adicionais
+  // Estados dos inputs
   const [nameTecnico, setNameTecnico] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [solucao, setSolucao] = useState('');
 
-  // Assinatura
+  // Estados da assinatura e loading
   const [signature, setSignature] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const signatureRef = useRef<SignatureViewRef>(null);
 
-  const handleSignature = (sig: string) => setSignature(sig);
+  const handleSignature = (sig: string) => {
+    setSignature(sig);
+  };
+
   const handleClear = () => {
     signatureRef.current?.clearSignature();
     setSignature(null);
@@ -44,7 +49,7 @@ export function ModalDetailOrderFormOSTecnica({
 
   const handleSubmit = async () => {
     if (!signature) {
-      alert('Por favor, adicione a assinatura antes de salvar.');
+      Alert.alert('Atenção', 'Por favor, adicione a assinatura antes de salvar.');
       return;
     }
 
@@ -54,30 +59,30 @@ export function ModalDetailOrderFormOSTecnica({
       if (!storageToken) return;
       const { token } = JSON.parse(storageToken);
 
-      // Envia assinatura para o backend (que vai para o Cloudinary)
+      // 1. Envia assinatura (Base64 -> Cloudinary via Backend)
       await api.patch(
         `/assinatura/${ordemId}`,
         { assinaturaBase64: signature },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Atualiza os outros campos da ordem
+      // 2. Atualiza os dados técnicos e finaliza a OS
       await api.patch(
         `/ordemdeservico/update/${ordemId}`,
         {
           nameTecnico,
           diagnostico,
           solucao,
-          statusOrdemdeServico_id: 'b0bf52e9-569b-4ff3-b000-6c7819d8da37',
+          statusOrdemdeServico_id: 'fa69ed32-20b2-4d3a-9a6d-e61c5b45efea', // ID Concluída
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      alert('Ordem de Serviço atualizada com sucesso!');
-      handleCloseModal();
+      Alert.alert('Sucesso', 'Ordem de Serviço finalizada com sucesso!');
+      handleCloseModal(); // Fecha o modal após o sucesso
     } catch (error) {
       console.error(error);
-      alert('Erro ao atualizar. Tente novamente.');
+      Alert.alert('Erro', 'Não foi possível atualizar a ordem. Verifique os dados e tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -86,7 +91,7 @@ export function ModalDetailOrderFormOSTecnica({
   const dynamicStyles = StyleSheet.create({
     container: {
       width: WIDTH - 30,
-      maxHeight: HEIGHT - 100,
+      maxHeight: HEIGHT - 80,
       backgroundColor: '#fff',
       padding: 20,
       borderRadius: 12,
@@ -97,24 +102,27 @@ export function ModalDetailOrderFormOSTecnica({
     <View style={styles.overlay}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
+        style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <View style={dynamicStyles.container}>
-            <Text style={styles.title}>Adicionar Descrição Técnica V2</Text>
+            <View style={styles.headerRow}>
+              <Text style={styles.title}>Descrição Técnica & Assinatura</Text>
+            </View>
 
-            {/* Inputs do Técnico */}
+            {/* Formulário */}
             <TextInput
-              placeholder="Nome do Técnico"
+              placeholder="Nome do Técnico Responsável"
               style={styles.input}
               value={nameTecnico}
               onChangeText={setNameTecnico}
             />
             <TextInput
-              placeholder="Diagnóstico"
+              placeholder="Diagnóstico Técnico"
               style={[styles.input, styles.textArea]}
               value={diagnostico}
               onChangeText={setDiagnostico}
@@ -122,7 +130,7 @@ export function ModalDetailOrderFormOSTecnica({
               numberOfLines={3}
             />
             <TextInput
-              placeholder="Solução"
+              placeholder="Solução Aplicada"
               style={[styles.input, styles.textArea]}
               value={solucao}
               onChangeText={setSolucao}
@@ -130,49 +138,50 @@ export function ModalDetailOrderFormOSTecnica({
               numberOfLines={3}
             />
 
-            {/* Assinatura Digital */}
-            <Text style={{ marginBottom: 8, fontWeight: '600' }}>
-              Assinatura do Técnico
-            </Text>
+            {/* Campo de Assinatura */}
+            <Text style={styles.label}>Assinatura Digital:</Text>
             <View style={styles.signatureContainer}>
               <SignatureScreen
                 ref={signatureRef}
                 onOK={handleSignature}
-                onEmpty={() => alert('Assinatura em branco')}
-                descriptionText="Assine aqui"
-                clearText="Limpar"
-                confirmText="Salvar"
+                onEmpty={() => setSignature(null)}
+                descriptionText="Assine acima"
                 webStyle={`
                   .m-signature-pad--footer {display: none; margin: 0px;}
-                  .m-signature-pad {box-shadow: none; border: none;}
+                  .m-signature-pad {box-shadow: none; border: 1px solid #f4f4f4;}
+                  body,html {height: 200px;}
                 `}
               />
             </View>
 
-            {/* Botões da assinatura */}
+            {/* Controles da Assinatura */}
             <View style={styles.signatureButtons}>
-              <TouchableOpacity style={styles.buttonSmall} onPress={handleClear}>
-                <Text style={styles.buttonText}>Limpar</Text>
+              <TouchableOpacity style={styles.buttonSecondary} onPress={handleClear}>
+                <Text style={styles.buttonTextSecondary}>Limpar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.buttonSmall}
+                style={styles.buttonSecondary}
                 onPress={() => signatureRef.current?.readSignature()}
               >
-                <Text style={styles.buttonText}>Salvar</Text>
+                <Text style={styles.buttonTextSecondary}>Confirmar Assinatura</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Botão Enviar */}
+            {/* Ações Finais */}
             <TouchableOpacity
-              style={[styles.button, loading && { opacity: 0.7 }]}
+              style={[styles.buttonSubmit, loading && { opacity: 0.7 }]}
               onPress={handleSubmit}
               disabled={loading}
             >
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Salvar Ordem</Text>}
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>FINALIZAR ORDEM</Text>
+              )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonClose} onPress={handleCloseModal}>
-              <Text style={styles.buttonText}>Fechar</Text>
+            <TouchableOpacity style={styles.buttonCancel} onPress={handleCloseModal}>
+              <Text style={styles.buttonTextCancel}>CANCELAR</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -183,33 +192,44 @@ export function ModalDetailOrderFormOSTecnica({
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingVertical: 20,
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#111111',
+    color: '#4E3182',
+  },
+  closeButtonIcon: {
+    padding: 5,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    padding: 12,
     marginBottom: 12,
-    fontSize: 14,
+    backgroundColor: '#F8FAFC',
   },
   textArea: {
     height: 80,
@@ -218,36 +238,46 @@ const styles = StyleSheet.create({
   signatureContainer: {
     height: 200,
     borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 12,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 10,
   },
   signatureButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  buttonSubmit: {
+    backgroundColor: '#4E3182',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
     marginBottom: 12,
   },
-  button: {
-    backgroundColor: '#4E3182',
-    padding: 12,
+  buttonSecondary: {
+    backgroundColor: '#EDF2F7',
+    padding: 10,
     borderRadius: 6,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  buttonSmall: {
-    backgroundColor: '#4E3182',
-    padding: 8,
-    borderRadius: 6,
-    alignItems: 'center',
     width: '48%',
+    alignItems: 'center',
   },
-  buttonClose: {
-    backgroundColor: '#888',
+  buttonCancel: {
     padding: 12,
-    borderRadius: 6,
     alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '800',
+    fontSize: 16,
+  },
+  buttonTextSecondary: {
+    color: '#4E3182',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  buttonTextCancel: {
+    color: '#E53E3E',
+    fontWeight: '600',
   },
 });
