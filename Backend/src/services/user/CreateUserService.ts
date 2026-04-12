@@ -5,9 +5,9 @@ interface UserRequest {
     name: string;
     email: string;
     password: string;
-    cliente_id?: string;        // Coloquei como opcional (?) para evitar erros
-    setor_id?: string;          // Coloquei como opcional (?)
-    tecnico_id?: string;        // Coloquei como opcional (?)
+    cliente_id?: string;       
+    setor_id?: string;          
+    tecnico_id?: string;        
     instituicaoUnidade_id?: string; 
 }
 
@@ -29,17 +29,15 @@ class CreateUserService {
             throw new Error("Esse email já existe !")
         }
 
-        // 2 - Criptografar a senha
         const passwordHash = await bcrypt.hash(password, 8);
 
-        // 3 - Criar e enviar para o banco
         const user = await prismaclient.user.create({
             data: {
                 name: name,
                 email: email,
                 password: passwordHash,
                 cliente_id: cliente_id,
-                tecnico_id: tecnico_id, // Vinculação garantida aqui
+                tecnico_id: tecnico_id, 
                 setor_id: setor_id,
                 instituicaoUnidade_id: instituicaoUnidade_id
             },
@@ -47,7 +45,7 @@ class CreateUserService {
                 id: true,
                 name: true,
                 email: true,
-                tecnico_id: true, // Adicionado para conferência no retorno
+                tecnico_id: true, 
                 instituicaoUnidade: {
                     select: {
                         id: true,
