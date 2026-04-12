@@ -725,9 +725,18 @@ const isDisabled = selectedImages.length === 0;
           </ScrollComIndicador>
         </View>
 
-        {modalTecnicoOpen && (
-          <ModalDetailOrderFormTecnico ordemId={ordemAtual.id} handleCloseModal={() => setModalTecnicoOpen(false)} />
-        )}
+      
+        <Modal
+          visible={modalTecnicoOpen} 
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setModalTecnicoOpen(false)}
+        >
+          <ModalDetailOrderFormTecnico 
+            ordemId={ordemAtual.id} 
+            handleCloseModal={() => setModalTecnicoOpen(false)} 
+          />
+        </Modal>
     </>
   );
 }

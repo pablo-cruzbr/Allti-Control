@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, ReactElement } from 'react';
 import {
   View,
   Text,
@@ -10,33 +10,61 @@ import {
   Platform,
   ScrollView,
   Dimensions,
+  Alert
 } from 'react-native';
 import { api } from '../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SignatureScreen, { SignatureViewRef } from 'react-native-signature-canvas';
-import { MaterialIcons } from '@expo/vector-icons'; // Importação necessária para o ícone
+import { MaterialIcons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
+
+interface Atividade {
+  id: string;
+  descricao: string;
+}
 
 interface ModalDetailOrderTecnicoProps {
   ordemId: string;
   handleCloseModal: () => void;
 }
 
+// Usando um fallback caso o Dimensions falhe no primeiro render
+const SCREEN_WIDTH = Dimensions.get('window').width || 300;
+
 export function ModalDetailOrderFormTecnico({
   ordemId,
   handleCloseModal,
-}: ModalDetailOrderTecnicoProps) {
-  const { width: WIDTH, height: HEIGHT } = Dimensions.get('window');
-
+}: ModalDetailOrderTecnicoProps): ReactElement {
   const [nameTecnico, setNameTecnico] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [solucao, setSolucao] = useState('');
-  const [assinante, setAssinante] = useState('')
+  const [assinante, setAssinante] = useState('');
+  
+  // IMPORTANTE: Inicializar sempre como array vazio
+  const [atividadesDB, setAtividadesDB] = useState<Atividade[]>([]);
+  const [selectedAtividadeId, setSelectedAtividadeId] = useState('');
 
   const [signature, setSignature] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const signatureRef = useRef<SignatureViewRef>(null);
 
+  useEffect(() => {
+    async function loadAtividades() {
+      try {
+        const response = await api.get('/listatividade');
+        // Verificação extra de segurança
+        if (response.data && Array.isArray(response.data)) {
+          setAtividadesDB(response.data);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar lista de atividades:", error);
+      }
+    }
+    loadAtividades();
+  }, []);
+
   const handleSignature = (sig: string) => setSignature(sig);
+  
   const handleClear = () => {
     signatureRef.current?.clearSignature();
     setSignature(null);
@@ -44,7 +72,7 @@ export function ModalDetailOrderFormTecnico({
 
   const handleSubmit = async () => {
     if (!signature) {
-      alert('Por favor, adicione a assinatura antes de salvar.');
+      Alert.alert('Assinatura Pendente', 'Por favor, confirme a assinatura digital.');
       return;
     }
 
@@ -67,47 +95,39 @@ export function ModalDetailOrderFormTecnico({
           diagnostico,
           solucao,
           assinante,
+          atividades_ids: selectedAtividadeId ? [selectedAtividadeId] : [],
           statusOrdemdeServico_id: '80e14fbe-c7fd-45bc-b3cd-cfa51ede44e0',
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      alert('Ordem de Serviço atualizada com sucesso!');
+      Alert.alert('Sucesso', 'Ordem de serviço finalizada!');
       handleCloseModal();
     } catch (error) {
       console.error(error);
-      alert('Erro ao atualizar. Tente novamente.');
+      Alert.alert('Erro', 'Houve um problema ao salvar.');
     } finally {
       setLoading(false);
     }
   };
 
-  const dynamicStyles = StyleSheet.create({
-    container: {
-      width: WIDTH - 30,
-      maxHeight: HEIGHT - 100,
-      backgroundColor: '#fff',
-      padding: 20,
-      borderRadius: 12,
-    },
-  });
-
   return (
     <View style={styles.overlay}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
+        style={{ flex: 1, width: '100%' }}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent} 
           keyboardShouldPersistTaps="handled"
         >
-          <View style={dynamicStyles.container}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
-              <Text style={styles.title}>Adicionar Descrição Técnica</Text>
-              
+          {/* Ajuste na largura para garantir renderização */}
+          <View style={[styles.container, { width: SCREEN_WIDTH - 40, alignSelf: 'center' }]}>
+            
+            <View style={styles.header}>
+              <Text style={styles.title}>Finalizar Chamado</Text>
               <TouchableOpacity onPress={handleCloseModal}>
-                <MaterialIcons name="close" size={28} color="#4E3182" />
+                <MaterialIcons name="close" size={26} color="#4E3182" />
               </TouchableOpacity>
             </View>
 
@@ -117,69 +137,76 @@ export function ModalDetailOrderFormTecnico({
               value={nameTecnico}
               onChangeText={setNameTecnico}
             />
+
+            <Text style={styles.label}>Atividade Principal:</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedAtividadeId}
+                onValueChange={(itemValue) => setSelectedAtividadeId(itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecione uma opção..." value="" />
+                {/* O opcional chaining (?.) evita que o app trave se o array estiver nulo */}
+                {atividadesDB?.map((atv) => (
+                  <Picker.Item key={atv.id} label={atv.descricao} value={atv.id} />
+                ))}
+              </Picker>
+            </View>
+
             <TextInput
               placeholder="Diagnóstico"
               style={[styles.input, styles.textArea]}
               value={diagnostico}
               onChangeText={setDiagnostico}
               multiline
-              numberOfLines={3}
             />
+            
             <TextInput
               placeholder="Solução"
               style={[styles.input, styles.textArea]}
               value={solucao}
               onChangeText={setSolucao}
               multiline
-              numberOfLines={3}
             />
 
-            {/* Assinatura Digital */}
-            <Text style={{ marginBottom: 8, fontWeight: '600' }}>
-              Assinante 
-            </Text>
             <TextInput
-              placeholder="Quem Está Assinando ?"
-              style={[styles.input, styles.textArea]}
+              placeholder="Assinante"
+              style={styles.input}
               value={assinante}
               onChangeText={setAssinante}
-              multiline
-              numberOfLines={3}
             />
+
             <View style={styles.signatureContainer}>
               <SignatureScreen
                 ref={signatureRef}
                 onOK={handleSignature}
-                onEmpty={() => alert('Assinatura em branco')}
-                descriptionText="Assine aqui"
-                clearText="Limpar"
-                confirmText="Salvar"
-                webStyle={`
-                  .m-signature-pad--footer {display: none; margin: 0px;}
-                  .m-signature-pad {box-shadow: none; border: none;}
-                `}
+                descriptionText="Assinatura Digital"
+                webStyle={`.m-signature-pad--footer {display: none; margin: 0px;}`}
               />
             </View>
 
             <View style={styles.signatureButtons}>
-              <TouchableOpacity style={styles.buttonSmall} onPress={handleClear}>
+              <TouchableOpacity style={styles.buttonSecondary} onPress={handleClear}>
                 <Text style={styles.buttonText}>Limpar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.buttonSmall}
+                style={styles.buttonSecondary}
                 onPress={() => signatureRef.current?.readSignature()}
               >
-                <Text style={styles.buttonText}>Salvar</Text>
+                <Text style={styles.buttonText}>Confirmar</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Botão Enviar */}
             <TouchableOpacity
-              style={[styles.button, loading && { opacity: 0.7 }]}
+              style={[styles.buttonPrimary, loading && { opacity: 0.7 }]}
               onPress={handleSubmit}
               disabled={loading}
             >
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Salvar Ordem</Text>}
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>FINALIZAR ORDEM</Text>
+              )}
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -188,72 +215,98 @@ export function ModalDetailOrderFormTecnico({
   );
 }
 
+
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingVertical: 20,
+    paddingVertical: 60,
+  },
+  container: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 15,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#111111',
+    color: '#333',
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 6,
+    color: '#4E3182'
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 12,
-    fontSize: 14,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    fontSize: 15,
+    backgroundColor: '#fdfdfd'
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginBottom: 15,
+    backgroundColor: '#f9f9f9',
+    overflow: 'hidden'
+  },
+  picker: {
+    height: 50,
+    width: '100%',
   },
   textArea: {
-    height: 80,
+    height: 90,
     textAlignVertical: 'top',
   },
   signatureContainer: {
     height: 200,
     borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 12,
+    borderColor: '#ddd',
+    marginBottom: 15,
+    borderRadius: 8,
+    overflow: 'hidden'
   },
   signatureButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 20,
   },
-  button: {
+  buttonPrimary: {
     backgroundColor: '#4E3182',
-    padding: 12,
-    borderRadius: 6,
+    padding: 16,
+    borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 10,
   },
-  buttonSmall: {
-    backgroundColor: '#4E3182',
-    padding: 8,
-    borderRadius: 6,
+  buttonSecondary: {
+    backgroundColor: '#6c757d',
+    padding: 10,
+    borderRadius: 8,
     alignItems: 'center',
     width: '48%',
-  },
-  buttonClose: {
-    backgroundColor: '#888',
-    padding: 12,
-    borderRadius: 6,
-    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 14
   },
 });
