@@ -90,8 +90,6 @@ export default function Dashboard() {
     { id: "f5341cb0-e6e1-4a5a-b5fc-c55386e55222", name: "PAUSADA" },
   ];
 
-  // Carrega ordens de serviço
- // Carrega ordens de serviço
 const loadOrdens = async () => {
   setLoading(true);
   try {
