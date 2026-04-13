@@ -89,7 +89,6 @@ class UpdateOrdemdeServicoService {
           ...(endedAt && { endedAt: new Date(endedAt) }),
           ...(duracao && { duracao }),
          
-
           // Relacionamentos opcionais
            ...(equipamento_id && {equipamento: {connect: {id: equipamento_id}}}),
            ...(prioridade_id && {prioridade: {connect: {id:  prioridade_id}}}),

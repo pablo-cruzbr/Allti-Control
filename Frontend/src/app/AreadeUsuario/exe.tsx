@@ -7,7 +7,6 @@ import { api } from "@/services/api";
 import { redirect } from "next/navigation";
 
 export default function Home() {
-  // Server Action - roda no servidor
   async function handleLogin(formData: FormData) {
     "use server";
 
@@ -55,7 +54,7 @@ export default function Home() {
         src={logoImg}
         alt="Logo SF2"
         width={400}
-        height={100} // altura fixa para evitar warning
+        height={100} 
       />
 
       <div className={styles.conteiner}>
