@@ -213,6 +213,9 @@ model OrdemdeServico {
 
   equipamentoid String?  
   equipamento    Equipamento? @relation(fields: [equipamentoid], references: [id])
+  
+  tarefaId String?
+  tarefa   Tarefa? @relation(fields: [tarefaId], references: [id])
 
   cliente                           Cliente?              @relation(fields: [cliente_id], references: [id])
   instituicaoUnidade                InstituicaoUnidade?   @relation(fields: [instituicaoUnidade_id], references: [id])
@@ -257,6 +260,17 @@ enum CategoriaAtividade {
   EXTERNO
   LABORATORIO
 }
+
+
+model Tarefa {
+  id        String             @id @default(uuid())
+  name String
+  ordemServico      OrdemdeServico  @relation(fields: [ordemServicoId], references: [id])
+  ordemServicoId    String
+
+  @@map("tarefa")
+}
+
 
 enum StatusOS {
   TODAS
