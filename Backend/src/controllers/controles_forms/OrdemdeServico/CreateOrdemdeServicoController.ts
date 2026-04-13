@@ -9,6 +9,7 @@ interface CreateOrdemServicoRequest {
   statusOrdemdeServico_id?: string; 
   cliente_id?: string;
   tipodeChamado_id: string;
+  tarefa_id: string;
   instituicaoUnidade_id?: string;
   tecnico_id?: string;
   user_id: string;
@@ -91,6 +92,12 @@ class CreateOrdemServicoService {
                 name: true,
               }
             },
+            tarefa: {
+              select: {
+                id: true,
+                name: true,
+              }
+            },
           },
         },
       },
@@ -111,6 +118,7 @@ class CreateOrdemServicoController {
       cliente_id,
       tipodeChamado_id,
       instituicaoUnidade_id,
+      tarefa_id,
       tecnico_id,
       user_id,
       nameTecnico,
@@ -130,6 +138,7 @@ class CreateOrdemServicoController {
         tipodeOrdemdeServico_id,
         statusOrdemdeServico_id, 
         cliente_id,
+        tarefa_id,
         tipodeChamado_id,
         instituicaoUnidade_id,
         tecnico_id,

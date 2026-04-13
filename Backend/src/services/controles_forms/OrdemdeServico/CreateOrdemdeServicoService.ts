@@ -92,8 +92,8 @@ class CreateOrdemdeServicoService {
             equipamento: {connect: {id: equipamento_id }}
           }),
 
-          ...(equipamento_id && {
-            equipamento: {connect: {id: equipamento_id }}
+          ...(tarefa_id && {
+           tarefa: {connect: {id: tarefa_id }}
           }),
 
           nameTecnico,
@@ -114,6 +114,7 @@ class CreateOrdemdeServicoService {
           name: true,
           descricaodoProblemaouSolicitacao: true,
           cliente: { select: { name: true, endereco: true } },
+          tarefa: {select: {name: true}},
           tecnico: { select: { name: true } },
           tipodeChamado: { select: { name: true } },
           tipodeOrdemdeServico: {select:{name: true}},
