@@ -7,6 +7,7 @@ interface FormOrdemdeServicoRequest {
   nomedoContatoaserProcuradonoLocal?: string;
   cliente_id?: string;
   tecnico_id?: string;
+  tarefa_id?: string;
   statusOrdemdeServico_id?: string;
   tipodeChamado_id: string;
   tipodeOrdemdeServico_id: string;
@@ -29,6 +30,7 @@ class CreateOrdemdeServicoService {
     assinante,
     cliente_id,
     tecnico_id,
+    tarefa_id,
     statusOrdemdeServico_id,
     tipodeChamado_id,
     instituicaoUnidade_id,
@@ -84,6 +86,10 @@ class CreateOrdemdeServicoService {
 
           ...(instituicaoUnidade_id && {
             instituicaoUnidade: { connect: { id: instituicaoUnidade_id } }
+          }),
+
+          ...(equipamento_id && {
+            equipamento: {connect: {id: equipamento_id }}
           }),
 
           ...(equipamento_id && {

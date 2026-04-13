@@ -214,7 +214,8 @@ model OrdemdeServico {
   equipamentoid String?  
   equipamento    Equipamento? @relation(fields: [equipamentoid], references: [id])
   
-  tarefas Tarefa[]
+  tarefa_id String?
+  tarefa    Tarefa? @relation(fields: [tarefa_id], references: [id])
 
   cliente                           Cliente?              @relation(fields: [cliente_id], references: [id])
   instituicaoUnidade                InstituicaoUnidade?   @relation(fields: [instituicaoUnidade_id], references: [id])
@@ -262,10 +263,10 @@ enum CategoriaAtividade {
 
 
 model Tarefa {
-  id             String         @id @default(uuid())
-  name           String
-  ordemServicoId String
-  ordemServico   OrdemdeServico @relation(fields: [ordemServicoId], references: [id])
+  id    String @id @default(uuid())
+  name  String
+  
+  ordens OrdemdeServico[] 
 
   @@map("tarefa")
 }
