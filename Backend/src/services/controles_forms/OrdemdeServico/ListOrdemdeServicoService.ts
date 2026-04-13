@@ -51,6 +51,9 @@ class ListOrdemdeServicoService {
         equipamento:{
           select:{ id: true, name: true, patrimonio: true }
         },
+        tarefa: {
+          select: {id: true, name: true}
+        },
         statusOrdemdeServico: {
           select: { id: true, name: true },
         },

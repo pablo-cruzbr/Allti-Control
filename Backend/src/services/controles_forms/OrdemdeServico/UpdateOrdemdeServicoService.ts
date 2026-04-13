@@ -15,6 +15,7 @@ type UpdateOrdemdeServicoRequest = {
   prioridade_id: string;
   equipamento_id: string;
   tecnico_id?: string;
+  tarefa_id?: string;
   statusOrdemdeServico_id?: string;
   tipodeChamado_id?: string;
   tipodeOrdemdeServico_id: string;
@@ -44,6 +45,7 @@ class UpdateOrdemdeServicoService {
       const {
         prioridade_id,
         tecnico_id,
+        tarefa_id,
         statusOrdemdeServico_id,
         equipamento_id,
         tipodeChamado_id,
@@ -91,6 +93,7 @@ class UpdateOrdemdeServicoService {
           // Relacionamentos opcionais
            ...(equipamento_id && {equipamento: {connect: {id: equipamento_id}}}),
            ...(prioridade_id && {prioridade: {connect: {id:  prioridade_id}}}),
+           ...(tarefa_id && {prioridade: {connect: {id:  tarefa_id}}}),
           ...(tecnico_id && { tecnico: { connect: { id: tecnico_id } } }),
           ...(statusOrdemdeServico_id && { statusOrdemdeServico: { connect: { id: statusOrdemdeServico_id } } }),
           ...(tipodeChamado_id && { tipodeChamado: { connect: { id: tipodeChamado_id } } }),
@@ -124,6 +127,7 @@ class UpdateOrdemdeServicoService {
           },
           equipamento: {select: {id: true, name: true, patrimonio: true}},
           prioridade: {select: {id: true, name: true}},
+          tarefa: {select: {id: true, name: true}},
           instituicaoUnidade: { select: { id: true, name: true } },
           cliente: { select: { id: true, name: true } },
           nameTecnico: true,
