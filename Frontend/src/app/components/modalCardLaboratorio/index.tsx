@@ -17,8 +17,6 @@ interface ModalLaboratorioProps {
 export function ModalLaboratorio({ data }: ModalLaboratorioProps) {
   const { closeModal, modalData, modalType, isOpen } = useGlobalModal();
   const laboratorio: LaboratorioProps | undefined = modalData;
-  
-  console.log("laboratorio recebido no modal", laboratorio);
 
   const [IsEditing, setIsEditing] = useState(false)
   const router = useRouter();

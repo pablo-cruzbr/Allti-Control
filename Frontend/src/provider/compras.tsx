@@ -41,7 +41,6 @@ export function ModalProvider({children} : ModalProviderProps){
             compra_id: compra_id,
             },
         });
-        console.log("ID recebido para abrir modal:", compra_id);
         console.log(response.data);
         setCompras([response.data]);
         setIsOpen(true);

@@ -55,7 +55,6 @@ export function LaudoTecnicoProvider({ children }: LaudoTecnicoProviderProps) {
         },
       });
 
-      console.log(response.data); 
       setLaudoTecnico([response.data]);
       setIsOpen(true);
     } catch (error) {

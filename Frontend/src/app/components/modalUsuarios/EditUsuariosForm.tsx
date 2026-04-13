@@ -93,8 +93,6 @@ const handleSubmit = async () => {
       instituicaoUnidade_id: form.instituicaoUnidadeId || null
     };
 
-    console.log("Enviando Payload para o Backend:", payload);
-
     await api.patch(`/user/update/${dados.id}`, payload, {
       headers: { Authorization: `Bearer ${token}` }
     });

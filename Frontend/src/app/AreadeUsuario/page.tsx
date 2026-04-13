@@ -12,7 +12,6 @@ export default function AreadeUsuario() {
     "use server";
 
     const name = formData.get("name");
-
   }
  async function handleLogin(formData: FormData) {
     "use server";
