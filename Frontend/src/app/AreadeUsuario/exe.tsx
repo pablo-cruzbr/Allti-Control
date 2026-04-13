@@ -29,7 +29,6 @@ export default function Home() {
 
       console.log(response.data);
 
-      // maxAge em segundos (30 dias)
       const maxAgeSeconds = 60 * 60 * 24 * 30;
 
       const cookieStore = await cookies();
@@ -43,7 +42,6 @@ export default function Home() {
       redirect("/dashboard");
     } catch (err) {
       console.log("Erro ao fazer login:", err);
-      // Aqui pode adicionar estado de erro para UI se quiser
       return;
     }
   }
