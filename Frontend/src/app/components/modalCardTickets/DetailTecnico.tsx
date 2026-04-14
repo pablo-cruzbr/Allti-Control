@@ -122,20 +122,29 @@ const formatSecondsToHHMMSS = (secs?: number | null): string => {
         Detalhes Técnicos
       </h3>
 
-      <div className={styles.detailContent}>
-        <p>
-          <strong>Solução:</strong> {ordemdeServico.solucao || "Sem Detalhes Técnicos"}
-        </p>
-        <p>
-          <strong>Diagnóstico:</strong> {ordemdeServico.diagnostico || "Sem Detalhes Técnicos"}
-        </p>
-        <p>
-          <strong>Técnico Responsável:</strong> {ordemdeServico.tecnico?.name || "Sem Detalhes Técnicos"}
-        </p>
+    <div className={styles.detailContent}>
+  {/* Descrição do Problema - Essencial aparecer aqui também */}
+  <p>
+    <strong>Descrição do Problema:</strong> {ordemdeServico.descricaodoProblemaouSolicitacao || "Não informada"}
+  </p>
 
-        <p>
-          <strong>Quem Documentou:</strong> {ordemdeServico.user.name || "Sem Detalhes Técnicos"}
-        </p>
+  <p>
+    <strong>Solução Técnica:</strong> {ordemdeServico.solucao || "Sem Detalhes Técnicos"}
+  </p>
+
+  {/* No seu FormularioTickets você não tem um campo 'diagnostico'. 
+      Se quiser usar esse campo, precisará adicionar um textarea no formulário. */}
+  <p>
+    <strong>Diagnóstico:</strong> {ordemdeServico.diagnostico || "Sem diagnóstico registrado"}
+  </p>
+
+  <p>
+    <strong>Técnico Responsável:</strong> {ordemdeServico.tecnico?.name || "Não atribuído"}
+  </p>
+
+  <p>
+    <strong>Quem Documentou:</strong> {ordemdeServico.user?.name || "Sem nome disponível"}
+  </p>
 
         <p>========================================================</p>
 
@@ -169,6 +178,7 @@ const formatSecondsToHHMMSS = (secs?: number | null): string => {
         )}
 
          <p>========================================================</p>
+       <p>Dados deifinidos pelo Aplicativo:</p>
       <p>
         <strong>Horário de Início:</strong>{" "}
         {timeOS?.startedAt

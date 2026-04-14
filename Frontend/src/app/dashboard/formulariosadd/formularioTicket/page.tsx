@@ -156,7 +156,7 @@ export default function FormularioTicket() {
         numeroOS: numeroOS,
         name: usuarioFinal.usuario, 
         descricaodoProblemaouSolicitacao: formData.get("descricaodoProblemaouSolicitacao")?.toString(),
-        solucaodoproblema: formData.get("solucaodoproblema")?.toString(),
+        solucao: formData.get("solucao")?.toString(),
         statusOrdemdeServico_id: formData.get("statusOrdemdeServico_id")?.toString() || undefined,
         tipodeOrdemdeServico_id: TICKET_TYPE_ID, 
         tipodeChamado_id: formData.get("tipodeChamado_id")?.toString() || undefined,
@@ -276,7 +276,7 @@ export default function FormularioTicket() {
             <p>Adicione a Solução</p>
             <div className={`${styles.input} ${styles.textAreaContainer}`}>
               <textarea
-                name="solucaodoproblema"
+                name="solucao"
                 placeholder="Descreva como resolveu o problema"
                 required
                 className={styles.textarea}
