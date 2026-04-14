@@ -92,14 +92,14 @@ class CreateOrdemServicoService {
                 name: true,
               }
             },
-            tarefa: {
+          },
+        },
+        tarefa: {
               select: {
                 id: true,
                 name: true,
               }
             },
-          },
-        },
       },
     });
 

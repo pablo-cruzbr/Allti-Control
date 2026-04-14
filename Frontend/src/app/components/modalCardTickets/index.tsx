@@ -152,6 +152,46 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
                     <span>Localização não Informada</span>
                   )}
                 </div>
+
+                <div className={styles.infoItem}>
+  {/* Local de Abertura (Usuário) */}
+  {(OrdemdeServico.user?.instituicaoUnidade || OrdemdeServico.user?.cliente) && (
+    <>
+      <label>Local de Abertura do Chamado feito pelo Usuário</label>
+      {OrdemdeServico.user?.instituicaoUnidade ? (
+        <>
+          <span>{OrdemdeServico.user.instituicaoUnidade.name}</span>
+          <span>{OrdemdeServico.user.instituicaoUnidade.endereco ?? "Endereço não disponível"}</span>
+        </>
+      ) : (
+        <>
+          <span>{OrdemdeServico.user?.cliente?.name}</span>
+          <label>Endereço de quem abriu o chamado</label>
+          <span>{OrdemdeServico.user?.cliente?.endereco ?? "Endereço não disponível"}</span>
+        </>
+      )}
+    </>
+  )}
+
+  {/* Local Definido pelo Gestor */}
+  {(OrdemdeServico.instituicaoUnidade || OrdemdeServico.cliente) && (
+    <>
+      <label>Local do chamado definido pelo gestor:</label>
+      {OrdemdeServico.instituicaoUnidade ? (
+        <>
+          <span>{OrdemdeServico.instituicaoUnidade.name}</span>
+          <span>{OrdemdeServico.instituicaoUnidade.endereco ?? "Endereço não disponível"}</span>
+        </>
+      ) : (
+        <>
+          <span>{OrdemdeServico.cliente?.name}</span>
+          <label>Endereço:</label>
+          <span>{OrdemdeServico.cliente?.endereco ?? "Endereço não disponível"}</span>
+        </>
+      )}
+    </>
+  )}
+</div>
               </div>
 
             {/* DADOS DA SOLICITAÇÃO */}
