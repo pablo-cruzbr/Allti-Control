@@ -116,83 +116,44 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
             </div>
 
            <p className={styles.sectionTitle}>Dados de Localização</p>
-              <div className={styles.infoItem}>
-               <div className={styles.infoItem}>
-                  <label>Local de Abertura do Chamado feito pelo Usuário</label>
-                  {OrdemdeServico.user?.instituicaoUnidade ? (
-                    <>
-                    <span>{OrdemdeServico?.user?.instituicaoUnidade?.name}</span>
-                    
-                    <span>{OrdemdeServico?.user?.instituicaoUnidade?.endereco ?? "Endereço da Instituição não disponível"}</span>
-                    </>
-                  ) : OrdemdeServico?.user?.cliente ? (
-                    <>
-                      <span> {OrdemdeServico?.user?.cliente?.name}</span>
-                      <label>Endereço de quem abriu o chamado</label>
-                      <span>{OrdemdeServico?.user?.cliente?.endereco ?? "Endereço da empresa não disponível"}</span>
-                    </>
-                  ) : (
-                    <span>Localização do usuário que abriu a OS não Informada</span>  
-                  )}
+            <div className={styles.infoItem}>
 
-                <label>Local do chamado definido pelo gestor de chamados:</label>
-                  {OrdemdeServico.instituicaoUnidade ? (
-                    <>
-                      <span>{OrdemdeServico.instituicaoUnidade.name}</span>
-                    
-                      <span>{OrdemdeServico.instituicaoUnidade.endereco ?? "Endereço não disponível"}</span>
-                    </>
-                  ) : OrdemdeServico.cliente ? (
-                    <>
-                      <span>{OrdemdeServico.cliente.name}</span>
-                      <label>Endereço:</label>
-                      <span>{OrdemdeServico.cliente.endereco ?? "Endereço não disponível"}</span>
-                    </>
-                  ) : (
-                    <span>Localização não Informada</span>
-                  )}
+              {OrdemdeServico.instituicaoUnidade || OrdemdeServico.cliente ? (
+                <div className={styles.locationBlock} style={{ marginBottom: '12px' }}>
+                  <strong style={{ display: 'block' }}>
+                    {OrdemdeServico.instituicaoUnidade?.name || OrdemdeServico.cliente?.name}
+                  </strong>
+                  <span style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>
+                    {OrdemdeServico.instituicaoUnidade?.endereco || OrdemdeServico.cliente?.endereco || "Endereço não disponível"}
+                  </span>
                 </div>
+              ) : (OrdemdeServico.user?.instituicaoUnidade || OrdemdeServico.user?.cliente) && (
+                <div className={styles.locationBlock} style={{ marginBottom: '12px' }}>
+                  <label>Local de Abertura (Usuário):</label>
+                  <strong style={{ display: 'block' }}>
+                    {OrdemdeServico.user?.instituicaoUnidade?.name || OrdemdeServico.user?.cliente?.name}
+                  </strong>
+                  <span style={{ display: 'block', fontSize: '0.9rem', color: '#666' }}>
+                    {OrdemdeServico.user?.instituicaoUnidade?.endereco || OrdemdeServico.user?.cliente?.endereco || "Endereço não disponível"}
+                  </span>
+                </div>
+              )}
 
-                <div className={styles.infoItem}>
-  {/* Local de Abertura (Usuário) */}
-  {(OrdemdeServico.user?.instituicaoUnidade || OrdemdeServico.user?.cliente) && (
-    <>
-      <label>Local de Abertura do Chamado feito pelo Usuário</label>
-      {OrdemdeServico.user?.instituicaoUnidade ? (
-        <>
-          <span>{OrdemdeServico.user.instituicaoUnidade.name}</span>
-          <span>{OrdemdeServico.user.instituicaoUnidade.endereco ?? "Endereço não disponível"}</span>
-        </>
-      ) : (
-        <>
-          <span>{OrdemdeServico.user?.cliente?.name}</span>
-          <label>Endereço de quem abriu o chamado</label>
-          <span>{OrdemdeServico.user?.cliente?.endereco ?? "Endereço não disponível"}</span>
-        </>
-      )}
-    </>
-  )}
+              {((OrdemdeServico.user?.instituicaoUnidade || OrdemdeServico.user?.cliente) && 
+                (OrdemdeServico.instituicaoUnidade || OrdemdeServico.cliente) &&
+                (OrdemdeServico.user?.instituicaoUnidade?.name !== OrdemdeServico.instituicaoUnidade?.name)) && (
+                <div className={styles.locationBlock} style={{ borderTop: '1px solid #eee', paddingTop: '8px' }}>
+                  <label>Origem da abertura (Usuário):</label>
+                  <span style={{ display: 'block', fontSize: '0.85rem' }}>
+                    {OrdemdeServico.user?.instituicaoUnidade?.name || OrdemdeServico.user?.cliente?.name}
+                  </span>
+                </div>
+              )}
 
-  {/* Local Definido pelo Gestor */}
-  {(OrdemdeServico.instituicaoUnidade || OrdemdeServico.cliente) && (
-    <>
-      <label>Local do chamado definido pelo gestor:</label>
-      {OrdemdeServico.instituicaoUnidade ? (
-        <>
-          <span>{OrdemdeServico.instituicaoUnidade.name}</span>
-          <span>{OrdemdeServico.instituicaoUnidade.endereco ?? "Endereço não disponível"}</span>
-        </>
-      ) : (
-        <>
-          <span>{OrdemdeServico.cliente?.name}</span>
-          <label>Endereço:</label>
-          <span>{OrdemdeServico.cliente?.endereco ?? "Endereço não disponível"}</span>
-        </>
-      )}
-    </>
-  )}
-</div>
-              </div>
+              {!(OrdemdeServico.instituicaoUnidade || OrdemdeServico.cliente || OrdemdeServico.user?.instituicaoUnidade || OrdemdeServico.user?.cliente) && (
+                <span>Localização não informada</span>
+              )}
+            </div>
 
             {/* DADOS DA SOLICITAÇÃO */}
             <p className={styles.sectionTitle}>Dados da Solicitação</p>
@@ -202,11 +163,7 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
                 <span>{OrdemdeServico.tipodeChamado.name}</span>
               </div>
 
-              <div className={styles.infoItem}>
-                <label>Problema/Solicitação:</label>
-                <span>{OrdemdeServico.descricaodoProblemaouSolicitacao}</span>
-              </div>
-
+             
               <div className={styles.infoItem}>
                 <label>Pessoa a ser procurada no local:</label>
                 <span>{OrdemdeServico.nomedoContatoaserProcuradonoLocal}</span>
