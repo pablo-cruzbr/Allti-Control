@@ -11,7 +11,6 @@ import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
 import { LuRefreshCcw } from "react-icons/lu";
 
-
 interface Props {
   DocumentacaoTecnica: DocumentacaoTecnicaProps[];
 }
@@ -39,7 +38,6 @@ export default function DocumentacaoTecnicaList({ DocumentacaoTecnica}: Props) {
 }
   
   async function handleAddCardDocumentacaoTecnica(){
-    //alert('TESTE!!!!')
     router.push('/dashboard/formulariosadd/formularioDocumentacaoTecnica');
   }
 

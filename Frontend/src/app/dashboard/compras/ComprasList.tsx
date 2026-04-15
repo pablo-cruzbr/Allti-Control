@@ -10,7 +10,6 @@ import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
 import { LuRefreshCcw } from "react-icons/lu";
 
-
 interface Props {
   comprasData?: ComprasResponse;
 }
