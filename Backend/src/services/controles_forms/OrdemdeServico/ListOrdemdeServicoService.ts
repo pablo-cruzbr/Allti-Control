@@ -60,6 +60,9 @@ class ListOrdemdeServicoService {
         instituicaoUnidade: {
           select: { id: true, name: true, endereco: true },
         },
+        AtividadeNoChamado: {
+           select: {id: true, descricao: true, categoria: true}
+        },
         informacoesSetor:{
           select:{
             id: true,
