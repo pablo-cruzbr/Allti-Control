@@ -1,22 +1,14 @@
 import React, { useState, useRef, useEffect, ReactElement } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Dimensions,
-  Alert
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  ActivityIndicator, KeyboardAvoidingView, Platform,
+  ScrollView, Dimensions, Alert
 } from 'react-native';
 import { api } from '../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SignatureScreen, { SignatureViewRef } from 'react-native-signature-canvas';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
+import { MultiSelect } from 'react-native-element-dropdown'; // Nova Lib
 
 interface Atividade {
   id: string;
@@ -28,7 +20,6 @@ interface ModalDetailOrderTecnicoProps {
   handleCloseModal: () => void;
 }
 
-// Usando um fallback caso o Dimensions falhe no primeiro render
 const SCREEN_WIDTH = Dimensions.get('window').width || 300;
 
 export function ModalDetailOrderFormTecnico({
@@ -40,9 +31,8 @@ export function ModalDetailOrderFormTecnico({
   const [solucao, setSolucao] = useState('');
   const [assinante, setAssinante] = useState('');
   
-  // IMPORTANTE: Inicializar sempre como array vazio
   const [atividadesDB, setAtividadesDB] = useState<Atividade[]>([]);
-  const [selectedAtividadeId, setSelectedAtividadeId] = useState('');
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const [signature, setSignature] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,27 +42,17 @@ export function ModalDetailOrderFormTecnico({
     async function loadAtividades() {
       try {
         const response = await api.get('/listatividade');
-        // Verificação extra de segurança
-        if (response.data && Array.isArray(response.data)) {
-          setAtividadesDB(response.data);
-        }
+        if (response.data) setAtividadesDB(response.data);
       } catch (error) {
-        console.error("Erro ao carregar lista de atividades:", error);
+        console.error("Erro ao carregar atividades:", error);
       }
     }
     loadAtividades();
   }, []);
 
-  const handleSignature = (sig: string) => setSignature(sig);
-  
-  const handleClear = () => {
-    signatureRef.current?.clearSignature();
-    setSignature(null);
-  };
-
   const handleSubmit = async () => {
     if (!signature) {
-      Alert.alert('Assinatura Pendente', 'Por favor, confirme a assinatura digital.');
+      Alert.alert('Assinatura', 'Por favor, confirme a assinatura digital.');
       return;
     }
 
@@ -82,12 +62,7 @@ export function ModalDetailOrderFormTecnico({
       if (!storageToken) return;
       const { token } = JSON.parse(storageToken);
 
-      await api.patch(
-        `/assinatura/${ordemId}`,
-        { assinaturaBase64: signature },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      // Envio para o Backend
       await api.patch(
         `/ordemdeservico/update/${ordemId}`,
         {
@@ -95,17 +70,17 @@ export function ModalDetailOrderFormTecnico({
           diagnostico,
           solucao,
           assinante,
-          atividades_ids: selectedAtividadeId ? [selectedAtividadeId] : [],
+          atividades_ids: selectedItems, 
           statusOrdemdeServico_id: '80e14fbe-c7fd-45bc-b3cd-cfa51ede44e0',
+          assinaturaBase64: signature
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      Alert.alert('Sucesso', 'Ordem de serviço finalizada!');
+      Alert.alert('Sucesso', 'Ordem finalizada!');
       handleCloseModal();
     } catch (error) {
-      console.error(error);
-      Alert.alert('Erro', 'Houve um problema ao salvar.');
+      Alert.alert('Erro', 'Erro ao salvar os dados.');
     } finally {
       setLoading(false);
     }
@@ -113,15 +88,8 @@ export function ModalDetailOrderFormTecnico({
 
   return (
     <View style={styles.overlay}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1, width: '100%' }}
-      >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContent} 
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Ajuste na largura para garantir renderização */}
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={[styles.container, { width: SCREEN_WIDTH - 40, alignSelf: 'center' }]}>
             
             <View style={styles.header}>
@@ -131,81 +99,63 @@ export function ModalDetailOrderFormTecnico({
               </TouchableOpacity>
             </View>
 
-            <TextInput
-              placeholder="Nome do Técnico"
-              style={styles.input}
-              value={nameTecnico}
-              onChangeText={setNameTecnico}
+            <Text style={styles.label}>Atividades Realizadas</Text>
+            <MultiSelect
+              style={styles.dropdown}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              iconStyle={styles.iconStyle}
+              data={atividadesDB}
+              labelField="descricao"
+              valueField="id"
+              placeholder="Selecione as atividades..."
+              value={selectedItems}
+              search
+              searchPlaceholder="Pesquisar..."
+              onChange={item => setSelectedItems(item)}
+              selectedStyle={styles.selectedStyle}
+              activeColor="#f2f0f7"
             />
 
-            <Text style={styles.label}>Atividade Principal:</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedAtividadeId}
-                onValueChange={(itemValue) => setSelectedAtividadeId(itemValue)}
-                style={styles.picker}
-              >
-                <Picker.Item label="Selecione uma opção..." value="" />
-                {atividadesDB?.map((atv) => (
-                  <Picker.Item key={atv.id} label={atv.descricao} value={atv.id} />
-                ))}
-              </Picker>
-            </View>
-
+            <Text style={styles.label}>Diagnóstico</Text>
             <TextInput
-              placeholder="Diagnóstico"
               style={[styles.input, styles.textArea]}
               value={diagnostico}
               onChangeText={setDiagnostico}
               multiline
+              placeholder="Relato técnico..."
             />
-            
+
+            <Text style={styles.label}>Solução</Text>
             <TextInput
-              placeholder="Solução"
               style={[styles.input, styles.textArea]}
               value={solucao}
               onChangeText={setSolucao}
               multiline
-            />
-
-            <TextInput
-              placeholder="Assinante"
-              style={styles.input}
-              value={assinante}
-              onChangeText={setAssinante}
+              placeholder="O que foi resolvido..."
             />
 
             <View style={styles.signatureContainer}>
               <SignatureScreen
                 ref={signatureRef}
-                onOK={handleSignature}
+                onOK={(sig) => setSignature(sig)}
                 descriptionText="Assinatura Digital"
-                webStyle={`.m-signature-pad--footer {display: none; margin: 0px;}`}
+                webStyle={`.m-signature-pad--footer {display: none;}`}
               />
             </View>
 
             <View style={styles.signatureButtons}>
-              <TouchableOpacity style={styles.buttonSecondary} onPress={handleClear}>
+              <TouchableOpacity style={styles.buttonSecondary} onPress={() => signatureRef.current?.clearSignature()}>
                 <Text style={styles.buttonText}>Limpar</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.buttonSecondary}
-                onPress={() => signatureRef.current?.readSignature()}
-              >
-                <Text style={styles.buttonText}>Confirmar</Text>
+              <TouchableOpacity style={styles.buttonConfirm} onPress={() => signatureRef.current?.readSignature()}>
+                <Text style={styles.buttonText}>Confirmar Assinatura</Text>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              style={[styles.buttonPrimary, loading && { opacity: 0.7 }]}
-              onPress={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.buttonText}>FINALIZAR ORDEM</Text>
-              )}
+            <TouchableOpacity style={styles.buttonPrimary} onPress={handleSubmit} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>FINALIZAR</Text>}
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -214,98 +164,37 @@ export function ModalDetailOrderFormTecnico({
   );
 }
 
-
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollContent: {
-    paddingVertical: 60,
-  },
-  container: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 15,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: '#4E3182'
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
-    fontSize: 15,
-    backgroundColor: '#fdfdfd'
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 15,
-    backgroundColor: '#f9f9f9',
-    overflow: 'hidden'
-  },
-  picker: {
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' },
+  scrollContent: { paddingVertical: 40 },
+  container: { backgroundColor: '#fff', padding: 20, borderRadius: 12 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  title: { fontSize: 18, fontWeight: 'bold' },
+  label: { fontSize: 13, fontWeight: 'bold', color: '#4E3182', marginBottom: 5, marginTop: 10 },
+  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 10, backgroundColor: '#fdfdfd' },
+  textArea: { height: 80, textAlignVertical: 'top' },
+  dropdown: {
     height: 50,
-    width: '100%',
+    backgroundColor: 'transparent',
+    borderBottomColor: 'gray',
+    borderBottomWidth: 0.5,
   },
-  textArea: {
-    height: 90,
-    textAlignVertical: 'top',
-  },
-  signatureContainer: {
-    height: 200,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 15,
-    borderRadius: 8,
-    overflow: 'hidden'
-  },
-  signatureButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  buttonPrimary: {
+  placeholderStyle: { fontSize: 16 },
+  selectedTextStyle: { fontSize: 14 },
+  iconStyle: { width: 20, height: 20 },
+  inputSearchStyle: { height: 40, fontSize: 16 },
+  selectedStyle: {
+    borderRadius: 12,
     backgroundColor: '#4E3182',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
+    marginTop: 8,
+    marginRight: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
-  buttonSecondary: {
-    backgroundColor: '#6c757d',
-    padding: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    width: '48%',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14
-  },
+  signatureContainer: { height: 150, borderWidth: 1, borderColor: '#ddd', marginTop: 15, borderRadius: 8 },
+  signatureButtons: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 15 },
+  buttonPrimary: { backgroundColor: '#4E3182', padding: 15, borderRadius: 8, alignItems: 'center' },
+  buttonSecondary: { backgroundColor: '#6c757d', padding: 10, borderRadius: 8, width: '30%', alignItems: 'center' },
+  buttonConfirm: { backgroundColor: '#28a745', padding: 10, borderRadius: 8, width: '65%', alignItems: 'center' },
+  buttonText: { color: '#fff', fontWeight: 'bold' },
 });
