@@ -26,7 +26,6 @@ async function getClientes(): Promise<ClienteMunicipaisResponse> {
   }
 }
 
-
 export default async function ClientesPage() {
   const clienteData = await getClientes();
   return <ClienteMunicipalList clienteData={clienteData} />;
