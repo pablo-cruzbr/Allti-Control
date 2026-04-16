@@ -62,7 +62,6 @@ export function ModalDetailOrderFormTecnico({
       if (!storageToken) return;
       const { token } = JSON.parse(storageToken);
 
-      // Envio para o Backend
       await api.patch(
         `/ordemdeservico/update/${ordemId}`,
         {
