@@ -146,7 +146,6 @@ export function ModalDetailOrderFormTecnico({
                 style={styles.picker}
               >
                 <Picker.Item label="Selecione uma opção..." value="" />
-                {/* O opcional chaining (?.) evita que o app trave se o array estiver nulo */}
                 {atividadesDB?.map((atv) => (
                   <Picker.Item key={atv.id} label={atv.descricao} value={atv.id} />
                 ))}
