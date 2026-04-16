@@ -48,6 +48,15 @@ class ListOrdemdeServicoService {
         diagnostico: true,
         solucao: true,
         assinante: true,
+        atividades: {
+          select: {
+            id: true,
+            atividadePadrao: {
+              select: { id: true, descricao: true, categoria: true }
+            }
+          }
+        },
+
         equipamento:{
           select:{ id: true, name: true, patrimonio: true }
         },
@@ -59,9 +68,6 @@ class ListOrdemdeServicoService {
         },
         instituicaoUnidade: {
           select: { id: true, name: true, endereco: true },
-        },
-        AtividadeNoChamado: {
-           select: {id: true, descricao: true, categoria: true}
         },
         informacoesSetor:{
           select:{
