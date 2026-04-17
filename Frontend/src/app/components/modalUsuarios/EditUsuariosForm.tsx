@@ -82,12 +82,9 @@ const handleSubmit = async () => {
 
   try {
     const token = getCookieClient();
-    
-    // Garanta que se o ID for uma string vazia, ele envie null
     const payload = {
       name: form.name,
       email: form.email,
-      // Se form.setorId for "" (vazio), o Prisma quebra a chave estrangeira
       setor_id: form.setorId || null, 
       cliente_id: form.clienteId || null,
       instituicaoUnidade_id: form.instituicaoUnidadeId || null
