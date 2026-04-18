@@ -28,7 +28,6 @@ export default function ViewCardFoto({ ordemdeServico, onClose }: Props) {
   const [fotos, setFotos] = useState<FotoProps[]>([]);
   const [selectedFoto, setSelectedFoto] = useState<FotoProps | null>(null);
 
-  // Buscar fotos
   useEffect(() => {
     const fetchData = async () => {
       try {

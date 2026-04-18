@@ -20,8 +20,6 @@ export default function EditUsuariosForm({ dados, onClose }: Props) {
   const [clientes, setClientes] = useState<{id: string, name: string}[]>([]);
   const [instituicoes, setInstituicoes] = useState<{id: string, name: string}[]>([]);
   const [setores, setSetores] = useState<{id: string, name: string}[]>([]);
-
-  // Estado do formulário baseado na UsuariosProps
   const [form, setForm] = useState({
     name: '',
     email: '',
