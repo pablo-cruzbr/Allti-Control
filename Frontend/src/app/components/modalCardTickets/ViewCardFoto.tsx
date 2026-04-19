@@ -68,9 +68,9 @@ export default function ViewCardFoto({ ordemdeServico, onClose }: Props) {
         Imagens da Ordem de Serviço:
       </h3>
 
-      {/* Grid de Miniaturas */}
+     
    <div className={styles.fotosGrid}>
-  { (fotos == null) ? (        // cobre null e undefined
+  { (fotos == null) ? (        
       <p>Carregando imagens...</p>
     ) : (Array.isArray(fotos) && fotos.length > 0) ? (
       fotos.map((foto) => (
