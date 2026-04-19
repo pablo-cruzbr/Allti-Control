@@ -204,6 +204,13 @@ router.post('/ordemdeservico', isAuthenticated, new CreateOrdemServicoController
 router.get('/listordemdeservico', isAuthenticated, new ListOrdemdeServicoController().handle);
 router.get('/ordemdeservico/:id', isAuthenticated, new GetOrdemdeServicoByIdController().handle);
 
+// --- Assinatura e Fotos ---
+router.patch("/assinatura/:id", isAuthenticated, AssinaturaController.atualizar);
+router.get("/assinatura/:ordemId", isAuthenticated, AssinaturaController.buscar);
+router.get('/foto/:id', isAuthenticated, fotoControllerInstance.listByOrdem);
+router.post('/foto', isAuthenticated, new fotoController().handle);
+router.delete('/foto/:id', isAuthenticated, new fotoController().delete);
+
 // ============================================================
 // ATIVIDADES TÉCNICO
 // ============================================================
