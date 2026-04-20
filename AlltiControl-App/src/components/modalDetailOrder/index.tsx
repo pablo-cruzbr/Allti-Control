@@ -424,17 +424,26 @@ const handleCloseAndComplete = async () => {
     if (!storageToken) return;
     const { token } = JSON.parse(storageToken);
 
-    await api.patch(`/ordemdeservico/concluir/${ordemAtual.id}`, {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    await api.patch(
+      `/ordemdeservico/concluir/${ordemAtual.id}`, 
+      {
+        statusOrdemdeServico_id: '80e14fbe-c7fd-45bc-b3cd-cfa51ede44e0' 
+      }, 
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
 
     await refreshOrdemAtual();
     handleCloseModal();
+
+    Alert.alert("Sucesso", "Ordem de Serviço concluída com sucesso!");
+    
   } catch (error) {
     console.error("Erro ao concluir OS:", error);
+    Alert.alert("Erro", "Não foi possível concluir a OS.");
   }
 };
-
 const isDisabled = selectedImages.length === 0;
 
   return (
