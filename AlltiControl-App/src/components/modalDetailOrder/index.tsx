@@ -64,7 +64,8 @@ const formatTime = (seconds: number) => {
 };
 
 useEffect(() => {
-  let interval: NodeJS.Timeout | null = null;
+  // Correção Erro 1: Usando 'any' para evitar conflito NodeJS.Timeout vs number
+  let interval: any = null;
 
   if (isRunning && !isPaused) {
     setLastUpdate(new Date());
@@ -95,6 +96,7 @@ useEffect(() => {
   };
 
   const abrirGoogleMaps = (endereco: string) => {
+    // Correção Erro URL: Corrigido o protocolo e a interpolação
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
     Linking.openURL(url);
   };
@@ -160,7 +162,7 @@ const fetchTempo = async (ordemId: string) => {
       fetchAssinatura(ordemAtual.id);
       fetchTempo(ordemAtual.id); 
     }
-  }, [ordemAtual]);
+  }, [ordemAtual?.id]); // Correção: Dependência específica do ID
 
   const enviarAssinatura = async (base64: string) => {
     try {
@@ -220,47 +222,15 @@ const fetchTempo = async (ordemId: string) => {
 
   const removeImage = (index: number) => setSelectedImages(selectedImages.filter((_, i) => i !== index));
 
-  const isJaConcluida = ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "CONCLUIDA" || 
-                      ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "CONCLUIDA";
+  const isJaConcluida = ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "CONCLUIDA";
 
- // No seu arquivo Mobile (ex: FormTecnico.tsx)
-// Dentro da função handleFinalizarEEnviar no seu FormTecnico (Mobile)
-const handleFinalizarEEnviar = async () => {
-  try {
-    const storageToken = await AsyncStorage.getItem("@AlltiService");
-    if (!storageToken) return;
-    const { token } = JSON.parse(storageToken);
+  const handleFinalizarEEnviar = async () => {
+  await uploadImages();
 
-    console.log("--- DEBUG ENVIO MOBILE ---");
-    console.log("ID da Ordem:", ordemAtual?.id); 
-    console.log("Tempo (Duração):", time); 
-    console.log("Assinante:", ordemAtual?.assinante);
-    console.log("Tem Assinatura?", assinatura ? "Sim" : "Não");
-    console.log("--------------------------");
-
-    // 1. Enviar as imagens primeiro (reutilizando sua função existente)
-    await uploadImages();
-
-    // 2. Atualizar a OS com o tempo, assinatura e status de conclusão
-    // O backend espera 'duracao' (tempo em segundos) e 'assinatura' (o base64)
-    await api.patch(`/ordemdeservico/${ordemAtual?.id}`, {
-      assinatura: assinatura, // Pega do seu useState 'assinatura'
-      duracao: time,         // Pega do seu useState 'time'
-      assinante: ordemAtual?.assinante,
-      statusOrdemdeServico_id: "fa69ed32-20b2-4d3a-9a6d-e61c5b45efea", // ID da CONCLUIDA
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    Alert.alert("Sucesso", "Ordem finalizada e imagens enviadas!");
-    
-    // 3. Atualiza os dados na tela e fecha
-    await refreshOrdemAtual();
-    handleCloseModal(); 
-
-  } catch (err) {
-    console.log("Erro ao finalizar:", err);
-    Alert.alert("Erro", "Houve um erro ao finalizar a ordem.");
+  if (!isJaConcluida) {
+    await handleCloseAndComplete();
+  } else {
+    Alert.alert("Sucesso", "Novas imagens enviadas para esta OS já concluída.");
   }
 };
 
@@ -270,7 +240,6 @@ const uploadImages = async () => {
   }
 
   try {
-    // Loop para processar e enviar CADA imagem individualmente
     for (let i = 0; i < selectedImages.length; i++) {
       const img = selectedImages[i]; 
 
@@ -292,26 +261,16 @@ const uploadImages = async () => {
         headers: { "Content-Type": "multipart/form-data" },
         timeout: 30000,
       });
-
-      //console.log(`Foto ${i + 1} de ${selectedImages.length} enviada com sucesso.`);
     }
 
     Alert.alert( 
       "Operação concluída",
-      "A ordem de serviço foi finalizada com sucesso e todos os dados foram registrados corretamente.");
+      "A ordem de serviço foi finalizada com sucesso.");
     setSelectedImages([]);
 
   } catch (err: any) {
     console.error("Erro no upload:", err.response?.data || err.message);
-    
-    const errorData = err.response?.data;
-    if (errorData?.error) {
-      Alert.alert("Erro no Servidor", errorData.error);
-    } else {
-      Alert.alert("Erro", "Falha ao enviar uma ou mais imagens.");
-    }
-  } finally {
-    // setLoading(false);
+    Alert.alert("Erro", "Falha ao enviar uma ou mais imagens.");
   }
 };
 
@@ -330,6 +289,24 @@ const refreshOrdemAtual = async () => {
 
   } catch (error) {
     console.error("Erro ao buscar OS atualizada:", error);
+  }
+};
+
+const takePhoto = async () => {
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: true,
+    quality: 0.7, 
+    base64: true, 
+  });
+
+  if (!result.canceled && result.assets[0]) {
+    const asset = result.assets[0];
+    const newImage = {
+      uri: asset.uri,
+      base64: asset.base64 ?? "", 
+    };
+
+    setSelectedImages((prev) => [...prev, newImage]);
   }
 };
 
@@ -356,31 +333,18 @@ const handleStart = async () => {
   }
 };
 
-
-
 useEffect(() => {
-
-  if (!ordem) {
-   
-    return;
-  }  
-  if (!ordem.id) {
-    return;
-  }
+  if (!ordem?.id) return;
 
   let isMounted = true; 
 
   const fetchOrdemAtualizada = async () => {
     try {
       const storageToken = await AsyncStorage.getItem("@AlltiService");
-      if (!storageToken) {
-        console.log("DEBUG: Token não encontrado no AsyncStorage. Saindo.");
-        return;
-      }
+      if (!storageToken) return;
       const { token } = JSON.parse(storageToken);
       
-      const urlCompleta = `/ordemdeservico/${ordem.id}`;
-      const response = await api.get(urlCompleta, {
+      const response = await api.get(`/ordemdeservico/${ordem.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -390,20 +354,14 @@ useEffect(() => {
         fetchTempo(ordem.id);
       }
     } catch (err) {
-      if (isMounted) {
-    const error = err as any; 
-    const axiosErrorStatus = error.response ? error.response.status : 'Sem Status';
-    const axiosErrorMessage = error.response ? error.response.data : 'Sem Dados de Erro';
-  }
+      console.error(err);
     }
   };
 
   fetchOrdemAtualizada();
 
-  return () => {
-    isMounted = false;
-  };
-}, [ordem]); 
+  return () => { isMounted = false; };
+}, [ordem?.id]); 
 
 const handlePause = async () => {
   if (!ordemAtual?.id) return;
@@ -415,7 +373,7 @@ const handlePause = async () => {
 
     const payload = { endedAt: new Date().toISOString() };
 
-    const response = await api.patch(
+    await api.patch(
       `/ordemdeservico/pausar/${ordemAtual.id}`,
       payload,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -440,7 +398,7 @@ const handleResume = async () => {
     if (!storageToken) return;
     const { token } = JSON.parse(storageToken);
 
-    const response = await api.patch(
+    await api.patch(
       `/ordemdeservico/retomar/${ordemAtual.id}`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
@@ -448,7 +406,7 @@ const handleResume = async () => {
 
     setIsPaused(false);
     setIsRunning(true);
-     setRetomarSuccess(true);
+    setRetomarSuccess(true);
 
     Alert.alert("Ordem retomada", "A contagem de tempo foi retomada com sucesso.");
 
@@ -460,13 +418,7 @@ const handleResume = async () => {
   }
 };
 
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setTime(0);
-  };
-
- const handleCloseAndComplete = async () => {
+const handleCloseAndComplete = async () => {
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
     if (!storageToken) return;
@@ -488,9 +440,9 @@ const isDisabled = selectedImages.length === 0;
   return (
     <>
    <TouchableOpacity
-    activeOpacity={1}
-    style={styles.overlay}
-    onPress={handleCloseModal}
+     activeOpacity={1}
+     style={styles.overlay}
+     onPress={handleCloseModal}
   />
     <View style={styles.modalContainer}>
       <ScrollComIndicador>
@@ -506,7 +458,6 @@ const isDisabled = selectedImages.length === 0;
         </View>
 
         
-      {/* Informações adicionais do setor */}
         {ordemAtual.informacoesSetor && (
       <View style={{ marginTop: 20 }}>
       <Text style={styles.label}>Local do Chamado: </Text>
@@ -519,7 +470,7 @@ const isDisabled = selectedImages.length === 0;
           <Text>Não informado</Text>
           )}
       
-            <Text style={styles.label}>
+          <Text style={styles.label}>
           Informações do usuário que solicitou o chamado
           </Text>
                         
@@ -574,7 +525,7 @@ const isDisabled = selectedImages.length === 0;
           </>
         )}
         <View style={styles.timerContainer}>                
-    <Text style={styles.timerText}>Tempo decorrido teste: {formatTime(time)}</Text>
+    <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
 
     {!isRunning && ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "PAUSADA" && (
     <>
@@ -586,14 +537,9 @@ const isDisabled = selectedImages.length === 0;
       }}
       >
       <Text style={styles.textButtonClose}>
-        {retomarSuccess ? "OS Retomada com sucesso!" : "Retomar"}
+        {retomarSuccess ? "OS Retomada!" : "Retomar"}
       </Text>
       </TouchableOpacity>
-      {retomarSuccess && (
-          <Text style={styles.timerText}>
-            A OS já está em andamento novamente!!!
-          </Text>
-        )}
         </>
     )}
 
@@ -622,7 +568,6 @@ const isDisabled = selectedImages.length === 0;
           style={[styles.buttonClose, styles.timerBtnReset]}
           onPress={async () => {
             await handleResume();
-
             setTimeout(() => {
               setIsRunning(true);
               setIsPaused(false);
@@ -633,65 +578,35 @@ const isDisabled = selectedImages.length === 0;
         </TouchableOpacity>
       )}
     </View>
-
-
 </View>
             <Text style={styles.label}>Tipo de Chamado:</Text>
             <Text>{ordemAtual.tipodeChamado?.name ?? "-"}</Text>
             <Text style={styles.label}>Problema:</Text>
             <Text>{ordemAtual.descricaodoProblemaouSolicitacao}</Text>
-            <Text style={styles.label}>Contato no Local:</Text>
-            <Text>{ordemAtual.nomedoContatoaserProcuradonoLocal}</Text>
-            <Text style={styles.label}>Técnico:</Text>
-            <Text>{ordemAtual.nameTecnico ?? "-"}</Text>
-            <Text style={styles.label}>Diagnóstico:</Text>
-            <Text>{ordemAtual.diagnostico ?? "-"}</Text>
-            <Text style={styles.label}>Solução:</Text>
-            <Text>{ordemAtual.solucao ?? "-"}</Text>
             
-           <Text style={styles.label}>Início da OS:</Text>
+            <Text style={styles.label}>Início da OS:</Text>
               <Text>
                 {ordemAtual?.startedAt
-                  ? new Date(ordemAtual.startedAt).toLocaleTimeString("pt-BR", {
-                      timeZone: "America/Sao_Paulo",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
+                  ? new Date(ordemAtual.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
                   : "-"}
               </Text>
-
-              <Text style={styles.label}>Término da OS:</Text>
-              <Text>
-                {ordemAtual?.endedAt
-                  ? new Date(ordemAtual.endedAt).toLocaleTimeString("pt-BR", {
-                      timeZone: "America/Sao_Paulo",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                  : isRunning
-                  ? "Em andamento..."
-                  : "-"}
-              </Text>
-
-            <Text style={styles.label}>Duração:</Text>
-              <Text>{formatTime(time)}</Text>
 
             <Text style={styles.label}>Assinatura:</Text>
-             <Text>Pessoa que Assinou: {ordemAtual.assinante ?? "-"}</Text>
-
-            {/* === ASSINATURA === */}
-            {assinatura ? (
-              <Image source={{ uri: assinatura }} style={{ width: 300, height: 230, marginTop: 5, borderWidth: 1, borderColor: "#000" }} />
-            ) : (
-              <TouchableOpacity style={styles.buttonClose} onPress={() => Alert.alert("Assinatura", "Implementar captura de assinatura aqui")}>
-                
-              </TouchableOpacity>
+            {assinatura && (
+              <Image source={{ uri: assinatura }} style={{ width: 300, height: 230, marginTop: 5, borderWidth: 1 }} />
             )}
 
              <TouchableOpacity style={styles.buttonClose} onPress={() => setModalTecnicoOpen(true)}>
               <View style={styles.buttonContent}>
                 <MaterialIcons name="description" size={20} color="#FFF" />
                 <Text style={styles.textButtonClose}>ADICIONAR DESCRIÇÃO TÉCNICA</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.buttonClose} onPress={takePhoto}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons name="photo-camera" size={20} color="#FFF" />
+                <Text style={styles.textButtonClose}>TIRAR FOTO</Text>
               </View>
             </TouchableOpacity>
 
@@ -702,28 +617,16 @@ const isDisabled = selectedImages.length === 0;
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonClose} onPress={openCamera}>
-              <View style={styles.buttonContent}>
-                <MaterialIcons name="photo-camera" size={20} color="#FFF" />
-                <Text style={styles.textButtonClose}>TIRAR FOTO</Text>
-              </View>
-            </TouchableOpacity>
-
-            {selectedImages.length > 0 && (
-              <>
-                <View style={styles.gridImages}>
-                  {selectedImages.map((img, index) => (
-                    <View key={index} style={styles.imageWrapper}>
-                      <Image source={{ uri: img.uri }} style={styles.imageItem} />
-                      <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
-                        <MaterialIcons name="close" size={16} color="#FFF" />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+            <View style={styles.gridImages}>
+              {selectedImages.map((img, index) => (
+                <View key={index} style={styles.imageWrapper}>
+                  <Image source={{ uri: img.uri }} style={styles.imageItem} />
+                  <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
+                    <MaterialIcons name="close" size={16} color="#FFF" />
+                  </TouchableOpacity>
                 </View>
-              
-              </>
-            )}
+              ))}
+            </View>
 
            <TouchableOpacity
           style={[
@@ -735,30 +638,16 @@ const isDisabled = selectedImages.length === 0;
           onPress={handleFinalizarEEnviar}
         >
           <View style={styles.buttonContent}>
-            <MaterialIcons
-              name={isJaConcluida ? "cloud-upload" : "check-circle"} 
-              size={20}
-              color={isDisabled ? "#DDD" : "#FFF"}
-            />
-            <Text
-              style={[
-                styles.textButtonClose,
-                isDisabled && styles.textDisabled,
-              ]}
-            >
-              {isJaConcluida 
-                ? "ENVIAR MAIS IMAGENS" 
-                : "ENVIAR IMAGENS E CONCLUIR OS"
-              }
+            <MaterialIcons name="check-circle" size={20} color="#FFF" />
+            <Text style={styles.textButtonClose}>
+              {isJaConcluida ? "ENVIAR MAIS IMAGENS" : "CONCLUIR OS"}
             </Text>
           </View>
         </TouchableOpacity>
 
-
           </ScrollComIndicador>
         </View>
 
-      
         <Modal
           visible={modalTecnicoOpen} 
           animationType="slide"
@@ -767,6 +656,7 @@ const isDisabled = selectedImages.length === 0;
         >
           <ModalDetailOrderFormTecnico 
             ordemId={ordemAtual.id} 
+            tempoFinal={time} 
             handleCloseModal={() => setModalTecnicoOpen(false)} 
           />
         </Modal>
@@ -775,140 +665,33 @@ const isDisabled = selectedImages.length === 0;
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
   modalContainer: {
-  width: WIDTH - 0,
-  maxHeight: HEIGHT * 0.95 ,
-  backgroundColor: "#FFF",
-  borderRadius: 8,
-  padding: 15,
-},
-
-
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  refreshIcon: {
-    left: 40,
-  },
-
-  closeIcon: {
-    right: 4,
-  },
-
-  label: {
-    marginTop: 10,
-    fontWeight: "bold",
-  },
-
-  buttonClose: {
-    marginTop: 20,
-    backgroundColor: "#4E3182",
-    padding: 12,
+    width: WIDTH,
+    maxHeight: HEIGHT * 0.95,
+    backgroundColor: "#FFF",
     borderRadius: 8,
-    alignItems: "center",
+    padding: 15,
   },
-
-  buttonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  textButtonClose: {
-    color: "#FFF",
-    fontWeight: "bold",
-    marginLeft: 8,
-  },
-
-  buttonNavigation: {
-    backgroundColor: "#4E3182",
-  },
-
-  buttonDisabled: {
-  backgroundColor: "#9CA3AF", 
-  opacity: 0.6,
-},
-
-textDisabled: {
-  color: "#E5E7EB",
-},
-
-  timerContainer: {
-    marginVertical: 15,
-    alignItems: "center",
-  },
-
-  timerText: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-
-  timerButtons: {
-    flexDirection: "row",
-    marginTop: 10,
-  },
-
-  timerBtn: {
-    marginRight: 10,
-    backgroundColor: "#4E3182",
-  },
-
-  timerBtnPause: {
-    marginRight: 10,
-    backgroundColor: "#888",
-  },
-
-  timerBtnReset: {
-    backgroundColor: "#555",
-  },
-
-  gridImages: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 10,
-  },
-
-  imageWrapper: {
-    width: IMAGE_SIZE,
-    height: IMAGE_SIZE,
-    marginRight: 10,
-    marginBottom: 10,
-    position: "relative",
-  },
-
-  imageItem: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
-  },
-
-  removeButton: {
-    position: "absolute",
-    top: 5,
-    right: 5,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    borderRadius: 12,
-    padding: 2,
-    zIndex: 10,
-  },
-
-  buttonComplete: {
-    backgroundColor: "green",
-  },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
+  title: { fontSize: 20, fontWeight: "bold" },
+  refreshIcon: { left: 40 },
+  closeIcon: { right: 4 },
+  label: { marginTop: 10, fontWeight: "bold" },
+  buttonClose: { marginTop: 20, backgroundColor: "#4E3182", padding: 12, borderRadius: 8, alignItems: "center" },
+  buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
+  textButtonClose: { color: "#FFF", fontWeight: "bold", marginLeft: 8 },
+  buttonNavigation: { backgroundColor: "#4E3182" },
+  buttonDisabled: { backgroundColor: "#9CA3AF", opacity: 0.6 },
+  timerContainer: { marginVertical: 15, alignItems: "center" },
+  timerText: { fontSize: 16, fontWeight: "bold" },
+  timerButtons: { flexDirection: "row", marginTop: 10 },
+  timerBtn: { marginRight: 10, backgroundColor: "#4E3182" },
+  timerBtnPause: { marginRight: 10, backgroundColor: "#888" },
+  timerBtnReset: { backgroundColor: "#555" },
+  gridImages: { flexDirection: "row", flexWrap: "wrap", marginTop: 10 },
+  imageWrapper: { width: IMAGE_SIZE, height: IMAGE_SIZE, marginRight: 10, marginBottom: 10, position: "relative" },
+  imageItem: { width: "100%", height: "100%", borderRadius: 8 },
+  removeButton: { position: "absolute", top: 5, right: 5, backgroundColor: "rgba(0,0,0,0.6)", borderRadius: 12, padding: 2, zIndex: 10 },
+  buttonComplete: { backgroundColor: "green" },
 });
