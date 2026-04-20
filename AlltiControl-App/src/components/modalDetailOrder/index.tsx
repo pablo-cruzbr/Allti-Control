@@ -53,11 +53,13 @@ export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps
   const [assinatura, setAssinatura] = useState<string | null>(null);
   const [retomarSuccess, setRetomarSuccess] = useState(false);
 
-
 const formatTime = (seconds: number) => {
-  const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
-  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
-  const s = (seconds % 60).toString().padStart(2, "0");
+  const totalSeconds = seconds < 0 ? 0 : seconds;
+
+  const h = Math.floor(totalSeconds / 3600).toString().padStart(2, "0");
+  const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, "0");
+  const s = (totalSeconds % 60).toString().padStart(2, "0");
+  
   return `${h}:${m}:${s}`;
 };
 
@@ -108,7 +110,7 @@ useEffect(() => {
       const response = await api.get(`/assinatura/${ordemId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setAssinatura(response.data?.assinatura ?? null);
+      setAssinatura(response.data?.bannerassinatura ?? null);
     } catch (err) {
       console.error("Erro ao buscar assinatura:", err);
     }
@@ -221,13 +223,44 @@ const fetchTempo = async (ordemId: string) => {
   const isJaConcluida = ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "CONCLUIDA" || 
                       ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "CONCLUIDA";
 
-  const handleFinalizarEEnviar = async () => {
-  await uploadImages();
+ // No seu arquivo Mobile (ex: FormTecnico.tsx)
+// Dentro da função handleFinalizarEEnviar no seu FormTecnico (Mobile)
+const handleFinalizarEEnviar = async () => {
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
 
-  if (!isJaConcluida) {
-    await handleCloseAndComplete();
-  } else {
-    Alert.alert("Sucesso", "Novas imagens enviadas para esta OS já concluída.");
+    console.log("--- DEBUG ENVIO MOBILE ---");
+    console.log("ID da Ordem:", ordemAtual?.id); 
+    console.log("Tempo (Duração):", time); 
+    console.log("Assinante:", ordemAtual?.assinante);
+    console.log("Tem Assinatura?", assinatura ? "Sim" : "Não");
+    console.log("--------------------------");
+
+    // 1. Enviar as imagens primeiro (reutilizando sua função existente)
+    await uploadImages();
+
+    // 2. Atualizar a OS com o tempo, assinatura e status de conclusão
+    // O backend espera 'duracao' (tempo em segundos) e 'assinatura' (o base64)
+    await api.patch(`/ordemdeservico/${ordemAtual?.id}`, {
+      assinatura: assinatura, // Pega do seu useState 'assinatura'
+      duracao: time,         // Pega do seu useState 'time'
+      assinante: ordemAtual?.assinante,
+      statusOrdemdeServico_id: "fa69ed32-20b2-4d3a-9a6d-e61c5b45efea", // ID da CONCLUIDA
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    Alert.alert("Sucesso", "Ordem finalizada e imagens enviadas!");
+    
+    // 3. Atualiza os dados na tela e fecha
+    await refreshOrdemAtual();
+    handleCloseModal(); 
+
+  } catch (err) {
+    console.log("Erro ao finalizar:", err);
+    Alert.alert("Erro", "Houve um erro ao finalizar a ordem.");
   }
 };
 

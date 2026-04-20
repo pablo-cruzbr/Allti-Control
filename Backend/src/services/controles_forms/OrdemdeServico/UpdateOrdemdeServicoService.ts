@@ -3,6 +3,7 @@ import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 import prismaClient from "../../../prisma";
 import { UploadedFile } from "express-fileupload";
 
+// Configuração do Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_KEY,
@@ -11,25 +12,25 @@ cloudinary.config({
 
 type UpdateOrdemdeServicoRequest = {
   prioridade_id?: string;
-  equipamento_id?: string;
   tecnico_id?: string;
-  tarefa_id?: string;
   statusOrdemdeServico_id?: string;
   tipodeChamado_id?: string;
   tipodeOrdemdeServico_id?: string;
-  informacoesSetor_id?: string;
+  informacoesSetorId?: string;
   instituicaoUnidade_id?: string;
-  cliente_id?: string; 
+  cliente_id?: string;
+  equipamentoid?: string;
+  tarefa_id?: string;
   nameTecnico?: string;
   diagnostico?: string;
   solucao?: string;
-  assinante?: string; 
+  assinante?: string;
   descricaodoProblemaouSolicitacao?: string;
-  assinatura?: string; 
-  atividades_ids?: string[]; 
-  startedAt?: Date | string;
-  endedAt?: Date | string;
+  assinatura?: string; // String Base64 vinda do Mobile (vai para bannerassinatura)
+  startedAt?: string;
+  endedAt?: string;
   duracao?: number;
+  atividades_ids?: string; // JSON string vindo do mobile
 };
 
 class UpdateOrdemdeServicoService {
@@ -43,86 +44,94 @@ class UpdateOrdemdeServicoService {
       const {
         prioridade_id,
         tecnico_id,
-        tarefa_id,
         statusOrdemdeServico_id,
-        equipamento_id,
+        equipamentoid,
         tipodeChamado_id,
         tipodeOrdemdeServico_id,
-        informacoesSetor_id,
+        informacoesSetorId,
         instituicaoUnidade_id,
         cliente_id,
+        tarefa_id,
         nameTecnico,
         diagnostico,
         solucao,
         descricaodoProblemaouSolicitacao,
-        assinatura, 
-        atividades_ids,
+        assinatura,
         startedAt,
         endedAt,
         duracao,
-        assinante
+        assinante,
+        atividades_ids
       } = req.body as UpdateOrdemdeServicoRequest;
 
-      let bannerassinatura: string | undefined;
+      let bannerassinaturaUrl: string | undefined;
 
-      if (assinatura && assinatura.startsWith('data:image')) {
-        const uploadResponse = await cloudinary.uploader.upload(assinatura, {
-          folder: "signatures_os",
-        });
-        bannerassinatura = uploadResponse.secure_url;
-      } else if ((req.files as any)?.file) {
+      // --- LOGICA DE UPLOAD DA ASSINATURA ---
+      // Se vier arquivo físico (pelo Multer/FileUpload)
+      if ((req.files as any)?.file) {
         const file = (req.files as any).file as UploadedFile;
         const result: UploadApiResponse = await cloudinary.uploader.upload(file.tempFilePath, {
           folder: "ordens",
         });
-        bannerassinatura = result.secure_url;
+        bannerassinaturaUrl = result.secure_url;
+      } 
+      // Se vier a string Base64 do Mobile
+      else if (assinatura && assinatura.startsWith("data:image")) {
+        const result: UploadApiResponse = await cloudinary.uploader.upload(assinatura, {
+          folder: "assinaturas_digitais",
+        });
+        bannerassinaturaUrl = result.secure_url;
       }
 
-      // 2. Update no Prisma
+      // --- TRATAMENTO DE ATIVIDADES (Many-to-Many) ---
+      let atividadesConnect = [];
+      if (atividades_ids) {
+        const ids = JSON.parse(atividades_ids) as string[];
+        atividadesConnect = ids.map(idAtiv => ({
+          atividadePadrao: { connect: { id: idAtiv } }
+        }));
+      }
+
+      // --- ATUALIZAÇÃO NO PRISMA ---
       const updatedRecord = await prismaClient.ordemdeServico.update({
         where: { id },
         data: {
-          ...(solucao && { solucao }),
-          ...(assinante && { assinante }),
-          ...(nameTecnico && { nameTecnico }),
-          ...(diagnostico && { diagnostico }),
-          ...(bannerassinatura && { bannerassinatura }),
-          ...(descricaodoProblemaouSolicitacao?.trim() && { descricaodoProblemaouSolicitacao }),
-          ...(startedAt && { startedAt: new Date(startedAt) }),
-          ...(endedAt && { endedAt: new Date(endedAt) }),
-          ...(duracao && { duracao: Number(duracao) }),
+          nameTecnico,
+          diagnostico,
+          solucao,
+          assinante,
+          descricaodoProblemaouSolicitacao: descricaodoProblemaouSolicitacao?.trim(),
+          
+          // Campos de Imagem
+          ...(bannerassinaturaUrl && { bannerassinatura: bannerassinaturaUrl }),
+          
+          // Tempos (Garante que 0 seja gravado)
+          duracao: duracao !== undefined ? Number(duracao) : undefined,
+          startedAt: startedAt ? new Date(startedAt) : undefined,
+          endedAt: endedAt ? new Date(endedAt) : undefined,
 
-          ...(atividades_ids && {
-            atividades: {
-              deleteMany: {}, 
-              create: atividades_ids.map(atvId => ({
-                atividadePadraoId: atvId
-              }))
-            }
-          }),
+          // Relacionamentos (Usando os campos do seu Schema)
+          statusOrdemdeServico: statusOrdemdeServico_id ? { connect: { id: statusOrdemdeServico_id } } : undefined,
+          tecnico: tecnico_id ? { connect: { id: tecnico_id } } : undefined,
+          tipodeChamado: tipodeChamado_id ? { connect: { id: tipodeChamado_id } } : undefined,
+          tipodeOrdemdeServico: tipodeOrdemdeServico_id ? { connect: { id: tipodeOrdemdeServico_id } } : undefined,
+          prioridade: prioridade_id ? { connect: { id: prioridade_id } } : undefined,
+          equipamento: equipamentoid ? { connect: { id: equipamentoid } } : undefined,
+          tarefa: tarefa_id ? { connect: { id: tarefa_id } } : undefined,
+          informacoesSetor: informacoesSetorId ? { connect: { id: informacoesSetorId } } : undefined,
+          
+          // Cliente e Unidade (Híbrido: Conecta ou desconecta)
+          cliente: cliente_id ? { connect: { id: cliente_id } } : { disconnect: true },
+          instituicaoUnidade: instituicaoUnidade_id ? { connect: { id: instituicaoUnidade_id } } : { disconnect: true },
 
-          ...(equipamento_id && { equipamento: { connect: { id: equipamento_id } } }),
-          ...(prioridade_id && { prioridade: { connect: { id: prioridade_id } } }),
-          ...(tarefa_id && { tarefa: { connect: { id: tarefa_id } } }),
-          ...(tecnico_id && { tecnico: { connect: { id: tecnico_id } } }),
-          ...(statusOrdemdeServico_id && { statusOrdemdeServico: { connect: { id: statusOrdemdeServico_id } } }),
-          ...(tipodeChamado_id && { tipodeChamado: { connect: { id: tipodeChamado_id } } }),
-          ...(tipodeOrdemdeServico_id && { tipodeOrdemdeServico: { connect: { id: tipodeOrdemdeServico_id } } }),
-          ...(informacoesSetor_id && { informacoesSetor: { connect: { id: informacoesSetor_id } } }),
-  
-          instituicaoUnidade: instituicaoUnidade_id 
-            ? { connect: { id: instituicaoUnidade_id } } 
-            : undefined,
-          cliente: cliente_id 
-            ? { connect: { id: cliente_id } } 
-            : undefined,
+          // Atividades (AtividadeNoChamado)
+          atividades: atividadesConnect.length > 0 ? {
+            create: atividadesConnect
+          } : undefined,
         },
         include: {
-          atividades: {
-            include: { atividadePadrao: true }
-          },
-          statusOrdemdeServico: true,
-          tecnico: true
+          atividades: true,
+          statusOrdemdeServico: true
         }
       });
 
@@ -132,8 +141,8 @@ class UpdateOrdemdeServicoService {
       });
 
     } catch (error: any) {
-      console.error("ERRO NO UPDATE SERVICE:", error);
-      return res.status(400).json({ error: error.message || "Erro interno ao atualizar ordem." });
+      console.error("Erro ao atualizar OS:", error);
+      return res.status(400).json({ error: error.message });
     }
   }
 }

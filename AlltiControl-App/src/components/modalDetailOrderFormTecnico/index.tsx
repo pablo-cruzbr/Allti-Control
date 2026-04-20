@@ -62,38 +62,60 @@ export function ModalDetailOrderFormTecnico({
     setShowSignatureModal(false);
   };
 
-  const handleSubmit = async () => {
-    if (!signature || !assinante) {
-      alert('Por favor, preencha o nome do assinante e colete a assinatura.');
-      return;
-    }
-    try {
-      setLoading(true);
-      const storageToken = await AsyncStorage.getItem('@AlltiService');
-      if (!storageToken) return;
-      const { token } = JSON.parse(storageToken);
+ const handleSubmit = async () => {
+  if (!signature || !assinante) {
+    alert('Por favor, preencha o nome do assinante e colete a assinatura.');
+    return;
+  }
 
-      await api.patch(
-        `/ordemdeservico/update/${ordemId}`,
-        {
-          nameTecnico,
-          diagnostico,
-          solucao,
-          assinante,
-          atividades_ids: selectedItems,
-          assinatura: signature,
-          statusOrdemdeServico_id: 'fa69ed32-20b2-4d3a-9a6d-e61c5b45efea',
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert('Ordem de Serviço concluída com sucesso!');
-      handleCloseModal();
-    } catch (error: any) {
-      alert('Erro ao atualizar: ' + (error.response?.data?.error || "Erro interno"));
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const storageToken = await AsyncStorage.getItem('@AlltiService');
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    // Criamos o FormData em vez de um objeto JSON comum
+    const data = new FormData();
+
+    // Adicionando os campos de texto
+    data.append('nameTecnico', nameTecnico);
+    data.append('diagnostico', diagnostico);
+    data.append('solucao', solucao);
+    data.append('assinante', assinante);
+    data.append('statusOrdemdeServico_id', 'fa69ed32-20b2-4d3a-9a6d-e61c5b45efea');
+    
+    // Convertendo o array de IDs de atividades para string (o FormData só aceita string/blob)
+    data.append('atividades_ids', JSON.stringify(selectedItems));
+
+    // A assinatura vai como string (Base64)
+    data.append('assinatura', signature);
+
+    // SE VOCÊ TIVER FOTOS (Exemplo de como adicionar arquivos):
+    /* photos.forEach((photo, index) => {
+      data.append('files', {
+        uri: photo.uri,
+        name: `photo_${index}.jpg`,
+        type: 'image/jpeg',
+      } as any);
+    });
+    */
+
+    await api.patch(`/ordemdeservico/update/${ordemId}`, data, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data', // Importante definir isso!
+      }
+    });
+
+    alert('Ordem de Serviço concluída com sucesso!');
+    handleCloseModal();
+  } catch (error: any) {
+    console.log(error.response?.data);
+    alert('Erro ao atualizar: ' + (error.response?.data?.error || "Erro interno"));
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <View style={styles.overlay}>

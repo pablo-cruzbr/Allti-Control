@@ -48,6 +48,11 @@ class ListOrdemdeServicoService {
         diagnostico: true,
         solucao: true,
         assinante: true,
+        bannerassinatura: true,
+        duracao: true,
+        startedAt: true,
+        endedAt: true,
+        
         atividades: {
           select: {
             id: true,
