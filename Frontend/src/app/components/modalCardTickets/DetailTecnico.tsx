@@ -177,8 +177,8 @@ const formatSecondsToHHMMSS = (secs?: number | null): string => {
           <p>Sem informações do setor</p>
         )}
 
-         <p>========================================================</p>
-       <p>Dados deifinidos pelo Aplicativo:</p>
+      <p>========================================================</p>
+      <p>Dados definidos pelo Aplicativo: certo:</p>
       <p>
         <strong>Horário de Início:</strong>{" "}
         {timeOS?.startedAt
@@ -194,7 +194,7 @@ const formatSecondsToHHMMSS = (secs?: number | null): string => {
         <strong>Horário de Término:</strong>{" "}
         {timeOS?.endedAt
           ? new Date(timeOS.endedAt).toLocaleTimeString("pt-BR", {
-              timeZone: "America/Sao_Paulo",
+              timeZone: "America/Sao_Paulo", 
               hour: "2-digit",
               minute: "2-digit",
             })
@@ -203,17 +203,20 @@ const formatSecondsToHHMMSS = (secs?: number | null): string => {
 
       <p>
         <strong>Duração:</strong>{" "}
-        {timeOS?.duracao != null ? formatSecondsToHHMMSS(timeOS.duracao) : "Sem duração"}
+        {timeOS?.duracao !== undefined && timeOS?.duracao !== null 
+          ? formatSecondsToHHMMSS(Math.abs(timeOS.duracao)) 
+          : "Sem duração"}
       </p>
 
-
-      </div>
-
+        <p>========================================================</p>
+       <p>Atividades</p>
+     
       <div className={styles.buttonArea}>
         <button type="button" className={styles.cancelButton} onClick={onClose}>
           Fechar
         </button>
       </div>
     </div>
+</div>
   );
 }
