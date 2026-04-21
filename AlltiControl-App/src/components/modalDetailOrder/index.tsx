@@ -64,7 +64,6 @@ export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps
 };
 
 useEffect(() => {
-  // Correção Erro 1: Usando 'any' para evitar conflito NodeJS.Timeout vs number
   let interval: any = null;
 
   if (isRunning && !isPaused) {
@@ -96,7 +95,6 @@ useEffect(() => {
   };
 
   const abrirGoogleMaps = (endereco: string) => {
-    // Correção Erro URL: Corrigido o protocolo e a interpolação
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
     Linking.openURL(url);
   };
