@@ -80,14 +80,12 @@ export default function ListOrdemdeServicoInterna() {
   const [instituicaoFilter, setInstituicaoFilter] = useState<string>("");
   const [clienteFilter, setClienteFilter] = useState<string>("");
 
-  // estados de modais
   const [modalDetailVisible, setModalDetailVisible] = useState(false);
   const [modalFormTicketInternoVisible, setModalFormTicketInternoVisible] = useState(false);
 
   const [selectedOrdem, setSelectedOrdem] = useState<OrdensDeServico | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Lista fixa de status
   const statusList = [
     { id: "all", name: "TODOS" },
     { id: "80e14fbe-c7fd-45bc-b3cd-cfa51ede44e0", name: "ABERTA" },
@@ -95,29 +93,34 @@ export default function ListOrdemdeServicoInterna() {
     { id: "fa69ed32-20b2-4d3a-9a6d-e61c5b45efea", name: "CONCLUIDA" },
   ];
 
-  // Função para carregar ordens
+
+  const ID_TIPO_TICKET = "9255770c-a7b5-400b-9773-8b249f04b9ed";
+
   const loadOrdens = async () => {
-    setLoading(true);
-    try {
-      const storageToken = await AsyncStorage.getItem("@AlltiService");
-      if (!storageToken) return;
+  setLoading(true);
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
 
-      const { token } = JSON.parse(storageToken);
-      if (!token) return;
+    const { token } = JSON.parse(storageToken);
+    const response = await api.get("/listordemdeservico", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      const response = await api.get("/listordemdeservico", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const todasAsOrdens: OrdensDeServico[] = response.data.controles || [];
+    const ordensTipoTicket = todasAsOrdens.filter((ordem: OrdensDeServico) => {
+       return ordem.tipodeOrdemdeServico?.id === ID_TIPO_TICKET;
+    });
 
-      const ordens = response.data.result.controles || [];
-      setOrdensDeServico(ordens);
-      setFilteredOrdens(ordens);
-    } catch (error) {
-      console.error("Erro ao carregar ordens de serviço:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setOrdensDeServico(ordensTipoTicket);
+    setFilteredOrdens(ordensTipoTicket);
+    
+  } catch (error) {
+    console.error("Erro ao carregar ordens de serviço:", error);
+  } finally {
+    setLoading(false);
+  }
+};
   
    const loadFilters = async () => {
     try{
@@ -364,7 +367,7 @@ export default function ListOrdemdeServicoInterna() {
 
             <View style={styles.cardInfo}>
               <Text style={styles.cardTitle}>
-                Número da OS: {item.numeroOS || "Não Disponível"}
+                Número do Ticket: {item.numeroOS || "Não Disponível"}
               </Text>
               <Text style={styles.cardStatus}>
                 Status da OS: {item.statusOrdemdeServico?.name || "N/A"}
