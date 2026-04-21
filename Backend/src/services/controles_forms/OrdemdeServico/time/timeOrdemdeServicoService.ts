@@ -35,7 +35,7 @@ export const TimeOrdemDeServicoService = {
   }) as OrdemdeServicoComPausa | null;
 
   if (!ordem) throw new Error("Ordem não encontrada.");
-  if (ordem.startedAt) return ordem; // já iniciada
+  if (ordem.startedAt) return ordem; 
 
   const statusEmAndamento = await this.getStatusOrThrow("EM ANDAMENTO");
 

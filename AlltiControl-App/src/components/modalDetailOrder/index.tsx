@@ -494,43 +494,45 @@ const isDisabled = selectedImages.length === 0;
         <Text style={styles.label}>Quem abriu a OS:</Text>
         <Text>{ordemAtual.name}</Text>
 
-        {ordemAtual.user?.cliente ? (
-          <>
-            <Text style={styles.label}>Empresa:</Text>
-            <Text>{ordemAtual.user.cliente.name}</Text>
-            <Text style={styles.label}>Endereço:</Text>
-            <Text>{ordemAtual.user.cliente.endereco}</Text>
-          </>
-        ) : ordemAtual.instituicaoUnidade ? (
-          <>
-            <Text style={styles.label}>Instituição:</Text>
-            <Text>{ordemAtual.instituicaoUnidade.name}</Text>
-            <Text style={styles.label}>Endereço:</Text>
-            <Text>{ordemAtual.instituicaoUnidade.endereco}</Text>
-          </>
-        ) : (
-          <>
-            <Text style={styles.label}>Endereço:</Text>
-            <Text>-</Text>
-          </>
-        )}
+       {ordemAtual.user?.cliente ? (
+    <>
+      <Text style={styles.label}>Empresa:</Text>
+      <Text>{ordemAtual.user.cliente.name}</Text>
+      <Text style={styles.label}>Endereço:</Text>
+      <Text>{ordemAtual.user.cliente.endereco || "Endereço ainda não atribuído. Peça para seu gestor atribuir."}</Text>
+    </>
+  ) : ordemAtual.instituicaoUnidade ? (
+    <>
+      <Text style={styles.label}>Instituição:</Text>
+      <Text>{ordemAtual.instituicaoUnidade.name}</Text>
+      <Text style={styles.label}>Endereço:</Text>
+      <Text>{ordemAtual.instituicaoUnidade.endereco || "Endereço ainda não atribuído. Peça para seu gestor atribuir."}</Text>
+    </>
+  ) : (
+    <>
+      <Text style={styles.label}>Endereço:</Text>
+      <Text style={{ color: '#E67E22', fontWeight: '500' }}>
+        Endereço ainda não atribuído. Peça para seu gestor atribuir.
+      </Text>
+    </>
+  )}
 
-        {endereco && (
-          <>
-            <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirWaze(endereco)}>
-              <View style={styles.buttonContent}>
-                <MaterialIcons name="navigation" size={20} color="#FFF" />
-                <Text style={styles.textButtonClose}>ABRIR NO WAZE</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirGoogleMaps(endereco)}>
-              <View style={styles.buttonContent}>
-                <MaterialIcons name="map" size={20} color="#FFF" />
-                <Text style={styles.textButtonClose}>ABRIR NO GOOGLE MAPS</Text>
-              </View>
-            </TouchableOpacity>
-          </>
-        )}
+  {endereco && (
+    <>
+      <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirWaze(endereco)}>
+        <View style={styles.buttonContent}>
+          <MaterialIcons name="navigation" size={20} color="#FFF" />
+          <Text style={styles.textButtonClose}>ABRIR NO WAZE</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirGoogleMaps(endereco)}>
+        <View style={styles.buttonContent}>
+          <MaterialIcons name="map" size={20} color="#FFF" />
+          <Text style={styles.textButtonClose}>ABRIR NO GOOGLE MAPS</Text>
+        </View>
+      </TouchableOpacity>
+    </>
+  )}
 
 <View style={styles.timerContainer}>
     <View style={styles.actionWrapper}>
