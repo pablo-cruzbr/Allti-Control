@@ -95,7 +95,7 @@ import { ListControledeEstabilizadoresController } from "./controllers/controles
 import { UpdateControledeEstabilizadoresController } from "./controllers/controles_forms/ControledeEstabilizadores/UpdateControledeEstabilizadoresController";
 import { CreatetipodeInstituicaoUnidadeController } from "./controllers/status_categorias/tipodeInsituicaoUnidade/CreatetipodeInstituicaoUnidadeController";
 import { ListtipoInsituicaoUnidadeController } from "./controllers/status_categorias/tipodeInsituicaoUnidade/ListtipoInsituicaoUnidadeController";
-import { TimeOrdemDeServicoController } from "./controllers/controles_forms/OrdemdeServico/time/timeOrdemdeServicoController";
+import { TimeOrdemDeServicoController } from "./controllers/controles_forms/OrdemdeServico/time/TimeOrdemdeServicoController";
 import { CreateAssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/CreateAssinaturaController";
 import { SaveAssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/GetAssinaturaController";
 import { AssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/saveAssinatura";

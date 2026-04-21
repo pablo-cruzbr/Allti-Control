@@ -99,8 +99,16 @@ useEffect(() => {
     Linking.openURL(url);
   };
 
-  const atualizarOrdem = () => setOrdemAtual({ ...ordemAtual });
-
+const atualizarOrdem = async () => {
+  try {
+    if (!ordemAtual?.id) return;
+    const response = await api.get(`/ordemdeservico/${ordemAtual.id}`);
+    setOrdemAtual(response.data);
+  } catch (error) {
+    console.log("Erro ao atualizar ordem:", error);
+    Alert.alert("Erro", "Não foi possível sincronizar os dados da OS.");
+  }
+};
   const fetchAssinatura = async (ordemId: string) => {
     try {
       const storageToken = await AsyncStorage.getItem("@AlltiService");
@@ -656,75 +664,87 @@ const isDisabled = selectedImages.length === 0;
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
+  overlay: { 
+    flex: 1, 
+    backgroundColor: "#FFF" // Removido o transparente para parecer uma tela cheia
+  },
   modalContainer: {
     width: WIDTH,
-    maxHeight: HEIGHT * 0.95,
+    height: HEIGHT, // Ocupa a altura total
     backgroundColor: "#FFF",
-    borderRadius: 8,
+    borderRadius: 0, // Remove arredondamento para colar nas bordas
     padding: 15,
+    paddingTop: 40, // Espaço para não cobrir a barra de status do celular
   },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
+  header: { 
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    alignItems: "center", 
+    marginBottom: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE" 
+  },
   title: { fontSize: 20, fontWeight: "bold" },
   refreshIcon: { left: 40 },
   closeIcon: { right: 4 },
-  label: { marginTop: 10, fontWeight: "bold" },
-  buttonClose: { marginTop: 20, backgroundColor: "#4E3182", padding: 12, borderRadius: 8, alignItems: "center" },
+  label: { marginTop: 15, fontWeight: "bold", fontSize: 14 },
+  buttonClose: { marginTop: 20, backgroundColor: "#4E3182", padding: 15, borderRadius: 8, alignItems: "center" },
   buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
   textButtonClose: { color: "#FFF", fontWeight: "bold", marginLeft: 8 },
   buttonNavigation: { backgroundColor: "#4E3182" },
   buttonDisabled: { backgroundColor: "#9CA3AF", opacity: 0.6 },
- timerContainer: {
+  timerContainer: {
     marginVertical: 20,
     padding: 15,
-    backgroundColor: '#F8F9FA', // Fundo leve para destacar a área
+    backgroundColor: '#F8F9FA',
     borderRadius: 12,
     alignItems: 'center',
     width: '100%',
-},
-btnDisabled: {
-    backgroundColor: '#BDC3C7', // Cinza claro para indicar desabilitado
+  },
+  btnDisabled: {
+    backgroundColor: '#BDC3C7',
     borderWidth: 1,
     borderColor: '#95A5A6',
-    elevation: 0, // Remove a sombra para parecer "flat"
+    elevation: 0,
     opacity: 0.8,
-},
-timerLabel: {
+  },
+  timerLabel: {
     fontSize: 13,
     color: '#666',
     marginBottom: 10,
     textTransform: 'uppercase',
     letterSpacing: 1,
-},
-actionWrapper: {
+  },
+  actionWrapper: {
     width: '100%',
-},
-mainButton: {
+  },
+  mainButton: {
     height: 55,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2, // Sombra no Android
-    shadowColor: '#000', // Sombra no iOS
+    elevation: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-},
-mainButtonText: {
+  },
+  mainButtonText: {
     color: '#FFF',
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: 1.2,
-},
-btnStart: {
-    backgroundColor: '#4E3182', // Roxo Allti
-},
-btnPause: {
-    backgroundColor: '#E67E22', // Laranja (Alerta/Pausa)
-},
-btnResume: {
-    backgroundColor: '#27AE60', // Verde (Retomar)
-},
+  },
+  btnStart: {
+    backgroundColor: '#4E3182',
+  },
+  btnPause: {
+    backgroundColor: '#E67E22',
+  },
+  btnResume: {
+    backgroundColor: '#27AE60',
+  },
   gridImages: { flexDirection: "row", flexWrap: "wrap", marginTop: 10 },
   imageWrapper: { width: IMAGE_SIZE, height: IMAGE_SIZE, marginRight: 10, marginBottom: 10, position: "relative" },
   imageItem: { width: "100%", height: "100%", borderRadius: 8 },
