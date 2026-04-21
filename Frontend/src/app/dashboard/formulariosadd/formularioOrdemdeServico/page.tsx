@@ -136,17 +136,7 @@ export default function FormularioOrdemdeServico() {
               className={styles.input}
             />
 
-              <p>Selecione o Tipo de Ordem de Serviço</p>
-                <select name="tipodeOrdemdeServico_id" required className={styles.input}>
-                  <option value="" disabled hidden>
-                    Selecione o Tipo de Ordem de Servico
-                  </option>
-                  {tipodeOrdemdeServico.map((tipo) => (
-                    <option key={tipo.id} value={tipo.id}>
-                      {tipo.name}
-                    </option>
-                  ))}
-                </select>
+            
 
              <p>Selecione o Tipo de Chamado</p>
               <select name="tipodeChamado_id" required className={styles.input}>
