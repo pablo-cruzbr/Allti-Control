@@ -52,8 +52,8 @@ export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps
   const [time, setTime] = useState(0);
   const [assinatura, setAssinatura] = useState<string | null>(null);
   const [retomarSuccess, setRetomarSuccess] = useState(false);
-
-const formatTime = (seconds: number) => {
+  const isConcluida = ordemAtual?.statusOrdemdeServico?.id === "fa69ed32-20b2-4d3a-9a6d-e61c5b45efea";
+  const formatTime = (seconds: number) => {
   const totalSeconds = seconds < 0 ? 0 : seconds;
 
   const h = Math.floor(totalSeconds / 3600).toString().padStart(2, "0");
@@ -533,59 +533,47 @@ const isDisabled = selectedImages.length === 0;
             </TouchableOpacity>
           </>
         )}
-        <View style={styles.timerContainer}>                
-    <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
 
-    {!isRunning && ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "PAUSADA" && (
-    <>
-    <TouchableOpacity
-      style={[styles.buttonClose, styles.timerBtnReset]}
-      onPress={async () => {
-        await handleResume();
-        setIsRunning(true); 
-      }}
-      >
-      <Text style={styles.textButtonClose}>
-        {retomarSuccess ? "OS Retomada!" : "Retomar"}
-      </Text>
-      </TouchableOpacity>
-        </>
-    )}
+<View style={styles.timerContainer}>
+    <View style={styles.actionWrapper}>
+        {isConcluida ? (
+            <View style={[styles.mainButton, styles.btnDisabled]}>
+                <Text style={styles.mainButtonText}>ATENDIMENTO FINALIZADO</Text>
+            </View>
+        ) : (
+            <>
+                {!hasStarted && (
+                    <TouchableOpacity 
+                        style={[styles.mainButton, styles.btnStart]} 
+                        onPress={handleStart}
+                    >
+                        <Text style={styles.mainButtonText}>INICIAR ATENDIMENTO</Text>
+                    </TouchableOpacity>
+                )}
 
+                {isRunning && (
+                    <TouchableOpacity 
+                        style={[styles.mainButton, styles.btnPause]} 
+                        onPress={handlePause}
+                    >
+                        <Text style={styles.mainButtonText}>PAUSAR SERVIÇO</Text>
+                    </TouchableOpacity>
+                )}
 
-    <View style={styles.timerButtons}>
-    {!isRunning && !isPaused && !hasStarted && (
-      <TouchableOpacity
-        style={[styles.buttonClose, styles.timerBtn]}
-        onPress={handleStart}
-      >
-        <Text style={styles.textButtonClose}>Iniciar</Text>
-      </TouchableOpacity>
-    )}
-
-    {isRunning && (
-      <TouchableOpacity
-        style={[styles.buttonClose, styles.timerBtnPause]}
-        onPress={handlePause}
-      >
-        <Text style={styles.textButtonClose}>Pausar</Text>
-      </TouchableOpacity>
-    )}
-
-      {!isRunning && isPaused && (
-        <TouchableOpacity
-          style={[styles.buttonClose, styles.timerBtnReset]}
-          onPress={async () => {
-            await handleResume();
-            setTimeout(() => {
-              setIsRunning(true);
-              setIsPaused(false);
-            }, 300);
-          }}
-        >
-          <Text style={styles.textButtonClose}>Retomar</Text>
-        </TouchableOpacity>
-      )}
+                {(isPaused || ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "PAUSADA") && !isRunning && (
+                    <TouchableOpacity 
+                        style={[styles.mainButton, styles.btnResume]} 
+                        onPress={async () => {
+                            await handleResume();
+                            setIsRunning(true);
+                            setIsPaused(false);
+                        }}
+                    >
+                        <Text style={styles.mainButtonText}>RETOMAR TRABALHO</Text>
+                    </TouchableOpacity>
+                )}
+            </>
+        )}
     </View>
 </View>
             <Text style={styles.label}>Tipo de Chamado:</Text>
@@ -692,12 +680,57 @@ const styles = StyleSheet.create({
   textButtonClose: { color: "#FFF", fontWeight: "bold", marginLeft: 8 },
   buttonNavigation: { backgroundColor: "#4E3182" },
   buttonDisabled: { backgroundColor: "#9CA3AF", opacity: 0.6 },
-  timerContainer: { marginVertical: 15, alignItems: "center" },
-  timerText: { fontSize: 16, fontWeight: "bold" },
-  timerButtons: { flexDirection: "row", marginTop: 10 },
-  timerBtn: { marginRight: 10, backgroundColor: "#4E3182" },
-  timerBtnPause: { marginRight: 10, backgroundColor: "#888" },
-  timerBtnReset: { backgroundColor: "#555" },
+ timerContainer: {
+    marginVertical: 20,
+    padding: 15,
+    backgroundColor: '#F8F9FA', // Fundo leve para destacar a área
+    borderRadius: 12,
+    alignItems: 'center',
+    width: '100%',
+},
+btnDisabled: {
+    backgroundColor: '#BDC3C7', // Cinza claro para indicar desabilitado
+    borderWidth: 1,
+    borderColor: '#95A5A6',
+    elevation: 0, // Remove a sombra para parecer "flat"
+    opacity: 0.8,
+},
+timerLabel: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+},
+actionWrapper: {
+    width: '100%',
+},
+mainButton: {
+    height: 55,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2, // Sombra no Android
+    shadowColor: '#000', // Sombra no iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+},
+mainButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+},
+btnStart: {
+    backgroundColor: '#4E3182', // Roxo Allti
+},
+btnPause: {
+    backgroundColor: '#E67E22', // Laranja (Alerta/Pausa)
+},
+btnResume: {
+    backgroundColor: '#27AE60', // Verde (Retomar)
+},
   gridImages: { flexDirection: "row", flexWrap: "wrap", marginTop: 10 },
   imageWrapper: { width: IMAGE_SIZE, height: IMAGE_SIZE, marginRight: 10, marginBottom: 10, position: "relative" },
   imageItem: { width: "100%", height: "100%", borderRadius: 8 },
