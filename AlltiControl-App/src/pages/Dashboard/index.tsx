@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Feather from "@expo/vector-icons/Feather";
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Picker } from "@react-native-picker/picker";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -209,6 +210,7 @@ const loadOrdens = async () => {
         <Image source={require("../../assets/logoperfil2.png")} style={styles.profileImage} />
         <Text style={styles.title}>Ordens de Serviço</Text>
         <View style={styles.headerIcons}>
+          <SimpleLineIcons name="logout" size={20} color="#fff" style={styles.icon} onPress={signOut}/>
           <Feather name="user" size={24} color="#fff" style={styles.icon} />
           {loading ? (
             <ActivityIndicator size="small" color="#fff" style={styles.icon} />
@@ -285,14 +287,7 @@ const loadOrdens = async () => {
       </View>
 
      
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate("ListOrdemdeServicoInterna" as never)}
-        activeOpacity={0.7}
-      >
-        <MaterialCommunityIcons name="form-select" size={30} color="#fff" />
-      </TouchableOpacity>
-
+  
       <FlatList
         data={filteredOrdens}
         keyExtractor={(item) => item.id}
@@ -355,6 +350,14 @@ const loadOrdens = async () => {
      
       <TouchableOpacity style={styles.fabSecondary} onPress={signOut}>
         <Feather name="log-in" size={28} color="#fff" />
+      </TouchableOpacity>
+
+       <TouchableOpacity
+        style={styles.fabSecondary}
+        onPress={() => navigation.navigate("ListOrdemdeServicoInterna" as never)}
+        activeOpacity={0.7}
+      >
+        <MaterialCommunityIcons name="form-select" size={30} color="#fff" />
       </TouchableOpacity>
     </SafeAreaView>
   );
