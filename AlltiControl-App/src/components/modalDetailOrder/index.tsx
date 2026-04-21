@@ -581,12 +581,6 @@ const isDisabled = selectedImages.length === 0;
             <Text style={styles.label}>Problema:</Text>
             <Text>{ordemAtual.descricaodoProblemaouSolicitacao}</Text>
             
-            <Text style={styles.label}>Início da OS:</Text>
-              <Text>
-                {ordemAtual?.startedAt
-                  ? new Date(ordemAtual.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-                  : "-"}
-              </Text>
 
             <Text style={styles.label}>Assinatura:</Text>
             {assinatura && (
