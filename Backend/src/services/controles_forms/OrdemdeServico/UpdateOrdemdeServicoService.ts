@@ -119,11 +119,10 @@ class UpdateOrdemdeServicoService {
           equipamento: equipamentoid ? { connect: { id: equipamentoid } } : undefined,
           tarefa: tarefa_id ? { connect: { id: tarefa_id } } : undefined,
           informacoesSetor: informacoesSetorId ? { connect: { id: informacoesSetorId } } : undefined,
-          
-          // Cliente e Unidade (Híbrido: Conecta ou desconecta)
-          cliente: cliente_id ? { connect: { id: cliente_id } } : { disconnect: true },
-          instituicaoUnidade: instituicaoUnidade_id ? { connect: { id: instituicaoUnidade_id } } : { disconnect: true },
-
+        
+          cliente: cliente_id ? { connect: { id: cliente_id } } : undefined,
+          instituicaoUnidade: instituicaoUnidade_id ? { connect: { id: instituicaoUnidade_id } } : undefined,
+                  
           // Atividades (AtividadeNoChamado)
           atividades: atividadesConnect.length > 0 ? {
             create: atividadesConnect
