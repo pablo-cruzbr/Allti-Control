@@ -123,7 +123,6 @@ class UpdateOrdemdeServicoService {
           cliente: cliente_id ? { connect: { id: cliente_id } } : undefined,
           instituicaoUnidade: instituicaoUnidade_id ? { connect: { id: instituicaoUnidade_id } } : undefined,
                   
-          // Atividades (AtividadeNoChamado)
           atividades: atividadesConnect.length > 0 ? {
             create: atividadesConnect
           } : undefined,
