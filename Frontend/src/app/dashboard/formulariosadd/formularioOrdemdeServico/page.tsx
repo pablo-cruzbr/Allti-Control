@@ -136,8 +136,6 @@ export default function FormularioOrdemdeServico() {
               className={styles.input}
             />
 
-            
-
              <p>Selecione o Tipo de Chamado</p>
               <select name="tipodeChamado_id" required className={styles.input}>
                 <option value="" disabled hidden>
