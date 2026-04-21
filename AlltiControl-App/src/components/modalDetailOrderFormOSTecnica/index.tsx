@@ -38,9 +38,33 @@ export function ModalDetailOrderFormOSTecnica({
   const [loading, setLoading] = useState(false);
   const signatureRef = useRef<SignatureViewRef>(null);
 
-  const handleSignature = (sig: string) => {
-    setSignature(sig);
-  };
+  const handleSignature = async (sig: string) => {
+  setSignature(sig); // Salva no estado local para feedback visual
+  
+  // Se você já tiver o ID da OS, pode salvar na hora, 
+  // ou chamar essa função dentro do seu handleSubmit geral
+  if (ordemId) {
+    await saveSignature(ordemId, sig);
+  }
+};
+
+  const saveSignature = async (ordemId: string, signatureBase64: string) => {
+  try {
+    // Busca o token (ajuste para o seu método de storage)
+    const token = await AsyncStorage.getItem("@allticontrol"); 
+
+    await api.patch(`/assinatura/${ordemId}`, {
+      assinatura: signatureBase64, 
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    console.log("Assinatura sincronizada com o servidor!");
+  } catch (error) {
+    console.error("Erro ao enviar assinatura:", error);
+    throw error; // Repassa o erro para tratar no botão de salvar
+  }
+};
 
   const handleClear = () => {
     signatureRef.current?.clearSignature();
@@ -138,7 +162,6 @@ export function ModalDetailOrderFormOSTecnica({
               numberOfLines={3}
             />
 
-            {/* Campo de Assinatura */}
             <Text style={styles.label}>Assinatura Digital:</Text>
             <View style={styles.signatureContainer}>
               <SignatureScreen
@@ -159,11 +182,12 @@ export function ModalDetailOrderFormOSTecnica({
               <TouchableOpacity style={styles.buttonSecondary} onPress={handleClear}>
                 <Text style={styles.buttonTextSecondary}>Limpar</Text>
               </TouchableOpacity>
-              <TouchableOpacity
+
+              <TouchableOpacity 
                 style={styles.buttonSecondary}
-                onPress={() => signatureRef.current?.readSignature()}
+                onPress={() => signatureRef.current?.readSignature()} // Isso dispara o onOK/handleSignature
               >
-                <Text style={styles.buttonTextSecondary}>Confirmar Assinatura</Text>
+                <Text>Confirmar Assinatura</Text>
               </TouchableOpacity>
             </View>
 

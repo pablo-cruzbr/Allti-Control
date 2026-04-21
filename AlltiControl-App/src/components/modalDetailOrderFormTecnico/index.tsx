@@ -22,6 +22,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 interface ModalDetailOrderTecnicoProps {
   ordemId: string;
   handleCloseModal: () => void;
+  tempoFinal: number;
 }
 
 interface Atividade {
@@ -62,9 +63,9 @@ export function ModalDetailOrderFormTecnico({
     setShowSignatureModal(false);
   };
 
- const handleSubmit = async () => {
-  if (!signature || !assinante) {
-    alert('Por favor, preencha o nome do assinante e colete a assinatura.');
+const handleSubmit = async () => {
+  if (!signature) {
+    alert('Por favor, adicione a assinatura antes de salvar.');
     return;
   }
 
@@ -74,49 +75,30 @@ export function ModalDetailOrderFormTecnico({
     if (!storageToken) return;
     const { token } = JSON.parse(storageToken);
 
-    // Criamos o FormData em vez de um objeto JSON comum
-    const data = new FormData();
+    // UNIFICANDO TUDO EM UMA CHAMADA SÓ
+    // Note que agora enviamos 'assinatura' e não 'assinaturaBase64'
+    await api.patch(
+      `/ordemdeservico/update/${ordemId}`,
+      {
+        nameTecnico,
+        diagnostico,
+        solucao,
+        assinante,
+        assinatura: signature, // A string Base64 do desenho
+        duracao: 0, // Lembre-se de passar o valor do seu timer aqui
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-    // Adicionando os campos de texto
-    data.append('nameTecnico', nameTecnico);
-    data.append('diagnostico', diagnostico);
-    data.append('solucao', solucao);
-    data.append('assinante', assinante);
-    data.append('statusOrdemdeServico_id', 'fa69ed32-20b2-4d3a-9a6d-e61c5b45efea');
-    
-    // Convertendo o array de IDs de atividades para string (o FormData só aceita string/blob)
-    data.append('atividades_ids', JSON.stringify(selectedItems));
-
-    // A assinatura vai como string (Base64)
-    data.append('assinatura', signature);
-
-    // SE VOCÊ TIVER FOTOS (Exemplo de como adicionar arquivos):
-    /* photos.forEach((photo, index) => {
-      data.append('files', {
-        uri: photo.uri,
-        name: `photo_${index}.jpg`,
-        type: 'image/jpeg',
-      } as any);
-    });
-    */
-
-    await api.patch(`/ordemdeservico/update/${ordemId}`, data, {
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data', // Importante definir isso!
-      }
-    });
-
-    alert('Ordem de Serviço concluída com sucesso!');
+    alert('Ordem de Serviço atualizada com sucesso!');
     handleCloseModal();
   } catch (error: any) {
-    console.log(error.response?.data);
-    alert('Erro ao atualizar: ' + (error.response?.data?.error || "Erro interno"));
+    console.error("Erro no envio:", error.response?.data || error.message);
+    alert('Erro ao atualizar: ' + (error.response?.data?.error || 'Tente novamente.'));
   } finally {
     setLoading(false);
   }
 };
-
   return (
     <View style={styles.overlay}>
       <KeyboardAvoidingView 
