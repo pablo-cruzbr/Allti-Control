@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { CreateStatusPrioridadeService } from "../../../services/status_categorias/statusUrgencia/CreateStatusPrioridadeService";
 
-class CreateStatusPrioridadeController{
+class CreateStatusUrgenciaController{
     async handle(req:Request, res: Response){
         const {name} = req.body;
 
@@ -14,4 +14,4 @@ class CreateStatusPrioridadeController{
     }
 }
 
-export {CreateStatusPrioridadeController}
+export {CreateStatusUrgenciaController}
