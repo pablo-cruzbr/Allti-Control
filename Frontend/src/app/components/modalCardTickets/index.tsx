@@ -179,6 +179,12 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
                 <span>{OrdemdeServico.tecnico?.name ?? "Não informado"}</span>
               </div>
 
+              <div className={styles.infoItem}>
+                <label>Tarefa:</label>
+                  <span>{OrdemdeServico.tarefa?.name ?? "Não informado"}</span>
+              </div>
+
+        
           
               <div className={styles.infoItem}>
                 <label>Data de Criação:</label>
