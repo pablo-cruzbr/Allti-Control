@@ -128,8 +128,12 @@ class UpdateOrdemdeServicoService {
           } : undefined,
         },
         include: {
-          atividades: true,
-          statusOrdemdeServico: true
+          statusOrdemdeServico: true,
+          atividades: {
+            include: {
+              atividadePadrao: true 
+            }
+          }
         }
       });
 
