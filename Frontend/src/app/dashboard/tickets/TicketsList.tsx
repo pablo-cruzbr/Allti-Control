@@ -52,13 +52,14 @@ export default function TicketsList({ ticketsData }: Props) {
   const [searchOS, setSearchOS] = useState<string>("");
   const [instituicoes, setInstituicoes] = useState<Instituicao[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [tarefa, setTarefa] = useState<Tarefa[]>([]); 
   const [selectedInstituicao, setSelectedInstituicao] = useState<string>("");
   const [tiposOrdem, setTiposOrdem] = useState<TipodeOrdemdeServico[]>([]);
   const [prioridade, setPrioridade] = useState<StatusPrioridade[]>([]);
   const [selectedTipoOrdem, setSelectedTipoOrdem] = useState<string>("");
   const [selectedCliente, setSelectedCliente] = useState<string>("");
   const [selectedPrioridade, setSelectedPrioridade] = useState<string>("");
-  const [selectedTarefa, setSelectedTarefa] = useState<Tarefa[]>([]);
+  const [selectedTarefa, setSelectedTarefa] = useState<string[]>([]);
 
   const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, totalOrdemdeServico = 0, totalTicket = 0, controles = [] } = ticketsData || {};
 
@@ -66,16 +67,18 @@ export default function TicketsList({ ticketsData }: Props) {
     const fetchFilters = async () => {
       try {
         const token = await getCookieClient();
-        const [instRes, cliRes, tipoRes, prioRes] = await Promise.all([
+        const [instRes, cliRes, tipoRes, prioRes, tareRes] = await Promise.all([
           api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/liststatusprioridade", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/liststatustarefa", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
         setInstituicoes(instRes.data.instituicoes ?? []);
         setClientes(cliRes.data.controles ?? []);
         setTiposOrdem(tipoRes.data ?? []);
         setPrioridade(prioRes.data ?? []);
+        setTarefa(tareRes.data ?? []);
       } catch (error) {
         console.error("Erro ao carregar filtros:", error);
       }
@@ -108,6 +111,7 @@ export default function TicketsList({ ticketsData }: Props) {
     setSelectedCliente("");
     setSelectedTipoOrdem("");
     setSelectedPrioridade("");
+    setSelectedTarefa([])
   };
 
   const handleDeleteCardTecnico = async (tecnico_id: string) => {
@@ -123,7 +127,7 @@ export default function TicketsList({ ticketsData }: Props) {
     }
   };
 
-  const filteredControles = controles.filter(ticket => {
+ const filteredControles = controles.filter(ticket => {
     const isCategoryCard = selectedStatus === 'TICKET' || selectedStatus === 'ORDEM DE SERVICO';
 
     const matchStatus = (selectedStatus && !isCategoryCard) 
@@ -151,8 +155,13 @@ export default function TicketsList({ ticketsData }: Props) {
     )
   : true;
     const matchPrioridade = selectedPrioridade ? ticket.prioridade?.id === selectedPrioridade : true;
+    
+    
+    const matchTarefa = (selectedTarefa && selectedTarefa.length > 0) 
+  ? selectedTarefa.includes(String(ticket.tarefa?.id)) 
+  : true;
 
-    return matchStatus && matchCategoryCard && matchOS && matchInstituicao && matchCliente && matchTipodeOrdemdeServico && matchPrioridade;
+    return matchStatus && matchCategoryCard && matchOS && matchInstituicao && matchCliente && matchTipodeOrdemdeServico && matchPrioridade && matchTarefa;
   });
 
   return (
