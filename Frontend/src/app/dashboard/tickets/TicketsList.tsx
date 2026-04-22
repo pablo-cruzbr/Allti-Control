@@ -22,6 +22,11 @@ interface Instituicao {
   name: string;
 }
 
+interface Tarefa {
+  id: string;
+  name: string;
+}
+
 interface StatusPrioridade {
   id: string;
   name: string;
@@ -53,6 +58,7 @@ export default function TicketsList({ ticketsData }: Props) {
   const [selectedTipoOrdem, setSelectedTipoOrdem] = useState<string>("");
   const [selectedCliente, setSelectedCliente] = useState<string>("");
   const [selectedPrioridade, setSelectedPrioridade] = useState<string>("");
+  const [selectedTarefa, setSelectedTarefa] = useState<Tarefa[]>([]);
 
   const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, totalOrdemdeServico = 0, totalTicket = 0, controles = [] } = ticketsData || {};
 
