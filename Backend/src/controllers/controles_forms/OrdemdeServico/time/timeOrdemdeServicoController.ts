@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
-import { TimeOrdemDeServicoService } from "../../../../services/controles_forms/OrdemdeServico/time/timeOrdemdeServicoService";
-
+import { TimeOrdemdeServicoService } from "../../../../services/controles_forms/OrdemdeServico/time/timeOrdemdeServicoService";
 export class TimeOrdemDeServicoController {
   async iniciar(req: Request, res: Response) {
     try {
       const { id } = req.params;
       if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
-      const ordem = await TimeOrdemDeServicoService.iniciarOrdem(id);
+      const ordem = await TimeOrdemdeServicoService.iniciarOrdem(id);
       return res.json(ordem);
     } catch (error: any) {
       console.error("Erro ao iniciar OS:", error.message);
@@ -21,7 +20,7 @@ export class TimeOrdemDeServicoController {
       const { id } = req.params;
       if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
-      const ordem = await TimeOrdemDeServicoService.concluirOrdem(id);
+      const ordem = await TimeOrdemdeServicoService.concluirOrdem(id);
       return res.json(ordem);
     } catch (error: any) {
       console.error("Erro ao concluir OS:", error.message);
@@ -35,7 +34,7 @@ export class TimeOrdemDeServicoController {
       const { id } = req.params;
       if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
-      const ordem = await TimeOrdemDeServicoService.pausarOrdem(id);
+      const ordem = await TimeOrdemdeServicoService.pausarOrdem(id);
       return res.json(ordem);
     } catch (error: any) {
       console.error("Erro ao pausar OS:", error.message);
@@ -49,7 +48,7 @@ export class TimeOrdemDeServicoController {
       const { id } = req.params;
       if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
-      const ordem = await TimeOrdemDeServicoService.retomarOrdem(id);
+      const ordem = await TimeOrdemdeServicoService.retomarOrdem(id);
       return res.json(ordem);
     } catch (error: any) {
       console.error("Erro ao retomar OS:", error.message);
@@ -67,7 +66,7 @@ export class TimeOrdemDeServicoController {
       const parsedStartedAt = startedAt ? new Date(startedAt) : undefined;
       const parsedEndedAt = endedAt ? new Date(endedAt) : undefined;
 
-      const ordem = await TimeOrdemDeServicoService.atualizarTempo({
+      const ordem = await TimeOrdemdeServicoService.atualizarTempo({
         ordemId: id,
         startedAt: parsedStartedAt,
         endedAt: parsedEndedAt,
@@ -88,7 +87,7 @@ async lerTempo(req: Request, res: Response) {
     if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
     // Chamada direta ao objeto Service
-    const tempo = await TimeOrdemDeServicoService.lerTempo(id);
+    const tempo = await TimeOrdemdeServicoService.lerTempo(id);
 
     // DEBUG: Adicione este log para ver no terminal se o banco está devolvendo os dados
     console.log(`⏱️ Dados de tempo da OS ${id}:`, tempo);

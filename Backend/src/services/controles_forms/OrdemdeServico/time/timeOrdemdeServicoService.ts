@@ -12,7 +12,7 @@ type OrdemdeServicoComPausa = OrdemdeServico & {
   statusOrdemdeServico_id: string;
 };
 
-export const TimeOrdemDeServicoService = {
+export const TimeOrdemdeServicoService = {
   async getStatusOrThrow(statusName: string) {
     const status = await prismaClient.statusOrdemdeServico.findFirst({
       where: { name: statusName },
