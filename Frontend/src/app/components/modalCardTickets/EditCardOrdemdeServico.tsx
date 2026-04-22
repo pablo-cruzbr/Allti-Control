@@ -15,6 +15,7 @@ type Instituicoes = { id: string; name: string; endereco?: string };
 type Cliente = { id: string; name: string; endereco?: string; cnpj?: string };
 type Equipamento = {id: string; name: string; patrimonio: string};
 type Prioridade = {id: string; name: string};
+type Tarefa = {id: string; name: string}; 
 type FormState = {
   tecnico_id: string;
   statusOrdemdeServico_id: string;
@@ -22,7 +23,8 @@ type FormState = {
   cliente_id: string;
   equipamento_id: string;
   tipodeOrdemdeServico_id: string;
-  prioridade_id: string
+  prioridade_id: string;
+  tarefa_id: string; 
 };
 
 type TipodeOrdemdeServico = { id: string; name: string };
@@ -40,7 +42,8 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     cliente_id: "",
     equipamento_id: "",
     tipodeOrdemdeServico_id: "",
-    prioridade_id: ""
+    prioridade_id: "",
+    tarefa_id: "" 
   });
   const [statusList, setStatusList] = useState<Status[]>([]);
   const [tecnicoList, setTecnicoList] = useState<Tecnicos[]>([]);
@@ -49,6 +52,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
   const [equipamentoList, setEquipamentoList] = useState<Equipamento[]>([]);
   const [tipodeordemdeservicoList, setTipodeOrdemdeServicoList] = useState<TipodeOrdemdeServico[]>([]);
   const [prioridade, setPrioridade] = useState<Prioridade[]>([]);
+  const [tarefaList, setTarefaList] = useState<Tarefa[]>([]); 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -78,6 +82,10 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     (ordemdeServico as any)?.prioridadeId?.id ??
     (ordemdeServico as any)?.prioridadeId ?? "";
 
+    const tarefaId = 
+    (ordemdeServico as any)?.tarefa?.id ??
+    (ordemdeServico as any)?.tarefaId ?? ""; 
+
 
     setForm({
       tecnico_id: (ordemdeServico as any)?.tecnico?.id ?? "",
@@ -86,7 +94,8 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       cliente_id: clienteId?.toString() ?? "",
       equipamento_id: equipamentoId?.toString() ?? "",
       tipodeOrdemdeServico_id: tipodeordemdeservicoId?.toString() ?? "",
-      prioridade_id: prioridadeId?.toString()?? ""
+      prioridade_id: prioridadeId?.toString()?? "",
+      tarefa_id: tarefaId?.toString() ?? "" 
     });
   }, [ordemdeServico]);
 
@@ -103,7 +112,8 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         instituicoesRes,
         equipamentoRes,
         tipodeOrdemdeServicoRes,
-        prioridadeRes
+        prioridadeRes,
+        tarefaRes 
       ] = await Promise.all([
         api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
         api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
@@ -112,6 +122,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         api.get("/listequipamento", { headers: { Authorization: `Bearer ${token}` } }),
         api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
         api.get("/liststatusprioridade", { headers: { Authorization: `Bearer ${token}` } }),
+        api.get("/liststatustarefa", { headers: { Authorization: `Bearer ${token}` } }), 
       ]);
 
       setTecnicoList(tecnicosRes.data.controles ?? []);
@@ -121,6 +132,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       setEquipamentoList(equipamentoRes.data ?? []);
       setTipodeOrdemdeServicoList(tipodeOrdemdeServicoRes.data ?? [])
       setPrioridade(prioridadeRes.data ?? [])
+      setTarefaList(tarefaRes.data ?? []); 
 
     } catch (error) {
       console.error("Erro ao buscar listas:", error);
@@ -149,6 +161,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       equipamento_id: form.equipamento_id || null,
       tipodeOrdemdeServico_id: form.tipodeOrdemdeServico_id || null,
       prioridade_id: form.prioridade_id || null,
+      tarefa_id: form.tarefa_id || null, 
     };
 
     console.log("Payload enviado:", payload);
@@ -205,6 +218,18 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
           {tipodeordemdeservicoList.map((tipodeOrdemdeServico) => (
             <option key={tipodeOrdemdeServico.id} value={tipodeOrdemdeServico.id}>
               {tipodeOrdemdeServico.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        <p>Tarefa</p>
+        <select name="tarefa_id" value={form.tarefa_id} onChange={handleChange} className={styles.input}>
+          <option value="">Selecione a Tarefa</option>
+          {tarefaList.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
             </option>
           ))}
         </select>

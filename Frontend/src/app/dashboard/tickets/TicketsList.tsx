@@ -198,6 +198,20 @@ export default function TicketsList({ ticketsData }: Props) {
 
       <div className={styles.headerClient}>
         <div className={styles.actions}>
+          
+          <select 
+            value={selectedTarefa[0] || ""} 
+            onChange={(e) => setSelectedTarefa(e.target.value ? [e.target.value] : [])} 
+            className={styles.select}
+          >
+            <option value="">Todas as Tarefas</option>
+            {tarefa.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+
           <select value={selectedInstituicao} onChange={(e) => setSelectedInstituicao(e.target.value)} className={styles.select}>
             <option value="">Todas Instituições</option>
             {instituicoes.map(inst => (
