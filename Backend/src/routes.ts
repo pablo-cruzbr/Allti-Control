@@ -254,8 +254,6 @@ router.get('/listsolicitacaodecompras', isAuthenticated, new ListSolicitacaodeCo
 router.delete('/deletedesolicitacaodecompras/:id', isAuthenticated, new DeleteSolicitacaodeComprasController().handle)
 router.get('/compra/detail', isAuthenticated, new DetailComprasController().handle)
 router.patch('/compra/update/:id', isAuthenticated, new UpdateSolicitacaodeComprasController().handle)
-//FORMULARIO TECNICO
-
 
 // - CONTINUAR DEPOIS
 //ORDEM DE SERVIÇO

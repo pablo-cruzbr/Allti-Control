@@ -209,7 +209,7 @@ const formatSecondsToHHMMSS = (secs?: number | null): string => {
       </p>
 
         <p>========================================================</p>
-       <p>Atividades</p>
+       <p>Atividades Feitas</p>
      
       <div className={styles.buttonArea}>
         <button type="button" className={styles.cancelButton} onClick={onClose}>
