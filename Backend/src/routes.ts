@@ -105,6 +105,7 @@ import { GetOrdemdeServicoByIdController } from "./controllers/controles_forms/O
 import { CreatetipodeOrdemdeServicoController } from "./controllers/status_categorias/tipodeOrdemdeServico/CreateTipodeOrdemdeServicoController";
 import { ListtipodeOrdemdeServicoController } from "./controllers/status_categorias/tipodeOrdemdeServico/ListTipodeOrdemdeServicoController";
 import { CreateStatusTarefaController } from "./controllers/status_categorias/tarefa/CreateStatusTarefaController";
+import { ListStatusTarefaController } from "./controllers/status_categorias/tarefa/ListStatusTarefaController";
 
 const router = Router();
 //get,post, update, delete
@@ -280,6 +281,7 @@ router.post("/status/estabilizadores", isAuthenticated, new CreateStatusEstabili
 router.get("/liststatus/estabilizadores", isAuthenticated, new ListStatusEstabilizadoresController().handle)
 
 router.post('/statustarefa', isAuthenticated, new CreateStatusTarefaController().handle)
+router.get("/liststatustarefa", isAuthenticated, new ListStatusTarefaController().handle)
 
 //ESTABILIZADORES
 router.post("/equipamento/esbilizadores", isAuthenticated, new CreateEquipamentoEstabilizadorController().handle)
