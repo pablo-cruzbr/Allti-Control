@@ -58,6 +58,11 @@ export interface OrdemdeServicoProps {
     endereco?: string;
   };
 
+    tarefa?: {
+    id: string;
+    name: string;
+  };
+
    equipamento?: {
     id: string;
     name: string;
