@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { TimeOrdemdeServicoService } from "../../../../services/controles_forms/OrdemdeServico/time/timeOrdemdeServicoService";
 
-export class TimeOrdemDeServicoController {
+export class TimeOrdemdeServicoController {
   async iniciar(req: Request, res: Response) {
     try {
       const { id } = req.params;

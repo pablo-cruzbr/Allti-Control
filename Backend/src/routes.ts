@@ -95,7 +95,7 @@ import { ListControledeEstabilizadoresController } from "./controllers/controles
 import { UpdateControledeEstabilizadoresController } from "./controllers/controles_forms/ControledeEstabilizadores/UpdateControledeEstabilizadoresController";
 import { CreatetipodeInstituicaoUnidadeController } from "./controllers/status_categorias/tipodeInsituicaoUnidade/CreatetipodeInstituicaoUnidadeController";
 import { ListtipoInsituicaoUnidadeController } from "./controllers/status_categorias/tipodeInsituicaoUnidade/ListtipoInsituicaoUnidadeController";
-import { TimeOrdemDeServicoController } from "./controllers/controles_forms/OrdemdeServico/time/TimeOrdemdeServicoController";
+import { TimeOrdemdeServicoController } from "./controllers/controles_forms/OrdemdeServico/time/TimeOrdemdeServicoController";
 import { CreateAssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/CreateAssinaturaController";
 import { SaveAssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/GetAssinaturaController";
 import { AssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/saveAssinatura";
@@ -306,7 +306,7 @@ router.put("/events", isAuthenticated , updateEventController);
 router.delete("/events/:id", isAuthenticated , deleteEventController);
 
 // --- Controle de Tempo (Corrigido para usar a instância timeController) ---
-const timeController = new TimeOrdemDeServicoController();
+const timeController = new TimeOrdemdeServicoController();
 // --- Controle de Tempo (Corrigido para usar a instância timeController) ---
 router.patch("/ordemdeservico/iniciar/:id", isAuthenticated, (req, res) => timeController.iniciar(req, res));
 router.patch("/ordemdeservico/concluir/:id", isAuthenticated, (req, res) => timeController.concluir(req, res));
