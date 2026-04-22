@@ -84,8 +84,9 @@ const handleSubmit = async () => {
         diagnostico,
         solucao,
         assinante,
-        assinatura: signature, // A string Base64 do desenho
-        duracao: 0, // Lembre-se de passar o valor do seu timer aqui
+        assinatura: signature, 
+        duracao: 0, 
+        atividades_ids: JSON.stringify(selectedItems),
       },
       { headers: { Authorization: `Bearer ${token}` } }
     );
