@@ -106,7 +106,7 @@ import { CreatetipodeOrdemdeServicoController } from "./controllers/status_categ
 import { ListtipodeOrdemdeServicoController } from "./controllers/status_categorias/tipodeOrdemdeServico/ListTipodeOrdemdeServicoController";
 import { CreateStatusTarefaController } from "./controllers/status_categorias/tarefa/CreateStatusTarefaController";
 import { ListStatusTarefaController } from "./controllers/status_categorias/tarefa/ListStatusTarefaController";
-
+import { ListAtividadePadraoController } from "./controllers/status_categorias/Atividade/ListAtividadePadraoController";
 const router = Router();
 //get,post, update, delete
 
@@ -196,6 +196,9 @@ router.get('/liststatuscompras', isAuthenticated, new ListStatusComprasControlle
 
 router.post('/statusreparo', isAuthenticated, new CreateStatusReparoController().handle)
 router.get('/liststatusreparo', isAuthenticated, new ListstatusReparoController().handle)
+
+// - Atividade Padrao
+router.get('/listatividade', new ListAtividadePadraoController().handle)
 
 //14 - Urgência
 router.post('/statusurgencia', isAuthenticated, new CreateStatusUrgenciaController().handle)

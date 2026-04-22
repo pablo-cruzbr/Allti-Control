@@ -12,6 +12,7 @@ import {
   Modal,
   SafeAreaView,
   Image,
+  Alert,
 } from 'react-native';
 import { api } from '../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -33,6 +34,7 @@ interface Atividade {
 export function ModalDetailOrderFormTecnico({
   ordemId,
   handleCloseModal,
+  tempoFinal,
 }: ModalDetailOrderTecnicoProps) {
   const [nameTecnico, setNameTecnico] = useState('');
   const [assinante, setAssinante] = useState('');
@@ -47,59 +49,62 @@ export function ModalDetailOrderFormTecnico({
   const signatureRef = useRef<SignatureViewRef>(null);
 
   useEffect(() => {
-    async function loadAtividades() {
-      try {
-        const response = await api.get('/listatividade');
-        if (response.data) setAtividadesDB(response.data);
-      } catch (error) {
-        console.error("Erro ao carregar atividades:", error);
-      }
+  async function loadAtividades() {
+    try {
+      const response = await api.get('/listatividade');
+
+      console.log("Resposta da API:", response.data);
+
+      const data = Array.isArray(response.data) ? response.data : (response.data.atividades || []);
+      setAtividadesDB(data);
+    } catch (error: any) {
+      console.error("Erro no teste:", error.response?.status, error.message);
     }
-    loadAtividades();
-  }, []);
+  }
+  loadAtividades();
+}, []);
 
   const handleSignature = (sig: string) => {
     setSignature(sig);
     setShowSignatureModal(false);
   };
 
-const handleSubmit = async () => {
-  if (!signature) {
-    alert('Por favor, adicione a assinatura antes de salvar.');
-    return;
-  }
+  const handleSubmit = async () => {
+    if (!signature) {
+      Alert.alert('Atenção', 'Por favor, adicione a assinatura antes de salvar.');
+      return;
+    }
 
-  try {
-    setLoading(true);
-    const storageToken = await AsyncStorage.getItem('@AlltiService');
-    if (!storageToken) return;
-    const { token } = JSON.parse(storageToken);
+    try {
+      setLoading(true);
+      const storageToken = await AsyncStorage.getItem('@AlltiService');
+      if (!storageToken) return;
+      const { token } = JSON.parse(storageToken);
 
-    // UNIFICANDO TUDO EM UMA CHAMADA SÓ
-    // Note que agora enviamos 'assinatura' e não 'assinaturaBase64'
-    await api.patch(
-      `/ordemdeservico/update/${ordemId}`,
-      {
-        nameTecnico,
-        diagnostico,
-        solucao,
-        assinante,
-        assinatura: signature, 
-        duracao: 0, 
-        atividades_ids: JSON.stringify(selectedItems),
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+      await api.patch(
+        `/ordemdeservico/update/${ordemId}`,
+        {
+          nameTecnico,
+          diagnostico,
+          solucao,
+          assinante,
+          assinatura: signature,
+          duracao: tempoFinal,
+          atividades_ids: JSON.stringify(selectedItems), 
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    alert('Ordem de Serviço atualizada com sucesso!');
-    handleCloseModal();
-  } catch (error: any) {
-    console.error("Erro no envio:", error.response?.data || error.message);
-    alert('Erro ao atualizar: ' + (error.response?.data?.error || 'Tente novamente.'));
-  } finally {
-    setLoading(false);
-  }
-};
+      Alert.alert('Sucesso', 'Ordem de Serviço finalizada com sucesso!');
+      handleCloseModal();
+    } catch (error: any) {
+      console.error("Erro no envio:", error.response?.data || error.message);
+      Alert.alert('Erro', 'Não foi possível atualizar a ordem. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.overlay}>
       <KeyboardAvoidingView 
@@ -127,6 +132,7 @@ const handleSubmit = async () => {
               value={selectedItems}
               onChange={item => setSelectedItems(item)}
               selectedStyle={styles.selectedBadge}
+              placeholderStyle={{ color: '#999', fontSize: 14 }}
             />
 
             <TextInput
@@ -191,16 +197,10 @@ const handleSubmit = async () => {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* MODAL DE ASSINATURA TOTALMENTE ISOLADO */}
-      <Modal 
-        visible={showSignatureModal} 
-        animationType="fade" 
-        transparent={false}
-        onRequestClose={() => setShowSignatureModal(false)}
-      >
+      <Modal visible={showSignatureModal} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.modalSignatureContainer}>
           <View style={styles.modalSignatureHeader}>
-            <Text style={styles.modalSignatureTitle}>Assinatura do Técnico</Text>
+            <Text style={styles.modalSignatureTitle}>Assinatura Digital</Text>
             <TouchableOpacity onPress={() => setShowSignatureModal(false)}>
               <MaterialIcons name="close" size={28} color="#4E3182" />
             </TouchableOpacity>
@@ -210,41 +210,20 @@ const handleSubmit = async () => {
             <SignatureScreen
               ref={signatureRef}
               onOK={handleSignature}
-              onEmpty={() => alert('A assinatura não pode estar vazia')}
+              onEmpty={() => Alert.alert('Aviso', 'A assinatura não pode estar vazia')}
               descriptionText=""
               autoClear={false}
               imageType="image/png"
-              webStyle={`
-                .m-signature-pad { 
-                  box-shadow: none; border: none; 
-                  background-color: #fff;
-                  height: 100vh; width: 100vw;
-                  margin: 0;
-                }
-                .m-signature-pad--body { border: none; }
-                .m-signature-pad--footer { display: none; }
-                body, html { 
-                  height: 100%; width: 100%; 
-                  overflow: hidden; 
-                  touch-action: none; 
-                  margin: 0; padding: 0;
-                }
-              `}
+              webStyle={`.m-signature-pad--footer { display: none; }`}
             />
           </View>
 
           <View style={styles.modalSignatureFooter}>
-            <TouchableOpacity 
-              style={styles.modalButtonClear} 
-              onPress={() => signatureRef.current?.clearSignature()}
-            >
+            <TouchableOpacity style={styles.modalButtonClear} onPress={() => signatureRef.current?.clearSignature()}>
               <Text style={styles.buttonText}>Limpar</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity 
-              style={styles.modalButtonSave} 
-              onPress={() => signatureRef.current?.readSignature()}
-            >
+            <TouchableOpacity style={styles.modalButtonSave} onPress={() => signatureRef.current?.readSignature()}>
               <Text style={styles.buttonText}>Confirmar</Text>
             </TouchableOpacity>
           </View>
@@ -253,6 +232,7 @@ const handleSubmit = async () => {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: '#fff' },
