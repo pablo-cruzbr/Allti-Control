@@ -178,7 +178,7 @@ const formatSecondsToHHMMSS = (secs?: number | null): string => {
         )}
 
       <p>========================================================</p>
-      <p>Dados definidos pelo Aplicativo: certo:</p>
+      <p>Dados definidos pelo Aplicativo:</p>
       <p>
         <strong>Horário de Início:</strong>{" "}
         {timeOS?.startedAt
