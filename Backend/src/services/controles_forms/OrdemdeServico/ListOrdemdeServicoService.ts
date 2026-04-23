@@ -28,14 +28,13 @@ class ListOrdemdeServicoService {
           totalConcluida: 0, totalPausada: 0, totalTicket: 0, totalOrdemdeServico: 0 
         }; 
       }
-     whereCondition = {
+      whereCondition = {
         tecnico_id: user.tecnico_id,
         statusOrdemdeServico_id: {
           not: "fa69ed32-20b2-4d3a-9a6d-e61c5b45efea"
         }
       };
-    }
-    }
+    } 
 
     const controles = await prismaClient.ordemdeServico.findMany({
       where: whereCondition,
@@ -118,7 +117,6 @@ class ListOrdemdeServicoService {
       },
     });
 
-    // 4. Seus contadores originais, agora respeitando a Role (whereCondition)
     const total = await prismaClient.ordemdeServico.count({
         where: whereCondition
     });
