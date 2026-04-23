@@ -11,6 +11,7 @@ import { FaRegSave } from "react-icons/fa";
 
 type Status = { id: string; name: string };
 type Tecnicos = { id: string; name: string };
+type AtividadePadrao = {id: string; descricao: string; categoria: string};
 
 type FormState = {
   tecnico_id: string;
@@ -38,6 +39,7 @@ export default function DetailTecnico({ ordemdeServico, onClose }: Props) {
  const [timeOS, setTimeOs] = useState<TimeOS >({});
   const [statusList, setStatusList] = useState<Status[]>([]);
   const [tecnicoList, setTecnicoList] = useState<Tecnicos[]>([]);
+  const [atividadeList, setAtividadeList] = useState<AtividadePadrao[]>([])
 
   const handleSubmit = async () => {
     try {
@@ -70,8 +72,13 @@ export default function DetailTecnico({ ordemdeServico, onClose }: Props) {
         const [status] = await Promise.all([
           api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
+
+        const [AtividadePadrao] = await Promise.all([
+          api.get("/listatividade", { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
         setTecnicoList(tecnicos.data.controles);
         setStatusList(status.data);
+        setAtividadeList(AtividadePadrao.data)
       } catch (error) {
         console.error("Erro ao buscar listas:", error);
       }

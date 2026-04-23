@@ -83,7 +83,12 @@ export interface OrdemdeServicoProps {
     id: string;
     name: string;
   };
-  
+  atividadePadrao: {
+    id: string,
+    descricao: string,
+    categoria: string,
+  };
+				
   tipodeOrdemdeServico: {
     id: string;
     name: string;
