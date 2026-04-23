@@ -80,7 +80,7 @@ export class TimeOrdemdeServicoController {
     }
   }
 
- // Dentro do seu TimeOrdemDeServicoController.ts
+ // Dentro do seu TimeOrdemdeServicoController.ts
 
 async lerTempo(req: Request, res: Response) {
   try {
