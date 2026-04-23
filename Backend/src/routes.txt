@@ -95,7 +95,7 @@ import { ListControledeEstabilizadoresController } from "./controllers/controles
 import { UpdateControledeEstabilizadoresController } from "./controllers/controles_forms/ControledeEstabilizadores/UpdateControledeEstabilizadoresController";
 import { CreatetipodeInstituicaoUnidadeController } from "./controllers/status categorias/tipodeInsituicaoUnidade/CreatetipodeInstituicaoUnidadeController";
 import { ListtipoInsituicaoUnidadeController } from "./controllers/status categorias/tipodeInsituicaoUnidade/ListtipoInsituicaoUnidadeController";
-import { timeOrdemDeServicoController } from "./controllers/controles_forms/OrdemdeServico/time/timeOrdemdeServicoController";
+import { TimeOrdemdeServicoController } from "./controllers/controles_forms/OrdemdeServico/time/TimeOrdemdeServicoController";
 import { CreateAssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/CreateAssinaturaController";
 import { SaveAssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/GetAssinaturaController";
 import { AssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/saveAssinatura";
@@ -208,12 +208,12 @@ router.patch(
 );
 
 // --- Times (Controle de Tempo) ---
-router.patch("/ordemdeservico/iniciar/:id", isAuthenticated, timeOrdemDeServicoController.iniciar);
-router.patch("/ordemdeservico/concluir/:id", isAuthenticated, timeOrdemDeServicoController.concluir);
-router.patch("/ordemdeservico/pausar/:id", isAuthenticated, timeOrdemDeServicoController.pausar);
-router.patch("/ordemdeservico/retomar/:id", isAuthenticated, timeOrdemDeServicoController.retomar);
-router.patch("/ordemdeservico/atualizar-tempo/:id", isAuthenticated, timeOrdemDeServicoController.atualizarTempo);
-router.get("/ordemdeservico/tempo/:id", isAuthenticated, timeOrdemDeServicoController.lerTempo);
+router.patch("/ordemdeservico/iniciar/:id", isAuthenticated, TimeOrdemdeServicoController.iniciar);
+router.patch("/ordemdeservico/concluir/:id", isAuthenticated, TimeOrdemdeServicoController.concluir);
+router.patch("/ordemdeservico/pausar/:id", isAuthenticated, TimeOrdemdeServicoController.pausar);
+router.patch("/ordemdeservico/retomar/:id", isAuthenticated, TimeOrdemdeServicoController.retomar);
+router.patch("/ordemdeservico/atualizar-tempo/:id", isAuthenticated, TimeOrdemdeServicoController.atualizarTempo);
+router.get("/ordemdeservico/tempo/:id", isAuthenticated, TimeOrdemdeServicoController.lerTempo);
 
 // --- Assinatura e Fotos ---
 router.patch("/assinatura/:id", isAuthenticated, AssinaturaController.atualizar);

@@ -50,7 +50,7 @@ import { CreateOrdemServicoController } from "./controllers/controles_forms/Orde
 import { ListOrdemdeServicoController } from "./controllers/controles_forms/OrdemdeServico/ListOrdemdeServicoController";
 import { GetOrdemdeServicoByIdController } from "./controllers/controles_forms/OrdemdeServico/ListByIdOrdemdeServicoController";
 import { UpdateOrdemdeServicoService } from "./services/controles_forms/OrdemdeServico/UpdateOrdemdeServicoService";
-import { TimeOrdemDeServicoController } from "./controllers/controles_forms/OrdemdeServico/time/timeOrdemdeServicoController";
+import { TimeOrdemdeServicoController } from "./controllers/controles_forms/OrdemdeServico/time/TimeOrdemdeServicoController";
 import { AssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/saveAssinatura";
 import { fotoController } from "./services/controles_forms/FotoOrdensTec/fotoController";
 
@@ -69,7 +69,7 @@ const router = Router();
 const upload = multer(uploadConfig.upload());
 
 // --- Instâncias de Controllers (Classes) ---
-const timeController = new TimeOrdemDeServicoController();
+const timeController = new TimeOrdemdeServicoController();
 const fotoControllerInstance = new fotoController();
 const assinaturaController = AssinaturaController;
 
