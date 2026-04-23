@@ -8,6 +8,7 @@ import { OrdemdeServicoProps } from "@/lib/getOrdemdeServico.type";
 import { getCookieClient } from "@/lib/cookieClient";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { FaRegSave } from "react-icons/fa";
+import Select from 'react-select';
 
 type Status = { id: string; name: string };
 type Tecnicos = { id: string; name: string };
@@ -55,6 +56,34 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
   const [tarefaList, setTarefaList] = useState<Tarefa[]>([]); 
   const [loading, setLoading] = useState(false);
 
+  const customSelectStyles = {
+    control: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: '#fff',
+      borderRadius: '10px',
+      borderColor: state.isFocused ? '#4E3182' : '#ddd',
+      boxShadow: 'none',
+      marginBottom: '1rem',
+      '&:hover': { borderColor: '#4E3182' }
+    }),
+    menu: (base: any) => ({
+      ...base,
+      zIndex: 9999,
+      backgroundColor: '#fff'
+    }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isSelected ? '#4E3182' : state.isFocused ? '#f3effa' : '#fff',
+      color: state.isSelected ? '#fff' : '#4B4B4B',
+      cursor: 'pointer',
+      padding: '10px 15px',
+      '&:active': { backgroundColor: '#4E3182' }
+    }),
+    singleValue: (base: any) => ({ ...base, color: '#4B4B4B' }),
+    input: (base: any) => ({ ...base, color: '#4B4B4B' }),
+    placeholder: (base: any) => ({ ...base, color: '#999' })
+  };
+
   useEffect(() => {
     if (!ordemdeServico) return;
 
@@ -86,7 +115,6 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     (ordemdeServico as any)?.tarefa?.id ??
     (ordemdeServico as any)?.tarefaId ?? ""; 
 
-
     setForm({
       tecnico_id: (ordemdeServico as any)?.tecnico?.id ?? "",
       statusOrdemdeServico_id: (ordemdeServico as any)?.statusOrdemdeServico?.id ?? "",
@@ -99,98 +127,92 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     });
   }, [ordemdeServico]);
 
- useEffect(() => {
-  const fetchLists = async () => {
-    try {
-      const token = await getCookieClient();
-      if (!token) return;
+  useEffect(() => {
+    const fetchLists = async () => {
+      try {
+        const token = await getCookieClient();
+        if (!token) return;
 
-      const [
-        tecnicosRes,
-        statusRes,
-        clienteRes,
-        instituicoesRes,
-        equipamentoRes,
-        tipodeOrdemdeServicoRes,
-        prioridadeRes,
-        tarefaRes 
-      ] = await Promise.all([
-        api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/listequipamento", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/liststatusprioridade", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/liststatustarefa", { headers: { Authorization: `Bearer ${token}` } }), 
-      ]);
+        const [
+          tecnicosRes,
+          statusRes,
+          clienteRes,
+          instituicoesRes,
+          equipamentoRes,
+          tipodeOrdemdeServicoRes,
+          prioridadeRes,
+          tarefaRes 
+        ] = await Promise.all([
+          api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listequipamento", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/liststatusprioridade", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/liststatustarefa", { headers: { Authorization: `Bearer ${token}` } }), 
+        ]);
 
-      setTecnicoList(tecnicosRes.data.controles ?? []);
-      setStatusList(statusRes.data ?? []);
-      setClienteList(clienteRes.data.controles ?? []);
-      setInstituicaoList(instituicoesRes.data.instituicoes ?? []);
-      setEquipamentoList(equipamentoRes.data ?? []);
-      setTipodeOrdemdeServicoList(tipodeOrdemdeServicoRes.data ?? [])
-      setPrioridade(prioridadeRes.data ?? [])
-      setTarefaList(tarefaRes.data ?? []); 
+        setTecnicoList(tecnicosRes.data.controles ?? []);
+        setStatusList(statusRes.data ?? []);
+        setClienteList(clienteRes.data.controles ?? []);
+        setInstituicaoList(instituicoesRes.data.instituicoes ?? []);
+        setEquipamentoList(equipamentoRes.data ?? []);
+        setTipodeOrdemdeServicoList(tipodeOrdemdeServicoRes.data ?? [])
+        setPrioridade(prioridadeRes.data ?? [])
+        setTarefaList(tarefaRes.data ?? []); 
 
-    } catch (error) {
-      console.error("Erro ao buscar listas:", error);
-    }
-  };
+      } catch (error) {
+        console.error("Erro ao buscar listas:", error);
+      }
+    };
 
-  fetchLists();
-}, []);
+    fetchLists();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
- const handleSubmit = async () => {
-  try {
-    setLoading(true);
-    const token = await getCookieClient();
-    if (!token) throw new Error("Token não encontrado");
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const token = await getCookieClient();
+      if (!token) throw new Error("Token não encontrado");
 
-    const payload: any = {
-      tecnico_id: form.tecnico_id || undefined,
-      statusOrdemdeServico_id: form.statusOrdemdeServico_id || undefined,
-      cliente_id: form.cliente_id || null, 
-      instituicaoUnidade_id: form.instituicaoUnidade_id || null,
-      equipamento_id: form.equipamento_id || null,
-      tipodeOrdemdeServico_id: form.tipodeOrdemdeServico_id || null,
-      prioridade_id: form.prioridade_id || null,
-      tarefa_id: form.tarefa_id || null, 
-    };
+      const payload: any = {
+        tecnico_id: form.tecnico_id || undefined,
+        statusOrdemdeServico_id: form.statusOrdemdeServico_id || undefined,
+        cliente_id: form.cliente_id || null, 
+        instituicaoUnidade_id: form.instituicaoUnidade_id || null,
+        equipamento_id: form.equipamento_id || null,
+        tipodeOrdemdeServico_id: form.tipodeOrdemdeServico_id || null,
+        prioridade_id: form.prioridade_id || null,
+        tarefa_id: form.tarefa_id || null, 
+      };
 
-    console.log("Payload enviado:", payload);
+      if (ordemdeServico) {
+        await api.patch(`/ordemdeservico/update/${ordemdeServico.id}`, payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        alert("Ordem de serviço atualizada com sucesso!");
+      } else {
+        await api.post("/ordemdeservico", payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        alert("Ordem de serviço criada com sucesso!");
+      }
 
-    if (ordemdeServico) {
-      const res = await api.patch(`/ordemdeservico/update/${ordemdeServico.id}`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Resposta backend:", res.data);
-      alert("Ordem de serviço atualizada com sucesso!");
-    } else {
-      const res = await api.post("/ordemdeservico", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Resposta backend:", res.data);
-      alert("Ordem de serviço criada com sucesso!");
+      onClose();
+      router.refresh();
+    } catch (err: any) {
+      console.error("Erro ao enviar dados:", err);
+      alert("Erro ao enviar os dados da OS.");
+    } finally {
+      setLoading(false);
     }
-
-    onClose();
-    router.refresh();
-  } catch (err: any) {
-    console.error("Erro ao enviar dados:", err);
-    console.error("Detalhe do response:", err?.response?.data);
-    alert("Erro ao enviar os dados da OS. Veja o console para detalhes.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className={styles.editForm}>
@@ -203,22 +225,18 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         <p>Prioridade</p>
         <select name="prioridade_id" value={form.prioridade_id} onChange={handleChange} className={styles.input}>
           <option value="">Selecione a Prioridade</option>
-          {prioridade.map((prioridade) => (
-            <option key={prioridade.id} value={prioridade.id}>
-              {prioridade.name}
-            </option>
+          {prioridade.map((p) => (
+            <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
       </label>
 
-        <label>
+      <label>
         <p>Tipo de Ordem de Serviço</p>
         <select name="tipodeOrdemdeServico_id" value={form.tipodeOrdemdeServico_id} onChange={handleChange} className={styles.input}>
           <option value="">Selecione o Tipo de Ordem de Serviço</option>
-          {tipodeordemdeservicoList.map((tipodeOrdemdeServico) => (
-            <option key={tipodeOrdemdeServico.id} value={tipodeOrdemdeServico.id}>
-              {tipodeOrdemdeServico.name}
-            </option>
+          {tipodeordemdeservicoList.map((tipo) => (
+            <option key={tipo.id} value={tipo.id}>{tipo.name}</option>
           ))}
         </select>
       </label>
@@ -228,22 +246,17 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         <select name="tarefa_id" value={form.tarefa_id} onChange={handleChange} className={styles.input}>
           <option value="">Selecione a Tarefa</option>
           {tarefaList.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
+            <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
       </label>
-
 
       <label>
         <p>Técnico</p>
         <select name="tecnico_id" value={form.tecnico_id} onChange={handleChange} className={styles.input}>
           <option value="">Selecione o Técnico</option>
-          {tecnicoList.map((tecnico) => (
-            <option key={tecnico.id} value={tecnico.id}>
-              {tecnico.name}
-            </option>
+          {tecnicoList.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
       </label>
@@ -252,34 +265,31 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         <p>Status da OS</p>
         <select name="statusOrdemdeServico_id" value={form.statusOrdemdeServico_id} onChange={handleChange} className={styles.input}>
           <option value="">Selecione o Status</option>
-          {statusList.map((status) => (
-            <option key={status.id} value={status.id}>
-              {status.name}
-            </option>
+          {statusList.map((s) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </select>
       </label>
 
-      <label>
+      <div className={styles.inputGroup}>
         <p>Instituição / Unidade</p>
-        <select name="instituicaoUnidade_id" value={form.instituicaoUnidade_id} onChange={handleChange} className={styles.input}>
-          <option value="">Selecione a Instituição (opcional)</option>
-          {instituicaoList.map((inst) => (
-            <option key={inst.id} value={inst.id}>
-              {inst.name}
-            </option>
-          ))}
-        </select>
-      </label>
+        <Select
+          instanceId="instituicao-select"
+          placeholder="Selecione a unidade..."
+          isSearchable
+          options={instituicaoList.map(inst => ({ value: inst.id, label: inst.name }))}
+          value={instituicaoList.filter(inst => inst.id === form.instituicaoUnidade_id).map(inst => ({ value: inst.id, label: inst.name }))[0] || null}
+          onChange={(opt) => setForm(prev => ({ ...prev, instituicaoUnidade_id: opt ? opt.value : "" }))}
+          styles={customSelectStyles}
+        />
+      </div>
 
       <label>
         <p>Cliente</p>
         <select name="cliente_id" value={form.cliente_id} onChange={handleChange} className={styles.input}>
           <option value="">Selecione o Cliente (opcional)</option>
           {clienteList.map((cli) => (
-            <option key={cli.id} value={cli.id}>
-              {cli.name}
-            </option>
+            <option key={cli.id} value={cli.id}>{cli.name}</option>
           ))}
         </select>
       </label>
@@ -289,9 +299,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         <select name="equipamento_id" value={form.equipamento_id} onChange={handleChange} className={styles.input}>
           <option value="">Selecione o Equipamento (opcional)</option>
           {equipamentoList.map((equi) => (
-            <option key={equi.id} value={equi.id}>
-             {equi.patrimonio} - {equi.name}
-            </option>
+            <option key={equi.id} value={equi.id}>{equi.patrimonio} - {equi.name}</option>
           ))}
         </select>
       </label>
