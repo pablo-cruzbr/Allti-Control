@@ -4,8 +4,23 @@ import { ListOrdemdeServicoService } from "../../../services/controles_forms/Ord
 class ListOrdemdeServicoController {
     async handle(req: Request, res: Response) {
         const user_id = req.user_id as string;
+
+        const { 
+            startDate, 
+            endDate, 
+            cliente_id, 
+            instituicao_id 
+        } = req.query;
+
         const service = new ListOrdemdeServicoService();
-        const result = await service.execute({ user_id });
+
+        const result = await service.execute({ 
+            user_id,
+            startDate: startDate as string,
+            endDate: endDate as string,
+            cliente_id: cliente_id as string,
+            instituicao_id: instituicao_id as string
+        });
 
         return res.json(result);
     }

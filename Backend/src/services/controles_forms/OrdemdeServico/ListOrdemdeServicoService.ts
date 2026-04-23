@@ -2,10 +2,14 @@ import prismaClient from "../../../prisma";
 
 interface ListRequest {
   user_id: string;
+  startDate?: string;    
+  endDate?: string;      
+  cliente_id?: string;   
+  instituicao_id?: string; 
 }
 
 class ListOrdemdeServicoService {
-  async execute({ user_id }: ListRequest) {
+  async execute({ user_id, startDate, endDate, cliente_id, instituicao_id }: ListRequest) {
     
     const user = await prismaClient.user.findFirst({
       where: { id: user_id },
@@ -19,8 +23,10 @@ class ListOrdemdeServicoService {
       throw new Error("Usuário não encontrado");
     }
 
+    // 1. Inicia o objeto de filtros vazio
     let whereCondition: any = {};
 
+    // 2. Aplica restrição por Role (Segurança)
     if (user.role === "TECNICO") {
       if (!user.tecnico_id) {
         return { 
@@ -34,8 +40,33 @@ class ListOrdemdeServicoService {
           not: "fa69ed32-20b2-4d3a-9a6d-e61c5b45efea"
         }
       };
-    } 
+    }
 
+    // 3. Aplica filtros de Período (created_at)
+    if (startDate || endDate) {
+      whereCondition.created_at = {};
+      
+      if (startDate) {
+        whereCondition.created_at.gte = new Date(startDate);
+      }
+      
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setUTCHours(23, 59, 59, 999); 
+        whereCondition.created_at.lte = end;
+      }
+    }
+
+    // 4. Aplica filtros de Entidade (Cliente/Unidade)
+    if (cliente_id) {
+      whereCondition.cliente_id = cliente_id;
+    }
+
+    if (instituicao_id) {
+      whereCondition.instituicaoUnidade_id = instituicao_id;
+    }
+
+    // Busca principal com os filtros acumulados
     const controles = await prismaClient.ordemdeServico.findMany({
       where: whereCondition,
       orderBy: {
@@ -117,51 +148,23 @@ class ListOrdemdeServicoService {
       },
     });
 
-    const total = await prismaClient.ordemdeServico.count({
-        where: whereCondition
-    });
-
-    const totalAberta = await prismaClient.ordemdeServico.count({
-      where: {
-        ...whereCondition,
-        statusOrdemdeServico: { name: "ABERTA" },
-      },
-    });
-
-    const totalEmAndamento = await prismaClient.ordemdeServico.count({
-      where: {
-        ...whereCondition,
-        statusOrdemdeServico: { name: "EM ANDAMENTO" },
-      },
-    });
-
-    const totalPausada = await prismaClient.ordemdeServico.count({
-      where: {
-        ...whereCondition,
-        statusOrdemdeServico: { name: "PAUSADA" },
-      },
-    });
-
-    const totalConcluida = await prismaClient.ordemdeServico.count({
-      where: {
-        ...whereCondition,
-        statusOrdemdeServico: { name: "CONCLUIDA" },
-      },
-    });
-
-    const totalTicket = await prismaClient.ordemdeServico.count({
-      where: {
-        ...whereCondition,
-        tipodeOrdemdeServico: { name: "TICKET" },
-      },
-    });
-
-    const totalOrdemdeServico = await prismaClient.ordemdeServico.count({
-      where: {
-        ...whereCondition,
-        tipodeOrdemdeServico: { name: "ORDEM DE SERVICO" },
-      },
-    });
+    const [
+      total, 
+      totalAberta, 
+      totalEmAndamento, 
+      totalPausada, 
+      totalConcluida, 
+      totalTicket, 
+      totalOrdemdeServico
+    ] = await Promise.all([
+      prismaClient.ordemdeServico.count({ where: whereCondition }),
+      prismaClient.ordemdeServico.count({ where: { ...whereCondition, statusOrdemdeServico: { name: "ABERTA" } } }),
+      prismaClient.ordemdeServico.count({ where: { ...whereCondition, statusOrdemdeServico: { name: "EM ANDAMENTO" } } }),
+      prismaClient.ordemdeServico.count({ where: { ...whereCondition, statusOrdemdeServico: { name: "PAUSADA" } } }),
+      prismaClient.ordemdeServico.count({ where: { ...whereCondition, statusOrdemdeServico: { name: "CONCLUIDA" } } }),
+      prismaClient.ordemdeServico.count({ where: { ...whereCondition, tipodeOrdemdeServico: { name: "TICKET" } } }),
+      prismaClient.ordemdeServico.count({ where: { ...whereCondition, tipodeOrdemdeServico: { name: "ORDEM DE SERVICO" } } }),
+    ]);
 
     return {
       controles,
