@@ -19,6 +19,17 @@ export interface Setor {
   };
 }
 
+export type AtividadePadrao = {
+  id: string;
+  descricao: string;
+  categoria: string;
+};
+
+export type AtividadeDaOrdem = {
+  id: string;
+  atividadePadrao: AtividadePadrao;
+};
+
 export interface OrdemdeServicoProps {
   id: string;
   name: string;
@@ -83,11 +94,7 @@ export interface OrdemdeServicoProps {
     id: string;
     name: string;
   };
-  atividadePadrao: {
-    id: string,
-    descricao: string,
-    categoria: string,
-  };
+  atividades: AtividadeDaOrdem[];
 				
   tipodeOrdemdeServico: {
     id: string;

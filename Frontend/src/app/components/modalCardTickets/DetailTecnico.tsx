@@ -216,7 +216,19 @@ const formatSecondsToHHMMSS = (secs?: number | null): string => {
       </p>
 
         <p>========================================================</p>
-       <p>Atividades Feitas</p>
+        <strong>Atividades Realizadas:</strong>
+
+        <ul className={styles.atividadesList}>
+          {ordemdeServico.atividades && ordemdeServico.atividades.length > 0 ? (
+            ordemdeServico.atividades.map((item) => (
+              <li key={item.id} className={styles.atividadeItem}>
+               {item.atividadePadrao?.descricao}
+              </li>
+            ))
+          ) : (
+            <p>Nenhuma atividade registrada.</p>
+          )}
+        </ul>
      
       <div className={styles.buttonArea}>
         <button type="button" className={styles.cancelButton} onClick={onClose}>
