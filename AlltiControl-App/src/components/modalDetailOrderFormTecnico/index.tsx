@@ -48,19 +48,29 @@ export function ModalDetailOrderFormTecnico({
 
   const signatureRef = useRef<SignatureViewRef>(null);
 
-  useEffect(() => {
+useEffect(() => {
   async function loadAtividades() {
     try {
-      const response = await api.get('/listatividade');
+      const storageToken = await AsyncStorage.getItem("@AlltiService");
+      if (!storageToken) return;
 
-      console.log("Resposta da API:", response.data);
+      const { token } = JSON.parse(storageToken);
+      if (!token) return;
+
+      const response = await api.get('/listatividade', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
       const data = Array.isArray(response.data) ? response.data : (response.data.atividades || []);
       setAtividadesDB(data);
+
     } catch (error: any) {
       console.error("Erro no teste:", error.response?.status, error.message);
     }
   }
+
   loadAtividades();
 }, []);
 

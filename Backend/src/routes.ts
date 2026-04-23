@@ -198,7 +198,7 @@ router.post('/statusreparo', isAuthenticated, new CreateStatusReparoController()
 router.get('/liststatusreparo', isAuthenticated, new ListstatusReparoController().handle)
 
 // - Atividade Padrao
-router.get('/listatividade', new ListAtividadePadraoController().handle)
+router.get('/listatividade', isAuthenticated, new ListAtividadePadraoController().handle)
 
 //14 - Urgência
 router.post('/statusurgencia', isAuthenticated, new CreateStatusUrgenciaController().handle)
