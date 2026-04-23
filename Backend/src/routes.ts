@@ -107,6 +107,7 @@ import { ListtipodeOrdemdeServicoController } from "./controllers/status_categor
 import { CreateStatusTarefaController } from "./controllers/status_categorias/tarefa/CreateStatusTarefaController";
 import { ListStatusTarefaController } from "./controllers/status_categorias/tarefa/ListStatusTarefaController";
 import { ListAtividadePadraoController } from "./controllers/status_categorias/Atividade/ListAtividadePadraoController";
+import { ExportOrdemdeServicoController } from "./controllers/controles_forms/OrdemdeServico/ExportOrdemdeServicoController";
 const router = Router();
 //get,post, update, delete
 
@@ -324,3 +325,6 @@ router.get("/assinatura/:ordemId", isAuthenticated, AssinaturaController.buscar)
 //TipodeOrdemdeServico
 router.post("/tipodeordemdeservico", isAuthenticated, new CreatetipodeOrdemdeServicoController().handle)
 router.get('/listtipodeordemdeservico', new ListtipodeOrdemdeServicoController().handle)
+
+//Excel
+router.get('/ordens/exportar', isAuthenticated, (req, res) => new ExportOrdemdeServicoController().handle(req, res));

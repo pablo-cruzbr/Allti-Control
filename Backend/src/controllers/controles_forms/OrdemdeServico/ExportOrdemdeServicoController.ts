@@ -49,14 +49,59 @@ class ExportOrdemdeServicoController {
     });
 
     // Estilização básica do cabeçalho
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFE0E0E0' }
-    };
+    // 1. Estilizar a linha do Cabeçalho (Linha 1) com a cor do sistema #4E3182
+const headerRow = worksheet.getRow(1);
 
-    // 5. Configuramos o Response para Download de Arquivo
+headerRow.eachCell((cell) => {
+  cell.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FF4E3182' }, // Cor do seu sistema (Roxo)
+  };
+  cell.font = {
+    bold: true,
+    color: { argb: 'FFFFFFFF' }, // Texto Branco para dar contraste
+    size: 11
+  };
+  cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  
+  // Bordas brancas no cabeçalho ficam bem elegantes com fundo escuro
+  cell.border = {
+    top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+    left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+    bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+    right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+  };
+});
+
+// 2. Aplicar bordas cinzas e alinhamento nas linhas de dados
+worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+  if (rowNumber > 1) {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+        left: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+        bottom: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+        right: { style: 'thin', color: { argb: 'FFD3D3D3' } }
+      };
+      cell.alignment = { 
+        vertical: 'middle', 
+        horizontal: 'left', 
+        wrapText: true 
+      };
+    });
+    
+    // Deixar as linhas com uma altura boa para leitura
+    row.height = 22;
+  }
+});
+
+// 3. Ajuste fino: Congelar o cabeçalho para que ele não suma ao dar scroll
+worksheet.views = [
+  { state: 'frozen', xSplit: 0, ySplit: 1 }
+];
+
+    // 5. Response para Download de Arquivo
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
