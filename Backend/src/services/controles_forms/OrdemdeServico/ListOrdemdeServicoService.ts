@@ -28,7 +28,13 @@ class ListOrdemdeServicoService {
           totalConcluida: 0, totalPausada: 0, totalTicket: 0, totalOrdemdeServico: 0 
         }; 
       }
-      whereCondition.tecnico_id = user.tecnico_id;
+     whereCondition = {
+        tecnico_id: user.tecnico_id,
+        statusOrdemdeServico_id: {
+          not: "fa69ed32-20b2-4d3a-9a6d-e61c5b45efea"
+        }
+      };
+    }
     }
 
     const controles = await prismaClient.ordemdeServico.findMany({
