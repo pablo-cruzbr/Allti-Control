@@ -5,7 +5,7 @@ import ExcelJS from "exceljs";
 class ExportOrdemdeServicoController {
   async handle(req: Request, res: Response) {
     const user_id = req.user_id as string;
-    const { startDate, endDate, cliente_id, instituicao_id } = req.query;
+    const { startDate, endDate, cliente_id, instituicao_id, tarefa_id } = req.query;
 
     const listService = new ListOrdemdeServicoService();
 
@@ -16,6 +16,7 @@ class ExportOrdemdeServicoController {
       endDate: endDate as string,
       cliente_id: cliente_id as string,
       instituicao_id: instituicao_id as string,
+      tarefa_id: tarefa_id as string,
     });
 
     // 2. Iniciamos a criação da Planilha

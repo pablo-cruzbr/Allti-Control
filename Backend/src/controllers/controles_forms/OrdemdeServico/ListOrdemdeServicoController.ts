@@ -9,7 +9,8 @@ class ListOrdemdeServicoController {
             startDate, 
             endDate, 
             cliente_id, 
-            instituicao_id 
+            instituicao_id,
+            tarefa_id 
         } = req.query;
 
         const service = new ListOrdemdeServicoService();
@@ -19,7 +20,8 @@ class ListOrdemdeServicoController {
             startDate: startDate as string,
             endDate: endDate as string,
             cliente_id: cliente_id as string,
-            instituicao_id: instituicao_id as string
+            instituicao_id: instituicao_id as string,
+            tarefa_id: tarefa_id as string 
         });
 
         return res.json(result);

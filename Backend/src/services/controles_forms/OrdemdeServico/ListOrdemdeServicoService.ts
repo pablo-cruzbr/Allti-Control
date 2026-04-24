@@ -6,10 +6,18 @@ interface ListRequest {
   endDate?: string;      
   cliente_id?: string;   
   instituicao_id?: string; 
+  tarefa_id?: string; // Adicionado na Interface
 }
 
 class ListOrdemdeServicoService {
-  async execute({ user_id, startDate, endDate, cliente_id, instituicao_id }: ListRequest) {
+  async execute({ 
+    user_id, 
+    startDate, 
+    endDate, 
+    cliente_id, 
+    instituicao_id, 
+    tarefa_id // Adicionado na desestruturação
+  }: ListRequest) {
     
     const user = await prismaClient.user.findFirst({
       where: { id: user_id },
@@ -57,13 +65,18 @@ class ListOrdemdeServicoService {
       }
     }
 
-    // 4. Aplica filtros de Entidade (Cliente/Unidade)
+    // 4. Aplica filtros de Entidade (Cliente/Unidade/Tarefa)
     if (cliente_id) {
       whereCondition.cliente_id = cliente_id;
     }
 
     if (instituicao_id) {
       whereCondition.instituicaoUnidade_id = instituicao_id;
+    }
+
+    // Novo filtro de Tarefa incorporado
+    if (tarefa_id) {
+      whereCondition.tarefa_id = tarefa_id;
     }
 
     // Busca principal com os filtros acumulados
