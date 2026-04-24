@@ -6,7 +6,7 @@ interface ListRequest {
   endDate?: string;      
   cliente_id?: string;   
   instituicao_id?: string; 
-  tarefa_id?: string; // Adicionado na Interface
+  tarefa_id?: string; 
 }
 
 class ListOrdemdeServicoService {
@@ -16,7 +16,7 @@ class ListOrdemdeServicoService {
     endDate, 
     cliente_id, 
     instituicao_id, 
-    tarefa_id // Adicionado na desestruturação
+    tarefa_id 
   }: ListRequest) {
     
     const user = await prismaClient.user.findFirst({

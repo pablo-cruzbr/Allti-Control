@@ -9,6 +9,74 @@
   margin-top: 1rem;
   font-family: "Poppins", sans-serif;
 
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem; 
+    align-items: center;
+    width: 100%;
+
+    // Estilo para o título "GERAR RELATÓRIO"
+    .exportTitle {
+      width: 100%; // Faz o título ocupar a linha de cima
+      color: #4E3182;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid #4E3182;
+      padding-left: 10px;
+    }
+
+    .select {
+      flex: 1;
+      min-width: 160px;
+      // O estilo de background-image que você já tem funcionará aqui
+      // mas para os inputs tipo 'date', vamos garantir que o ícone do browser apareça
+      &[type="date"] {
+        appearance: auto;
+        background-image: none;
+        padding-right: 12px;
+      }
+
+      &[type="text"] {
+        // Garantindo que o input de texto de data se pareça com os outros
+        appearance: none;
+        // Se quiser adicionar um ícone de calendário manual via CSS:
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234E3182' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3e%3c/rect%3e%3cline x1='16' y1='2' x2='16' y2='6'%3e%3c/line%3e%3cline x1='8' y1='2' x2='8' y2='6'%3e%3c/line%3e%3cline x1='3' y1='10' x2='21' y2='10'%3e%3c/line%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+      }
+    }
+
+    // Botão seguindo seu padrão de .btnPrimary
+    .btnPrimary {
+      background-color: #4E3182;
+      color: #ffffff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      min-width: 150px;
+      margin-left: auto; // Empurra o botão para a direita em telas grandes
+
+      &:hover:not(.disabled) {
+        background-color: #3d2666;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(78, 49, 130, 0.2);
+      }
+
+      &.disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+
   .searchRow {
     display: flex;
     justify-content: center; // Centraliza o input horizontalmente

@@ -11,6 +11,7 @@ import { getCookieClient } from '@/lib/cookieClient';
 import { api } from '@/services/api';
 import { useGlobalModal } from '@/provider/GlobalModalProvider';
 import { ModalContext } from '@/provider/compras';
+import { exportOrdemServicoExcel } from '@/lib/exportExcel';
 import { toast } from 'sonner';
 
 interface Props {
@@ -61,6 +62,11 @@ export default function TicketsList({ ticketsData }: Props) {
   const [selectedPrioridade, setSelectedPrioridade] = useState<string>("");
   const [selectedTarefa, setSelectedTarefa] = useState<string[]>([]);
 
+  //Estados de Relatório
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
+
   const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, totalOrdemdeServico = 0, totalTicket = 0, controles = [] } = ticketsData || {};
 
   useEffect(() => {
@@ -90,6 +96,8 @@ export default function TicketsList({ ticketsData }: Props) {
     openModal('OrdemdeServico', [ticket]);
   };
 
+
+
   const handleAddCardTecnico = () => {
     router.push('/AreadeUsuario/formularioAddTickets');
   };
@@ -101,6 +109,35 @@ export default function TicketsList({ ticketsData }: Props) {
   const handleAddCardTicket = () => {
     router.push('/dashboard/formulariosadd/formularioTicket');
   }
+
+  const convertToIso = (dateStr: string) => {
+  const [day, month, year] = dateStr.split('/');
+  if (!day || !month || !year) return undefined;
+  return `${year}-${month}-${day}`;
+};
+
+const handleExportClick = async () => {
+  setIsExporting(true);
+  try {
+    await exportOrdemServicoExcel({
+      startDate: convertToIso(startDate), 
+      endDate: convertToIso(endDate),     
+      tarefa_id: selectedTarefa[0] || undefined,
+      cliente_id: selectedCliente || undefined,
+      instituicao_id: selectedInstituicao || undefined,
+    });
+  } finally {
+    setIsExporting(false);
+  }
+};
+
+const formatDisplayDate = (value: string) => {
+return value
+  .replace(/\D/g, "") 
+  .replace(/(\d{2})(\d)/, "$1/$2") 
+  .replace(/(\d{2})(\d)/, "$1/$2") 
+  .replace(/(\d{4})(\d)/, "$1"); 
+};
 
   const handleRefresh = () => {
     router.refresh();
@@ -166,6 +203,7 @@ export default function TicketsList({ ticketsData }: Props) {
 
   return (
     <section>
+     
       <header className={styles.headerContainer}>
         <div className={styles.topSection}>
           <div className={styles.titleWrapper}>
@@ -196,9 +234,68 @@ export default function TicketsList({ ticketsData }: Props) {
         </div>
       </header>
 
+<div className={styles.headerClient}>
+  <div className={styles.actions}>
+    <h1 className={styles.exportTitle}>GERAR RELATÓRIO DE OS</h1>
+
+<input 
+  type="text" 
+  placeholder="Início (dd/mm/aaaa)"
+  value={startDate} 
+  maxLength={10}
+  onChange={(e) => setStartDate(formatDisplayDate(e.target.value))} 
+  className={styles.select}
+/>
+
+<input 
+  type="text" 
+  placeholder="Fim (dd/mm/aaaa)"
+  value={endDate} 
+  maxLength={10}
+  onChange={(e) => setEndDate(formatDisplayDate(e.target.value))} 
+  className={styles.select}
+/>
+
+    <select 
+      value={selectedTarefa[0] || ""} 
+      onChange={(e) => setSelectedTarefa(e.target.value ? [e.target.value] : [])} 
+      className={styles.select}
+    >
+      <option value="">Todas as Tarefas</option>
+      {tarefa.map((t) => (
+        <option key={t.id} value={t.id}>{t.name}</option>
+      ))}
+    </select>
+
+    <select value={selectedInstituicao} onChange={(e) => setSelectedInstituicao(e.target.value)} className={styles.select}>
+      <option value="">Todas Instituições</option>
+      {instituicoes.map(inst => (
+        <option key={inst.id} value={inst.id}>{inst.name}</option>
+      ))}
+    </select>
+
+    <select value={selectedCliente} onChange={(e) => setSelectedCliente(e.target.value)} className={styles.select}>
+      <option value="">Todos Clientes</option>
+      {clientes.map(cli => (
+        <option key={cli.id} value={cli.id}>{cli.name}</option>
+      ))}
+    </select>
+
+    <button 
+      onClick={handleExportClick} 
+      disabled={isExporting}
+      className={`${styles.btnPrimary} ${isExporting ? styles.disabled : ''}`}
+    >
+      {isExporting ? 'Processando...' : 'Exportar Excel'}
+    </button>
+  </div>
+</div>
+
       <div className={styles.headerClient}>
         <div className={styles.actions}>
-          
+
+           <h1 className={styles.exportTitle}>FILTRAR OS OU TICKET</h1>
+
           <select 
             value={selectedTarefa[0] || ""} 
             onChange={(e) => setSelectedTarefa(e.target.value ? [e.target.value] : [])} 
