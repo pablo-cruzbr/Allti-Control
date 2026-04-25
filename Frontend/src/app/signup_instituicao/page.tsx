@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from 'sonner';
 import styles from "./signup_insituicao.module.scss";
 import { api } from "@/services/api";
 import { useRouter } from "next/navigation";
@@ -59,39 +60,46 @@ export default function Signup() {
     loadResources();
   }, []);
 
-  async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(""); 
-    
-    const formData = new FormData(event.currentTarget);
-    const name = formData.get("name");
-    const email = formData.get("email");
-    const password = formData.get("password");
-    const instituicaoId = formData.get("instituicaoUnidade");
-    const setorId = formData.get("setor");
+async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+  setError(""); 
+  
+  const formData = new FormData(event.currentTarget);
+  const name = formData.get("name");
+  const email = formData.get("email");
+  const password = formData.get("password");
+  const instituicaoId = formData.get("instituicaoUnidade");
+  const setorId = formData.get("setor");
 
-    if (!name || !email || !password || !instituicaoId || !setorId) {
-      setError("Por favor, preencha todos os campos e seleções.");
-      return;
-    }
-
-    try {
-      await api.post("/users", {
-        name,
-        email,
-        password,
-        instituicaoUnidade_id: instituicaoId,
-        setor_id: setorId,
-      });
-
-      router.push("/dashboard/usuarios");
-    } catch (err: any) {
-      console.error("Erro no cadastro:", err);
-      const message = err.response?.data?.error || "Erro ao cadastrar usuário.";
-      setError(message);
-    }
+  if (!name || !email || !password || !instituicaoId || !setorId) {
+    toast.warning("Preencha todos os campos obrigatórios.");
+    return;
   }
 
+  try {
+    await api.post("/users", {
+      name,
+      email,
+      password,
+      instituicaoUnidade_id: instituicaoId,
+      setor_id: setorId,
+    });
+
+    // Feedback de Sucesso
+    toast.success("Usuário cadastrado com sucesso!");
+    
+    // Pequeno delay para o usuário ver o toast antes de ser redirecionado
+    setTimeout(() => {
+      router.push("/dashboard/usuarios");
+    }, 2000);
+
+  } catch (err: any) {
+    console.error("Erro no cadastro:", err);
+    const message = err.response?.data?.error || "Erro ao cadastrar usuário.";
+    toast.error(message);
+    setError(message);
+  }
+}
   return (
     <div className={styles.container}>
       <div className={styles.conteiner}>
