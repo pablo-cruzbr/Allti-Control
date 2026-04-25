@@ -12,6 +12,7 @@ import { api } from '@/services/api';
 import { useGlobalModal } from '@/provider/GlobalModalProvider';
 import { ModalContext } from '@/provider/compras';
 import { exportOrdemServicoExcel } from '@/lib/exportExcel';
+import { RiFileExcel2Line } from "react-icons/ri";
 import { toast } from 'sonner';
 
 interface Props {
@@ -282,10 +283,12 @@ return value
     </select>
 
     <button 
+    
       onClick={handleExportClick} 
       disabled={isExporting}
       className={`${styles.btnPrimary} ${isExporting ? styles.disabled : ''}`}
     >
+      <RiFileExcel2Line size={23}/>
       {isExporting ? 'Processando...' : 'Exportar Excel'}
     </button>
   </div>
