@@ -282,13 +282,12 @@ return value
       ))}
     </select>
 
-    <button 
-    
+    <button   
       onClick={handleExportClick} 
       disabled={isExporting}
       className={`${styles.btnPrimary} ${isExporting ? styles.disabled : ''}`}
     >
-      <RiFileExcel2Line size={23}/>
+      <RiFileExcel2Line size={20}/>
       {isExporting ? 'Processando...' : 'Exportar Excel'}
     </button>
   </div>

@@ -16,9 +16,8 @@
     align-items: center;
     width: 100%;
 
-    // Estilo para o título "GERAR RELATÓRIO"
     .exportTitle {
-      width: 100%; // Faz o título ocupar a linha de cima
+      width: 100%; 
       color: #4E3182;
       font-size: 1.1rem;
       font-weight: 700;
@@ -48,32 +47,39 @@
         background-size: 16px;
       }
     }
-
-    // Botão seguindo seu padrão de .btnPrimary
+    
     .btnPrimary {
-      background-color: #4E3182;
-      color: #ffffff;
-      padding: 10px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      border: none;
-      transition: all 0.3s ease;
-      min-width: 150px;
-      margin-left: auto; // Empurra o botão para a direita em telas grandes
+  background-color: #4E3182;
+  color: #ffffff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  margin-left: auto;
 
-      &:hover:not(.disabled) {
-        background-color: #3d2666;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(78, 49, 130, 0.2);
-      }
+  /* --- ADICIONADO PARA CENTRALIZAR O ÍCONE --- */
+  display: flex;
+  align-items: center;    /* Centraliza verticalmente */
+  justify-content: center; /* Centraliza horizontalmente */
+  gap: 10px;               /* Espaçamento entre ícone e texto */
+  /* ------------------------------------------- */
 
-      &.disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-      }
-    }
+  &:hover:not(.disabled) {
+    background-color: #3d2666;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(78, 49, 130, 0.2);
+  }
+
+  &.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none; /* Garante que o botão não "pule" ao passar o mouse se estiver desativado */
+  }
+}
   }
 
 
@@ -199,22 +205,21 @@
 
 
  .button {
-  /* Gradiente com leve variação para dar profundidade */
   background: linear-gradient(135deg, #6343a3, #4E3182);
   color: #fff;
-  padding: 10px 24px; /* Padding mais equilibrado */
-  height: 45px;       /* Altura fixa para manter a consistência */
+  padding: 10px 24px; 
+  height: 45px;      
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;           /* Espaço para ícones se você adicionar */
+  gap: 8px;           
   
-  border-radius: 8px; /* Cantos um pouco menos arredondados para um ar mais moderno */
+  border-radius: 8px; 
   border: none;
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
-  white-space: nowrap; /* Impede que o texto quebre e mude a altura do botão */
+  white-space: nowrap; 
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
