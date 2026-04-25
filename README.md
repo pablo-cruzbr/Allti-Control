@@ -1,5 +1,21 @@
-# AlltiControl | Gestão Full Stack de TI e Ativos
-## Gerenciando sua Empresa de Informática de A a Z
+## AlltiControl | Gestão Full-Stack de Serviços e Ativos
+## "Menos burocracia, mais resolução: O software que devolveu o tempo à operação de atendimentos de suporte técnico em informática."
+
+<p align="center">
+  </p>
+
+## 🎯 O Impacto: De 6 Telas para a Solução Real
+
+O **AlltiControl** não nasceu de um tutorial, mas da escuta ativa de técnicos que lutavam diariamente contra softwares burocráticos. O sistema anterior (ALVO) era fragmentado, exigindo rotas complexas e 5 a 6 telas para um único atendimento. 
+
+**Eu identifiquei essa dor e projetei uma solução onde o técnico foca no problema e o gestor na estratégia.**
+
+### ✅ Resultados Práticos:
+* **Simplicidade Radical:** Reduzi o fluxo de atendimento de 6 telas para apenas **2 telas intuitivas**.
+* **Foco no Campo:** Interface *mobile-first* eliminando a fricção e o trabalho manual excessivo.
+* **Validação em Larga Escala:** Atualmente operando em **130+ instituições públicas** e empresas privadas, gerenciando a infraestrutura de TI de Mogi das Cruzes/SP.
+
+---
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
   <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /></a>
