@@ -70,24 +70,10 @@ Ele foi projetado para **facilitar a rotina operacional**, organizar atendimento
 ---
 
 
-
-<img width="1280" height="800" alt="os web" src="https://github.com/user-attachments/assets/d77e498b-efb2-4248-af87-32ebb5050c4e" />
-
-
-
+<img width="1280" height="800" alt="Carrossel portifolio" src="https://github.com/user-attachments/assets/cee8fcad-7cb3-4bbf-af7f-5f40c1ed6085" />
 ---
 
-
-
-<img width="1280" height="800" alt="web" src="https://github.com/user-attachments/assets/95147eff-d224-4f8e-894d-3b751a39dfc4" />
-
-
-
----
-
-
-
-<img width="1280" height="800" alt="8" src="https://github.com/user-attachments/assets/2c65e271-6da0-4d9f-8c9e-28d120429567" />
+<img width="1280" height="800" alt="Carrossel portifolio (1)" src="https://github.com/user-attachments/assets/5fc40857-de01-46da-9d39-d54180b8ff43" />
 
 ---
 
