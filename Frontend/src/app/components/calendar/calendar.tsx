@@ -6,47 +6,60 @@ import { api } from "@/services/api";
 import { getCookieClient } from "@/lib/cookieClient";
 
 import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
-import "../calendar/calendar.css";
+import "./calendar.css"; 
 
 interface SchedulerEvent {
-  id: number | string;
-  start_date: string | Date;
-  end_date: string | Date;
+  id: string | number;
+  start_date: Date;
+  end_date: Date;
   text: string;
+  color?: string;
+  status?: string;
+  description?: string;
 }
 
-export default function Calendar({ initialToken }: { initialToken?: string }) {
+interface CalendarProps {
+  initialToken?: string;
+  events?: any[]; 
+}
+
+export default function Calendar({ initialToken, events }: CalendarProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const schedulerInstance = useRef<any>(null);
-  const isInitialized = useRef(false); 
+  const isInitialized = useRef(false);
   const router = useRouter();
 
   const [selectedEvent, setSelectedEvent] = useState<SchedulerEvent | null>(null);
-  const [newEventDate, setNewEventDate] = useState<Date | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const fetchEvents = useCallback(async (token: string) => {
+  const parseToScheduler = useCallback((data: any[]) => {
+    return data.map((os: any) => ({
+      id: os.id,
+      text: `OS ${os.numeroOS}: ${os.cliente?.name || "Chamado"}`,
+      start_date: new Date(os.created_at),
+      end_date: os.endedAt 
+        ? new Date(os.endedAt) 
+        : new Date(new Date(os.created_at).getTime() + 60 * 60 * 1000),
+      color: os.statusOrdemdeServico?.name === "CONCLUIDA" ? "#10b981" : "#f59e0b",
+      status: os.statusOrdemdeServico?.name,
+      description: os.descricaodoProblemaouSolicitacao
+    }));
+  }, []);
+
+  const fetchOrders = useCallback(async (token: string) => {
     if (!schedulerInstance.current) return;
     try {
-      const { data } = await api.get("/events", {
+      const { data } = await api.get("/ordens", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      console.log("Dados brutos recebidos:", data);
-
-      const schedulerData = data.map((ev: any) => ({
-        ...ev,
-        start_date: new Date(ev.start_date),
-        end_date: new Date(ev.end_date),
-      }));
-
-      schedulerInstance.current.clearAll();
-      schedulerInstance.current.parse(schedulerData);
-      schedulerInstance.current.render(); 
+      if (data?.controles) {
+        const formatted = parseToScheduler(data.controles);
+        schedulerInstance.current.clearAll();
+        schedulerInstance.current.parse(formatted);
+      }
     } catch (err) {
-      console.error("Erro ao carregar eventos:", err);
+      console.error("Erro ao carregar Ordens:", err);
     }
-  }, []);
+  }, [parseToScheduler]);
 
   useEffect(() => {
     if (typeof window === "undefined" || isInitialized.current) return;
@@ -56,35 +69,31 @@ export default function Calendar({ initialToken }: { initialToken?: string }) {
       const scheduler = schedulerModule.default;
       schedulerInstance.current = scheduler;
 
-      scheduler.config.xml_date = "%Y-%m-%d %H:%i"; 
       scheduler.i18n.setLocale("pt");
-      scheduler.skin = "terrace";
+      
+      // MANTENDO A SKIN TERRACE PARA ALINHAMENTO IGUAL À IMAGEM
+      scheduler.skin = "terrace"; 
+      
+      scheduler.config.readonly = true;
       scheduler.config.header = ["day", "week", "month", "date", "prev", "today", "next"];
-      scheduler.config.details_on_dblclick = false;
-      scheduler.config.details_on_create = false;
-
+      
       if (containerRef.current) {
+        // Altura fixa ou calculada é essencial para o DHTMLX não bugar
         scheduler.init(containerRef.current, new Date(), "month");
         isInitialized.current = true;
 
-        const token = initialToken || (await getCookieClient());
-        if (token) {
-          fetchEvents(token);
+        if (events && events.length > 0) {
+          scheduler.clearAll();
+          scheduler.parse(parseToScheduler(events));
+        } else {
+          const token = initialToken || (await getCookieClient());
+          if (token) fetchOrders(token);
         }
       }
-
-      scheduler.attachEvent("onEmptyClick", (date: Date) => {
-        const endDate = new Date(date);
-        endDate.setHours(date.getHours() + 1);
-        setNewEventDate(date);
-        setSelectedEvent({ id: "", text: "", start_date: date, end_date: endDate });
-        return true;
-      });
 
       scheduler.attachEvent("onClick", (id: string) => {
         const ev = scheduler.getEvent(id);
         setSelectedEvent({ ...ev });
-        setNewEventDate(null);
         return true;
       });
     };
@@ -97,85 +106,23 @@ export default function Calendar({ initialToken }: { initialToken?: string }) {
         isInitialized.current = false;
       }
     };
-  }, [fetchEvents, initialToken]);
-
-  const formatTimeForInput = (date: Date | string) => {
-    const d = new Date(date);
-    return isNaN(d.getTime()) ? "00:00" : d.toTimeString().slice(0, 5);
-  };
-
-  const handleTimeChange = (type: "start" | "end", timeValue: string) => {
-    if (!selectedEvent) return;
-    const [hours, minutes] = timeValue.split(":").map(Number);
-    const newDate = new Date(type === "start" ? selectedEvent.start_date : selectedEvent.end_date);
-    newDate.setHours(hours, minutes, 0);
-
-    setSelectedEvent(prev => prev ? { ...prev, [type === "start" ? "start_date" : "end_date"]: newDate } : null);
-  };
-
-  const handleSaveEvent = async () => {
-    const token = initialToken || (await getCookieClient());
-    if (!token || !selectedEvent) return;
-
-    setLoading(true);
-    try {
-      const payload = {
-        text: selectedEvent.text || "Sem título",
-        start_date: new Date(selectedEvent.start_date).toISOString(),
-        end_date: new Date(selectedEvent.end_date).toISOString(),
-      };
-
-      if (newEventDate) {
-        await api.post("/events", payload, { headers: { Authorization: `Bearer ${token}` } });
-      } else {
-        await api.put(`/events/${selectedEvent.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
-      }
-
-      await fetchEvents(token);
-      setSelectedEvent(null);
-      setNewEventDate(null);
-      alert("✅ Salvo com sucesso!");
-    } catch (err: any) {
-      console.error("Erro ao salvar:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteEvent = async () => {
-    if (!selectedEvent || !confirm("Deseja realmente excluir?")) return;
-    const token = initialToken || (await getCookieClient());
-
-    if (!selectedEvent.id || String(selectedEvent.id).length > 10) {
-      schedulerInstance.current.deleteEvent(selectedEvent.id);
-      setSelectedEvent(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await api.delete(`/events/${selectedEvent.id}`, { headers: { Authorization: `Bearer ${token}` } });
-      schedulerInstance.current.deleteEvent(selectedEvent.id);
-      setSelectedEvent(null);
-      router.refresh();
-    } catch (err) {
-      alert("Erro ao excluir.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [events, parseToScheduler, fetchOrders, initialToken]);
 
   return (
-   <div style={{ width: "100%", height: "100%" }}>
-      <div ref={containerRef} style={{ width: "100%", height: "600px" }}>
+    <div style={{ width: "100%", marginTop: "20px" }}>
+      <div 
+        ref={containerRef} 
+        className="dhx_cal_container shadow-sm border rounded-xl" 
+        style={{ width: "100%", height: "600px", backgroundColor: "#fff" }}
+      >
         <div className="dhx_cal_navline">
           <div className="dhx_cal_prev_button">&nbsp;</div>
           <div className="dhx_cal_next_button">&nbsp;</div>
           <div className="dhx_cal_today_button"></div>
           <div className="dhx_cal_date"></div>
-          <div className="dhx_cal_tab" {...{ name: "month_tab" } as any}></div>
-          <div className="dhx_cal_tab" {...{ name: "week_tab" } as any}></div>
-          <div className="dhx_cal_tab" {...{ name: "day_tab" } as any}></div>
+          <div className="dhx_cal_tab" data-tab="day"></div>
+          <div className="dhx_cal_tab" data-tab="week"></div>
+          <div className="dhx_cal_tab" data-tab="month"></div>
         </div>
         <div className="dhx_cal_header"></div>
         <div className="dhx_cal_data"></div>
@@ -184,30 +131,37 @@ export default function Calendar({ initialToken }: { initialToken?: string }) {
       {selectedEvent && (
         <div className="calendar-modal-backdrop" onClick={() => setSelectedEvent(null)}>
           <div className="calendar-modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 className="titleClient">{newEventDate ? "Novo Registro" : "Editar Registro"}</h2>
-            <label>Descrição</label>
-            <input
-              type="text"
-              autoFocus
-              value={selectedEvent.text}
-              onChange={(e) => setSelectedEvent({ ...selectedEvent, text: e.target.value })}
-            />
-            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-              <div style={{ flex: 1 }}>
-                <label>Início</label>
-                <input type="time" value={formatTimeForInput(selectedEvent.start_date)} onChange={(e) => handleTimeChange("start", e.target.value)} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label>Fim</label>
-                <input type="time" value={formatTimeForInput(selectedEvent.end_date)} onChange={(e) => handleTimeChange("end", e.target.value)} />
+            <div className="flex justify-between items-start border-b pb-4 mb-4">
+               <div>
+                 <h2 className="text-xl font-bold text-slate-800" style={{ color: "#4b328a" }}>
+                    {selectedEvent.text}
+                 </h2>
+                 <p className="text-sm text-slate-500">Status: <strong>{selectedEvent.status}</strong></p>
+               </div>
+               <button onClick={() => setSelectedEvent(null)} className="text-2xl hover:text-red-500">&times;</button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <span className="block text-xs font-semibold uppercase text-slate-400">Data de Abertura</span>
+                <p className="text-slate-700">{new Date(selectedEvent.start_date).toLocaleString('pt-BR')}</p>
               </div>
             </div>
-            <div className="buttons">
-              <button onClick={handleDeleteEvent} className="px-4 py-2 bg-red-500 text-white rounded">Excluir</button>
-              <button onClick={handleSaveEvent} disabled={loading} style={{ backgroundColor: loading ? "#ccc" : "#4b328a", color: "white" }}>
-                {loading ? "Salvando..." : "💾 Salvar"}
+
+            <div className="mt-8 flex gap-3">
+              <button 
+                onClick={() => router.push(`/dashboard/tickets/${selectedEvent.id}`)}
+                className="flex-1 py-3 text-white font-semibold rounded-lg hover:opacity-90 transition-all"
+                style={{ backgroundColor: "#4b328a" }}
+              >
+                Gerenciar Chamado
               </button>
-              <button onClick={() => setSelectedEvent(null)}>❌ Fechar</button>
+              <button 
+                onClick={() => setSelectedEvent(null)}
+                className="px-6 py-3 border font-semibold rounded-lg hover:bg-slate-50 transition-all"
+              >
+                Voltar
+              </button>
             </div>
           </div>
         </div>
