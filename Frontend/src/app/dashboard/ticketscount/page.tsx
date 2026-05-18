@@ -19,6 +19,7 @@ async function getTickets(token: string | null): Promise<OrdemdeServicoResponseD
       controles: [], 
       total: 0, 
       totalAberta: 0, 
+      totalEmDeslocamento: 0,
       totalConcluida: 0, 
       totalEmAndamento: 0 
     };
@@ -29,6 +30,7 @@ async function getTickets(token: string | null): Promise<OrdemdeServicoResponseD
       controles: [], 
       total: 0, 
       totalAberta: 0, 
+      totalEmDeslocamento: 0,
       totalPausada: 0, 
       totalConcluida: 0, 
       totalEmAndamento: 0,
