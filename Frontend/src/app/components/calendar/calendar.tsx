@@ -1,22 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/services/api";
 import { getCookieClient } from "@/lib/cookieClient";
+import { useGlobalModal } from "@/provider/GlobalModalProvider"; 
 
 import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
 import "./calendar.css"; 
-
-interface SchedulerEvent {
-  id: string | number;
-  start_date: Date;
-  end_date: Date;
-  text: string;
-  color?: string;
-  status?: string;
-  description?: string;
-}
 
 interface CalendarProps {
   initialToken?: string;
@@ -28,8 +19,7 @@ export default function Calendar({ initialToken, events }: CalendarProps) {
   const schedulerInstance = useRef<any>(null);
   const isInitialized = useRef(false);
   const router = useRouter();
-
-  const [selectedEvent, setSelectedEvent] = useState<SchedulerEvent | null>(null);
+  const { openModal } = useGlobalModal();
 
   const parseToScheduler = useCallback((data: any[]) => {
     return data.map((os: any) => ({
@@ -40,26 +30,21 @@ export default function Calendar({ initialToken, events }: CalendarProps) {
         ? new Date(os.endedAt) 
         : new Date(new Date(os.created_at).getTime() + 60 * 60 * 1000),
       color: os.statusOrdemdeServico?.name === "CONCLUIDA" ? "#10b981" : "#f59e0b",
-      status: os.statusOrdemdeServico?.name,
-      description: os.descricaodoProblemaouSolicitacao
+      rawTicket: os
     }));
   }, []);
 
-  const fetchOrders = useCallback(async (token: string) => {
-    if (!schedulerInstance.current) return;
+  const updateEventOnServer = async (ev: any) => {
+    const token = initialToken || (await getCookieClient());
     try {
-      const { data } = await api.get("/ordens", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (data?.controles) {
-        const formatted = parseToScheduler(data.controles);
-        schedulerInstance.current.clearAll();
-        schedulerInstance.current.parse(formatted);
-      }
+      await api.patch(`/ordens/${ev.id}`, {
+        created_at: ev.start_date,
+        endedAt: ev.end_date
+      }, { headers: { Authorization: `Bearer ${token}` }});
     } catch (err) {
-      console.error("Erro ao carregar Ordens:", err);
+      console.error("Erro ao atualizar data:", err);
     }
-  }, [parseToScheduler]);
+  };
 
   useEffect(() => {
     if (typeof window === "undefined" || isInitialized.current) return;
@@ -70,43 +55,47 @@ export default function Calendar({ initialToken, events }: CalendarProps) {
       schedulerInstance.current = scheduler;
 
       scheduler.i18n.setLocale("pt");
-      
-      // MANTENDO A SKIN TERRACE PARA ALINHAMENTO IGUAL À IMAGEM
       scheduler.skin = "terrace"; 
       
-      scheduler.config.readonly = true;
+      scheduler.config.readonly = false; 
+      scheduler.config.drag_resize = true;
+      scheduler.config.drag_move = true;
+      
       scheduler.config.header = ["day", "week", "month", "date", "prev", "today", "next"];
       
       if (containerRef.current) {
-        // Altura fixa ou calculada é essencial para o DHTMLX não bugar
         scheduler.init(containerRef.current, new Date(), "month");
         isInitialized.current = true;
 
         if (events && events.length > 0) {
-          scheduler.clearAll();
           scheduler.parse(parseToScheduler(events));
         } else {
           const token = initialToken || (await getCookieClient());
-          if (token) fetchOrders(token);
+          if (token) {
+            const { data } = await api.get("/ordens", { headers: { Authorization: `Bearer ${token}` }});
+            scheduler.parse(parseToScheduler(data?.controles || []));
+          }
         }
       }
 
+      // Evento de Clique chamando o Modal Global
       scheduler.attachEvent("onClick", (id: string) => {
         const ev = scheduler.getEvent(id);
-        setSelectedEvent({ ...ev });
+        if (ev && ev.rawTicket) {
+          // Chamando seu modal global passando o ticket
+          openModal('OrdemdeServico', [ev.rawTicket]); 
+        }
+        return false; 
+      });
+
+      scheduler.attachEvent("onEventChanged", (id: string, ev: any) => {
+        updateEventOnServer(ev);
         return true;
       });
     };
 
     initScheduler();
-
-    return () => {
-      if (schedulerInstance.current) {
-        schedulerInstance.current.clearAll();
-        isInitialized.current = false;
-      }
-    };
-  }, [events, parseToScheduler, fetchOrders, initialToken]);
+  }, [events, parseToScheduler, initialToken, openModal]);
 
   return (
     <div style={{ width: "100%", marginTop: "20px" }}>
@@ -127,45 +116,6 @@ export default function Calendar({ initialToken, events }: CalendarProps) {
         <div className="dhx_cal_header"></div>
         <div className="dhx_cal_data"></div>
       </div>
-
-      {selectedEvent && (
-        <div className="calendar-modal-backdrop" onClick={() => setSelectedEvent(null)}>
-          <div className="calendar-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-start border-b pb-4 mb-4">
-               <div>
-                 <h2 className="text-xl font-bold text-slate-800" style={{ color: "#4b328a" }}>
-                    {selectedEvent.text}
-                 </h2>
-                 <p className="text-sm text-slate-500">Status: <strong>{selectedEvent.status}</strong></p>
-               </div>
-               <button onClick={() => setSelectedEvent(null)} className="text-2xl hover:text-red-500">&times;</button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <span className="block text-xs font-semibold uppercase text-slate-400">Data de Abertura</span>
-                <p className="text-slate-700">{new Date(selectedEvent.start_date).toLocaleString('pt-BR')}</p>
-              </div>
-            </div>
-
-            <div className="mt-8 flex gap-3">
-              <button 
-                onClick={() => router.push(`/dashboard/tickets/${selectedEvent.id}`)}
-                className="flex-1 py-3 text-white font-semibold rounded-lg hover:opacity-90 transition-all"
-                style={{ backgroundColor: "#4b328a" }}
-              >
-                Gerenciar Chamado
-              </button>
-              <button 
-                onClick={() => setSelectedEvent(null)}
-                className="px-6 py-3 border font-semibold rounded-lg hover:bg-slate-50 transition-all"
-              >
-                Voltar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
