@@ -177,7 +177,6 @@ export function ModalDetailOrderFormOSTecnica({
               />
             </View>
 
-            {/* Controles da Assinatura */}
             <View style={styles.signatureButtons}>
               <TouchableOpacity style={styles.buttonSecondary} onPress={handleClear}>
                 <Text style={styles.buttonTextSecondary}>Limpar</Text>
